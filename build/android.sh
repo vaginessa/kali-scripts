@@ -199,10 +199,10 @@ mkdir -p $cap/evilap $cap/ettercap $cap/kismet/db $cap/nmap $cap/sslstrip $cap/t
 # Add postgresql user to inet so it can access network
 LANG=C chroot kali-$architecture "groupadd -g 3004 inet; usermod -G inet postgres; usermod -aG inet root"
 
-CLEANUP STAGE
+# CLEANUP STAGE
 
 cat << EOF > kali-$architecture/cleanup
-!/bin/bash
+#!/bin/bash
 rm -rf /root/.bash_history
 apt-get update
 apt-get clean
@@ -246,7 +246,11 @@ wget -P ${basedir}/flash/data/app/ http://max.kellermann.name/download/blue-nmea
 
 # Compress filesystem and add to our flashable zip
 mkdir -p ${basedir}/flash/data/local/
-tar jcvf ${basedir}/flash/data/local/kalifs.tar.bz2 ${basedir}/kali-$architecture
+cd  ${basedir}/flash/data/local
+tar jcvf kalifs.tar.bz2 kali-$architecture
+cd ../../../
+
+#tar jcvf ${basedir}/flash/data/local/kalifs.tar.bz2 ${basedir}/kali-$architecture
 
 #####################################################
 # Create Nexus 10 Kernel (4.4+)
