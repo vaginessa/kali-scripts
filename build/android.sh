@@ -6,32 +6,47 @@
 # apt-get install -y android-sdk
 # zip needed later for making flashable zip image
 
-#f_check(){}
-#read -p "Enter version number, e.g. 0.01:" version
-#basedir=`pwd`/android-$version
-#if [-d "`pwd`/android-$version"]; then
-# echo "Folder already exsists, use a different version number"
-#fi
-
 apt-get install -y zip
 
-if [[ $# -eq 0 ]] ; then
-    echo "Please pass version number, e.g. $0 1.0.1"
-    exit 0
-fi
+f_check_version(){
+		
+		# Allower user input of version number/folder creation to make set up easier
 
-basedir=`pwd`/android-$1
+        read -p "Create working folder. Enter version number: " VERSION
+        basedir=`pwd`/android-$VERSION
 
-# Make sure that the cross compiler can be found in the path before we do
-# anything else, that way the builds don't fail half way through.
-export CROSS_COMPILE=arm-linux-gnueabihf-
-if [ $(compgen -c $CROSS_COMPILE | wc -l) -eq 0 ] ; then
-    echo "Missing cross compiler. Set up PATH according to the README"
-    exit 1
+        if [ -d "${basedir}" ];
+        then
+                echo "Working folder / version already exsists, use a different version number"
+                exit 1;
+        else
+                echo "Working folder / version does not exist, using version number and creating work folder ${basedir}"
 fi
-# Unset CROSS_COMPILE so that if there is any native compiling needed it doesn't
-# get cross compiled.
-unset CROSS_COMPILE
+}
+
+f_check_version
+
+f_check_compile(){
+	#
+	# Make sure that the cross compiler can be found in the path before we do
+	# anything else, that way the builds don't fail half way through.
+
+	export CROSS_COMPILE=arm-linux-gnueabihf-
+
+	if [ $(compgen -c $CROSS_COMPILE | wc -l) -eq 0 ]; 
+	then
+    	echo "Missing cross compiler. You can add it now or exit and do it manually."
+    	read -p "Input cross compiler path (probably): " -i "export PATH=${PATH}:`pwd`/gcc-arm-linux-gnueabihf-4.7/bin" PATH
+    	$PATH
+    	echo "Set cross compile path to: $PATH"
+    	unset CROSS_COMPILE
+    else
+    	echo "Cross compile path found"
+		unset CROSS_COMPILE
+fi
+}
+
+f_check_compile
 
 #f_rootfs(){}
 
@@ -238,16 +253,18 @@ umount kali-$architecture/proc
 # Create base flashable zip
 git clone https://github.com/binkybear/flash.git ${basedir}/flash
 
-# Add terminal application to zip
-mkdir -p ${basedir}/flash/data/app/
+# Add Android applications that are useful to our chroot enviornment
+# Required: Terminal application is required
 wget -P ${basedir}/flash/data/app/ http://jackpal.github.com/Android-Terminal-Emulator/downloads/Term.apk
-# Add BlueNMEA for Kismet GPS support
+# Suggested: BlueNMEA to enable GPS logging in Kismet
 wget -P ${basedir}/flash/data/app/ http://max.kellermann.name/download/blue-nmea/BlueNMEA-2.1.apk
+# Suggested: Hackers Keyboard to enable easier typing in the terminal
+wget -P ${basedir}/flash/data/app/ https://hackerskeyboard.googlecode.com/files/hackerskeyboard-v1037.apk
 
 # Compress filesystem and add to our flashable zip
 mkdir -p ${basedir}/flash/data/local/
 cd  ${basedir}/flash/data/local
-tar jcvf kalifs.tar.bz2 kali-$architecture
+tar jcvf kalifs.tar.bz2 ${basedir}/kali-$architecture
 cd ../../../
 
 #tar jcvf ${basedir}/flash/data/local/kalifs.tar.bz2 ${basedir}/kali-$architecture
@@ -262,6 +279,8 @@ cd ../../../
 git clone https://github.com/binkybear/flash.git ${basedir}/flashkernel
 rm -rf ${basedir}/flashkernel/data
 rm -rf ${basedir}/flashkernel/system/bin
+rm -rf ${basedir}/flashkernel/system/lib
+rm -rf ${basedir}/flashkernel/system/xbin
 rm -rf ${basedir}/flashkernel/xbin/
 rm -rf ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 
@@ -269,10 +288,14 @@ rm -rf ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 export ARCH=arm
 export SUBARCH=arm
 export CROSS_COMPILE=${basedir}/toolchain/bin/arm-eabi-
+
+# If using modprobe we need to make the modules manually.  Were not doing that yet...
+#export INSTALL_MOD_PATH=${basedir}/kernel/modules
+
 # Get android toolchain to compile kernel
 git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8 ${basedir}/toolchain
 
-# Using Thunderkat kernel but feel free to change
+# Using Thunderkat kernel but feel free to change to Android source
 git clone https://github.com/craigacgomez/kernel_samsung_manta.git -b thunderkat ${basedir}/kernel
 cd ${basedir}/kernel
 
@@ -304,6 +327,8 @@ ui_print("Mounting system...");
 mount("ext4", "EMMC", "/dev/block/platform/dw_mmc.0/by-name/system", "/system");
 ui_print("Deleting old kernel modules...");
 delete_recursive("/system/modules");
+ui_print("*Extracting system firmware...   *");
+package_extract_dir("system/etc/firmware", "/system/etc/firmware");
 ui_print("Installing kernel...");
 package_extract_dir("kernel", "/tmp");
 set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
@@ -325,24 +350,24 @@ cat ${basedir}/flashkernel/META-INF/com/google/android/updater-script >> ${based
 #####################################################
 #f_zip_save(){}
 cd ${basedir}/flash/
-zip -r6 update-kali$1.zip *
-mv update-kali$1.zip ${basedir}
+zip -r6 update-kali-$VERSION.zip *
+mv update-kali-$VERSION.zip ${basedir}
 cd {$basedir}
 # Generate sha1sum
 echo "Generating sha1sum for update-kali$1.zip"
-sha1sum update-kali$1.zip > ${basedir}/update-kali$1.sha1sum
-echo "Flashable Kali zip now located at ${basedir}/update-kali$1.zip"
+sha1sum update-kali-$VERSION.zip > ${basedir}/update-kali-$VERSION.sha1sum
+echo "Flashable Kali zip now located at ${basedir}/update-kali-$VERSION.zip"
 echo "Transfer file to device and flash in recovery"
 
 #f_zip_kernel_save(){}
 cd ${basedir}/flashkernel/
-zip -r6 kernel-kali$1.zip *
-mv kernel-kali$1.zip ${basedir}
+zip -r6 kernel-kali-$VERSION.zip *
+mv kernel-kali-$VERSION.zip ${basedir}
 cd ${basedir}
 # Generate sha1sum
 echo "Generating sha1sum for kernelkali$1.zip"
-sha1sum kernel-kali$1.zip > ${basedir}/kernel-kali$1.sha1sum
-echo "Kernel can be flashed seperatley if needed using kernel-kali$1.zip"
+sha1sum kernel-kali-$VERSION.zip > ${basedir}/kernel-kali-$VERSION.sha1sum
+echo "Kernel can be flashed seperatley if needed using kernel-kali-$VERSION.zip"
 echo "Transfer file to device and flash in recovery"
 
 # Clean up all the temporary build stuff and remove the directories.
