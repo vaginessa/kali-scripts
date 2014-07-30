@@ -263,9 +263,9 @@ wget -P ${basedir}/flash/data/app/ https://hackerskeyboard.googlecode.com/files/
 
 # Compress filesystem and add to our flashable zip
 mkdir -p ${basedir}/flash/data/local/
-cd  ${basedir}/flash/data/local
-tar jcvf kalifs.tar.bz2 ${basedir}/kali-$architecture
-cd ../../../
+cd  ${basedir}
+tar jcvf kalifs.tar.bz2 kali-$architecture
+mv kalifs.tar.bz2 ${basedir}/flash/data/local/
 
 #tar jcvf ${basedir}/flash/data/local/kalifs.tar.bz2 ${basedir}/kali-$architecture
 
