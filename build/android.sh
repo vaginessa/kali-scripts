@@ -26,27 +26,13 @@ fi
 
 f_check_version
 
-f_check_compile(){
-	#
-	# Make sure that the cross compiler can be found in the path before we do
-	# anything else, that way the builds don't fail half way through.
-
-	export CROSS_COMPILE=arm-linux-gnueabihf-
-
-	if [ $(compgen -c $CROSS_COMPILE | wc -l) -eq 0 ]; 
-	then
-    	echo "Missing cross compiler. You can add it now or exit and do it manually."
-    	read -p "Input cross compiler path (probably): " -i "export PATH=${PATH}:`pwd`/gcc-arm-linux-gnueabihf-4.7/bin" PATH
-    	$PATH
-    	echo "Set cross compile path to: $PATH"
-    	unset CROSS_COMPILE
-    else
-    	echo "Cross compile path found"
-		unset CROSS_COMPILE
+# Make sure that the cross compiler can be found in the path before we do
+# anything else, that way the builds don't fail half way through.
+export CROSS_COMPILE=arm-linux-gnueabihf-
+if [ $(compgen -c $CROSS_COMPILE | wc -l) -eq 0 ] ; then
+    echo "Missing cross compiler. Set up PATH according to the README"
+    exit 1
 fi
-}
-
-f_check_compile
 
 #f_rootfs(){}
 
