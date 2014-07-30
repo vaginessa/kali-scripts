@@ -41,8 +41,11 @@ fi
 
 f_interface(){
 clear
+echo "Using Path: ${basedir}"
+echo ""
 echo "INSTRUCTIONS"
-echo "Step 1 - Create an Android root file system"
+echo ""
+echo "Step 1 - Create an Kali / Android root file system"
 echo "Step 2 - Build an update.zip that will flash file system and kernel"
 echo "Step 3 - Build kernel for your device"
 echo "Step 5 - Create the flashable zip file and upload to device. Flash in recovery."
@@ -70,7 +73,7 @@ case $menuchoice in
 3) f_nexus10_kernel ;;
 00) f_zip_save ;;
 01) f_zip_kernel_save ;;
-0) exit 0 ;;
+0) exit 0;clear ;;
 *) echo "Incorrect choice..." ;
 esac
 }
@@ -239,7 +242,7 @@ mkdir -p kali-$architecture/sdcard kali-$architecture/system
 mkdir -p $cap/evilap $cap/ettercap $cap/kismet/db $cap/nmap $cap/sslstrip $cap/tshark $cap/wifite
 
 # Add postgresql user to inet so it can access network
-LANG=C chroot kali-$architecture "groupadd -g 3004 inet; usermod -G inet postgres; usermod -aG inet root"
+#LANG=C chroot kali-$architecture "groupadd -g 3004 inet; usermod -G inet postgres; usermod -aG inet root"
 
 # CLEANUP STAGE
 
