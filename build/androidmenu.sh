@@ -1,22 +1,8 @@
 #!/bin/bash
 
+# Modified to include menu system
+
 # Kernel Development requires Kali 64bit host
-
-f_check_crosscompile(){
-
-# Make sure that the cross compiler can be found in the path before we do
-# anything else, that way the builds don't fail half way through.
-export CROSS_COMPILE=arm-linux-gnueabihf-
-if [ $(compgen -c $CROSS_COMPILE | wc -l) -eq 0 ] ; then
-    echo "Missing cross compiler. Set up PATH according to the README"
-    echo "Example: export PATH=${PATH}:/root/arm-stuff/gcc-arm-linux-gnueabihf-4.7/bin"
-    exit 1
-fi
-
-# Unset CROSS_COMPILE so that if there is any native compiling needed it doesn't
-# get cross compiled.
-unset CROSS_COMPILE
-}
 
 f_check_version(){
 		
@@ -43,24 +29,11 @@ f_interface(){
 clear
 echo "Using Path: ${basedir}"
 echo ""
-echo "INSTRUCTIONS"
-echo ""
-echo "Step 1 - Create an Kali / Android root file system"
-echo "Step 2 - Build an update.zip that will flash file system and kernel"
-echo "Step 3 - Build kernel for your device"
-echo "Step 5 - Create the flashable zip file and upload to device. Flash in recovery."
-echo ""
-echo "----------------------------------------------------------"
-echo "[1] Create Android Kali root filesystem"
-echo "[2] Create Flashable zip file of Kali root filesystem"
-echo ""
 echo "------------------------- NEXUS 10 -----------------------"
-echo "[3] Create Nexus 10 Kernel with wireless USB support (Android 4.4+)"
+echo "[1] Create Nexus 10 Kernel with wireless USB support (Android 4.4+)"
 echo "----------------------------------------------------------"
 echo ""
-echo "[00] Build flashable Kali root filesystem zip"
-echo "[01] Build flashable kernel only"
-echo ""
+echo "[99] Clean Work Folders (Remove all)"
 echo "[0] Exit"
 # wait for character input
 
@@ -68,17 +41,51 @@ read -p "Choice:" menuchoice
 
 case $menuchoice in
 
-1) f_rootfs ;;
-2) f_flashzip ;;
-3) f_nexus10_kernel ;;
-00) f_zip_save ;;
-01) f_zip_kernel_save ;;
+1) f_manta ;;
+99) f_cleanup ;;
 0) exit 0;clear ;;
 *) echo "Incorrect choice..." ;
 esac
 }
 
+f_manta(){
+echo "------------------------- NEXUS 10 -----------------------"
+echo "[1] Build All - Kali rootfs and Kernel (Android 4.4+)"
+echo "[2] Build Kernel Only"
+echo "[0] Exit to Main Menu"
+# wait for character input
+
+read -p "Choice:" manta_menuchoice
+
+case $manta_menuchoice in
+
+1) f_rootfs; f_flashzip; f_nexus10_kernel; f_zip_save; f_zip_kernel_save ;;
+2) f_nexus10_kernel; f_zip_kernel_save ;;
+0) f_interface; clear ;;
+*) echo "Incorrect choice..." ;
+esac
+
+}
+
+f_check_crosscompile(){
+# Make sure that the cross compiler can be found in the path before we do
+# anything else, that way the builds don't fail half way through.
+export CROSS_COMPILE=arm-linux-gnueabihf-
+if [ $(compgen -c $CROSS_COMPILE | wc -l) -eq 0 ] ; then
+        echo "Missing cross compiler for Android root filesystem. Set up PATH according to the README"
+        echo ""
+        read -p "Enter export path: " -e -i "export PATH=${PATH}:/root/arm-stuff/gcc-arm-linux-gnueabihf-4.7/bin" EXPORT_PATH
+        $EXPORT_PATH
+        unset CROSS_COMPILE
+else
+        echo "Found cross compiler - will continue"
+        unset CROSS_COMPILE
+fi
+}
+
 f_rootfs(){
+
+f_check_crosscompile
 
 # Package installations for various sections.
 
@@ -242,7 +249,7 @@ mkdir -p kali-$architecture/sdcard kali-$architecture/system
 mkdir -p $cap/evilap $cap/ettercap $cap/kismet/db $cap/nmap $cap/sslstrip $cap/tshark $cap/wifite
 
 # Add postgresql user to inet so it can access network
-#LANG=C chroot kali-$architecture "groupadd -g 3004 inet; usermod -G inet postgres; usermod -aG inet root"
+echo "inet:x:3004:postgres,root" >> kali-$architecture/etc/group
 
 # CLEANUP STAGE
 
@@ -297,8 +304,8 @@ wget -P ${basedir}/flash/data/app/ https://hackerskeyboard.googlecode.com/files/
 
 # Compress filesystem and add to our flashable zip
 mkdir -p ${basedir}/flash/data/local/
-cd  ${basedir}/flash/data/local
-tar jcvf kalifs.tar.bz2 ${basedir}/kali-$architecture
+cd ${basedir}/flash/data/local/
+tar jcvf kalifs.tar.bz2 -C ${basedir} kali-$architecture
 cd ../../../
 
 #tar jcvf ${basedir}/flash/data/local/kalifs.tar.bz2 ${basedir}/kali-$architecture
@@ -312,9 +319,9 @@ f_interface
 # Create Nexus 10 Kernel (4.4+)
 #####################################################
 f_nexus10_kernel(){
-
+clear
 # Create seperate kernel flashable zip in case the kernel just needs to be flashed again
-
+echo "Creating kernel directory structure"
 git clone https://github.com/binkybear/flash.git ${basedir}/flashkernel
 rm -rf ${basedir}/flashkernel/data
 rm -rf ${basedir}/flashkernel/system/bin
@@ -323,6 +330,7 @@ rm -rf ${basedir}/flashkernel/system/xbin
 rm -rf ${basedir}/flashkernel/xbin/
 rm -rf ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 
+echo "Setting export paths"
 # Set path for Kernel building
 export ARCH=arm
 export SUBARCH=arm
@@ -422,14 +430,19 @@ sleep 5
 f_interface
 }
 
-#f_cleanup{
+f_cleanup(){
 # Clean up all the temporary build stuff and remove the directories.
 # Comment this out to keep things around if you want to see what may have gone
 # wrong.
-#echo "Removing temporary build files"
-#rm -rf ${basedir}/patches ${basedir}/bootp ${basedir}/root ${basedir}/kali-$architecture ${basedir}/boot
-#}
+echo "Unmounting any previous mounted folders"
+umount ${basedir}/kali-$architecture/proc/sys/fs/binfmt_misc
+umount ${basedir}/kali-$architecture/dev/pts
+umount ${basedir}/kali-$architecture/dev/
+umount ${basedir}/kali-$architecture/proc
 
-f_check_crosscompile
+echo "Removing temporary build files"
+rm -rf ${basedir}/patches ${basedir}/kernel ${basedir}/flash ${basedir}/kali-$architecture ${basedir}/flashkernel
+}
+
 f_check_version
 f_interface

@@ -188,7 +188,7 @@ cat <<EOF > kali-$architecture/etc/dnsmasq.conf
 log-facility=/var/log/dnsmasq.log
 #address=/#/10.0.0.1
 #address=/google.com/10.0.0.1
-interface=wlan0
+interface=wlan1
 dhcp-range=10.0.0.10,10.0.0.250,12h
 dhcp-option=3,10.0.0.1
 dhcp-option=6,10.0.0.1
@@ -197,7 +197,7 @@ log-queries
 EOF
 
 cat <<EOF > kali-$architecture/etc/hostapd/hostapd.conf
-interface=wlan0
+interface=wlan1
 driver=nl80211
 ssid=FreeWifi
 channel=1
@@ -212,7 +212,7 @@ mkdir -p kali-$architecture/sdcard kali-$architecture/system
 mkdir -p $cap/evilap $cap/ettercap $cap/kismet/db $cap/nmap $cap/sslstrip $cap/tshark $cap/wifite
 
 # Add postgresql user to inet so it can access network
-LANG=C chroot kali-$architecture "groupadd -g 3004 inet; usermod -G inet postgres; usermod -aG inet root"
+echo "inet:x:3004:postgres,root" >> kali-$architecture/etc/group
 
 # CLEANUP STAGE
 
@@ -265,9 +265,8 @@ wget -P ${basedir}/flash/data/app/ https://hackerskeyboard.googlecode.com/files/
 mkdir -p ${basedir}/flash/data/local/
 cd  ${basedir}
 tar jcvf kalifs.tar.bz2 kali-$architecture
+# tar jcvf kalifs.tar.bz2 -C ${basedir}/kali-$architecture
 mv kalifs.tar.bz2 ${basedir}/flash/data/local/
-
-#tar jcvf ${basedir}/flash/data/local/kalifs.tar.bz2 ${basedir}/kali-$architecture
 
 #####################################################
 # Create Nexus 10 Kernel (4.4+)
@@ -302,9 +301,9 @@ cd ${basedir}/kernel
 # Applying wireless patches
 mkdir -p ../patches
 wget http://patches.aircrack-ng.org/mac80211.compat08082009.wl_frag+ack_v1.patch -O ../patches/mac80211.patch
+patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 # negative one may not be necessary anymore
 # wget http://patches.aircrack-ng.org/channel-negative-one-maxim.patch -O ../patches/negative.patch
-patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 # patch -p1 --no-backup-if-mismatch < ../patches/negative.patch
 
 # Clean kernel folder, enable default config, overwrite .config with one containing enabled wireless and bluetooth devices
