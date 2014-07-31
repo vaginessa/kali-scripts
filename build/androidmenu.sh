@@ -59,9 +59,9 @@ read -p "Choice:" manta_menuchoice
 
 case $manta_menuchoice in
 
-1) f_rootfs; f_flashzip; f_nexus10_kernel; f_zip_save; f_zip_kernel_save ;;
-2) f_nexus10_kernel; f_zip_kernel_save ;;
-0) f_interface; clear ;;
+1) f_rootfs ; f_flashzip ; f_nexus10_kernel ; f_zip_save ; f_zip_kernel_save ;;
+2) f_nexus10_kernel ; f_zip_kernel_save ;;
+0) f_interface ; clear ;;
 *) echo "Incorrect choice..." ;
 esac
 
@@ -123,12 +123,20 @@ echo "kali" > kali-$architecture/etc/hostname
 
 # fix for TUN symbolic link to enable programs like openvpn
 # set terminal length to 80 because root destroy terminal length
+# add fd to enable stdin/stdout/stderr
 
 cat << EOF > kali-$architecture/root/.bash_profile
 stty columns 80
 if [ ! -d "/dev/net/" ]; then
   mkdir -p /dev/net
-  ln -s /dev/tun /dev/net/tun
+  ln -sf /dev/tun /dev/net/tun
+fi
+
+if [ ! -d "/dev/fd/" ]; then
+  ln -sf /proc/self/fd /dev/fd
+  ln -sf /dev/fd/0 /dev/stdin
+  ln -sf /dev/fd/1 /dev/stdout
+  ln -sf /dev/fd/2 /dev/stderr
 fi
 EOF
 

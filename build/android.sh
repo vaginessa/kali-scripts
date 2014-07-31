@@ -77,7 +77,14 @@ cat << EOF > kali-$architecture/root/.bash_profile
 stty columns 80
 if [ ! -d "/dev/net/" ]; then
   mkdir -p /dev/net
-  ln -s /dev/tun /dev/net/tun
+  ln -sf /dev/tun /dev/net/tun
+fi
+
+if [ ! -d "/dev/fd/" ]; then
+  ln -sf /proc/self/fd /dev/fd
+  ln -sf /dev/fd/0 /dev/stdin
+  ln -sf /dev/fd/1 /dev/stdout
+  ln -sf /dev/fd/2 /dev/stderr
 fi
 EOF
 
@@ -194,7 +201,9 @@ EOF
 # Add missing folders to chroot needed
 cap=kali-$architecture/captures
 
+mkdir -p kali-$architecture/root/.ssh/
 mkdir -p kali-$architecture/var/run/sshd
+
 mkdir -p kali-$architecture/sdcard kali-$architecture/system
 mkdir -p $cap/evilap $cap/ettercap $cap/kismet/db $cap/nmap $cap/sslstrip $cap/tshark $cap/wifite
 
