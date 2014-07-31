@@ -12,7 +12,9 @@ f_check_version(){
         basedir=`pwd`/android-$VERSION
 
         if [ -d "${basedir}" ]; then
+        		echo ""
                 echo "Working folder / version already exsists, use a different version number?"
+                echo ""
                 read -p "Do you wish to continue with same version number? (y/n)" CONT
                 if [ "$CONT" == "y" ]; then
                 	f_interface
@@ -27,13 +29,18 @@ fi
 
 f_interface(){
 clear
-echo "Using Path: ${basedir}"
+echo "		         KALI LINUX BUILDER FOR ANDROID DEVICES"
 echo ""
-echo "------------------------- NEXUS 10 -----------------------"
-echo "[1] Create Nexus 10 Kernel with wireless USB support (Android 4.4+)"
-echo "----------------------------------------------------------"
+echo "		WORK PATH: ${basedir}"
 echo ""
-echo "[99] Clean Work Folders (Remove all)"
+echo "----------------------------   NEXUS 10    ----------------------------"
+echo "[1] Build for Nexus 10 Kernel with wireless USB support (Android 4.4+)"
+echo ""
+echo "----------------------------  NEXUS 7 (2012) --------------------------"
+echo "[2] Build for Nexus 7 (2012) with wireless USB support (Android 4.4+)"
+echo ""
+echo ""
+echo "[99] Unmount and Clean Work Folders (file dir removal currently disabled)"
 echo "[0] Exit"
 # wait for character input
 
@@ -41,28 +48,50 @@ read -p "Choice:" menuchoice
 
 case $menuchoice in
 
-1) f_manta ;;
+1) clear; f_manta ;;
+2) clear; f_grouper ;;
 99) f_cleanup ;;
-0) exit 0;clear ;;
+0) clear; exit 0 ;;
 *) echo "Incorrect choice..." ;
 esac
 }
 
 f_manta(){
 echo "------------------------- NEXUS 10 -----------------------"
+echo ""
 echo "[1] Build All - Kali rootfs and Kernel (Android 4.4+)"
 echo "[2] Build Kernel Only"
 echo "[0] Exit to Main Menu"
 # wait for character input
 
-read -p "Choice:" manta_menuchoice
+read -p "Choice: " manta_menuchoice
 
 case $manta_menuchoice in
 
-1) f_rootfs ; f_flashzip ; f_nexus10_kernel ; f_zip_save ; f_zip_kernel_save ;;
-2) f_nexus10_kernel ; f_zip_kernel_save ;;
-0) f_interface ; clear ;;
+1) clear; f_rootfs ; f_flashzip ; f_nexus10_kernel ; f_zip_save ; f_zip_kernel_save ;;
+2) clear; f_nexus10_kernel ; f_zip_kernel_save ;;
+0) clear; f_interface ;;
 *) echo "Incorrect choice..." ;
+esac
+
+}
+
+f_grouper(){
+echo "------------------------- NEXUS 7 (2012) -----------------------"
+echo ""
+echo "[1] Build All - Kali rootfs and Kernel (Android 4.4+)"
+echo "[2] Build Kernel Only"
+echo "[0] Exit to Main Menu"
+# wait for character input
+
+read -p "Choice: " grouper_menuchoice
+
+case $grouper_menuchoice in
+
+1) f_rootfs ; f_flashzip ; f_nexus7_grouper_kernel ; f_zip_save ; f_zip_kernel_save ;;
+2) f_nexus7_grouper_kernel ; f_zip_kernel_save ;;
+0) clear; f_interface ;;
+*) echo "Incorrect choice... " ;
 esac
 
 }
@@ -72,7 +101,8 @@ f_check_crosscompile(){
 # anything else, that way the builds don't fail half way through.
 export CROSS_COMPILE=arm-linux-gnueabihf-
 if [ $(compgen -c $CROSS_COMPILE | wc -l) -eq 0 ] ; then
-        echo "Missing cross compiler for Android root filesystem. Set up PATH according to the README"
+        echo "Missing cross compiler for Android root filesystem." 
+        echo "Set up PATH according to the README"
         echo ""
         read -p "Enter export path: " -e -i "export PATH=${PATH}:/root/arm-stuff/gcc-arm-linux-gnueabihf-4.7/bin" EXPORT_PATH
         $EXPORT_PATH
@@ -283,7 +313,6 @@ umount kali-$architecture/dev/
 umount kali-$architecture/proc
 
 sleep 5
-f_interface
 }
 
 f_flashzip(){
@@ -330,6 +359,7 @@ f_interface
 #####################################################
 f_nexus10_kernel(){
 clear
+
 # Create seperate kernel flashable zip in case the kernel just needs to be flashed again
 echo "Creating kernel directory structure"
 git clone https://github.com/binkybear/flash.git ${basedir}/flashkernel
@@ -349,13 +379,16 @@ export CROSS_COMPILE=${basedir}/toolchain/bin/arm-eabi-
 # If using modprobe we need to make the modules manually.  Were not doing that yet...
 #export INSTALL_MOD_PATH=${basedir}/kernel/modules
 
+echo "Downloading Android Toolchian"
 # Get android toolchain to compile kernel
 git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8 ${basedir}/toolchain
 
+echo "Downloading Kernel"
 # Using Thunderkat kernel but feel free to change to Android source
 git clone https://github.com/craigacgomez/kernel_samsung_manta.git -b thunderkat ${basedir}/kernel
 cd ${basedir}/kernel
 
+echo "Applying Patches"
 # Applying wireless patches
 mkdir -p ../patches
 wget http://patches.aircrack-ng.org/mac80211.compat08082009.wl_frag+ack_v1.patch -O ../patches/mac80211.patch
@@ -364,19 +397,27 @@ wget http://patches.aircrack-ng.org/mac80211.compat08082009.wl_frag+ack_v1.patch
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 # patch -p1 --no-backup-if-mismatch < ../patches/negative.patch
 
+echo "Downloading/replacing defconfig file"
 # Clean kernel folder, enable default config, overwrite .config with one containing enabled wireless and bluetooth devices
 make clean
 make thunderkat_manta_defconfig
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus10-thunderkat/thunderkali_defconfig -O .config
+
+echo "Building Kernel"
 make -j $(grep -c processor /proc/cpuinfo)
 
+echo "Copying Kernel to flashable kernel folder"
 # Copy kernel to flashable kernel folder
-cp ${basedir}/kernel/arch/arm/boot/zImage ${basedir}/flash/kernel/kernel
+if [ -d "${basedir}/flash/" ]; then
+	cp ${basedir}/kernel/arch/arm/boot/zImage ${basedir}/flash/kernel/kernel
+fi
+
 cp ${basedir}/kernel/arch/arm/boot/zImage ${basedir}/flashkernel/kernel/kernel
 cd ${basedir}
 
 # Attach kernel builder to updater-script
 cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+#KERNEL_SCRIPT_START
 assert(getprop("ro.product.device") == "manta" || getprop("ro.build.product") == "manta");
 ui_print("ThunderKat Kernel - Nexus 10/Manta - Android KitKat 4.4.3/4.4.2/4.4.1");
 ui_print("* MODIFIED FOR KALI LINUX *");
@@ -399,12 +440,120 @@ run_program("/sbin/busybox", "dd", "if=/tmp/newboot.img", "of=/dev/block/platfor
 unmount("/system");
 EOF
 
-# Adds kernel building script to flashable zip also.  We should handle this better in future updates.
-cat ${basedir}/flashkernel/META-INF/com/google/android/updater-script >> ${basedir}/flash/META-INF/com/google/android/updater-script
+# Adding Kernel build
+# 1. Will check if kernel was added to main flashable zip (one with rootfs).  If yes it will skip.
+# 2. If it detects #KERNEL_SCRIPT_START it will not add it to flashable zip (rootfs)
+# 3. If the updater-script is not found it will assume this is a kernel only build so it will not try to add it
 
-sleep 5
-f_interface
+if	grep -Fxq "#KERNEL_SCRIPT_START" "${basedir}/flash/META-INF/com/google/android/updater-script"; then
+	echo "Kernel already added to main updater-script"
+else
+	echo "Adding Kernel install to updater-script in main update.zip"
+	cat ${basedir}/flashkernel/META-INF/com/google/android/updater-script >> ${basedir}/flash/META-INF/com/google/android/updater-script
+fi
+
 }
+
+#####################################################
+# Create Nexus 7 Grouper Kernel (4.4+)
+#####################################################
+f_nexus7_grouper_kernel(){
+clear
+
+# Create seperate kernel flashable zip in case the kernel just needs to be flashed again
+echo "Creating kernel directory structure"
+git clone https://github.com/binkybear/flash.git ${basedir}/flashkernel
+rm -rf ${basedir}/flashkernel/data
+rm -rf ${basedir}/flashkernel/system/bin
+rm -rf ${basedir}/flashkernel/system/lib
+rm -rf ${basedir}/flashkernel/system/xbin
+rm -rf ${basedir}/flashkernel/xbin/
+rm -rf ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+
+echo "Setting export paths"
+# Set path for Kernel building
+export ARCH=arm
+export SUBARCH=arm
+export CROSS_COMPILE=${basedir}/toolchain/bin/arm-eabi-
+
+# If using modprobe we need to make the modules manually.  Were not doing that yet...
+#export INSTALL_MOD_PATH=${basedir}/kernel/modules
+
+echo "Downloading Android Toolchian"
+# Get android toolchain to compile kernel
+git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8 ${basedir}/toolchain
+
+echo "Downloading Kernel"
+# Using Thunderkat kernel but feel free to change to Android source
+git clone https://github.com/lostdeveloper/kangaroo.git ${basedir}/kernel
+cd ${basedir}/kernel
+
+echo "Applying Patches"
+# Applying wireless patches
+mkdir -p ../patches
+wget http://patches.aircrack-ng.org/mac80211.compat08082009.wl_frag+ack_v1.patch -O ../patches/mac80211.patch
+# negative one may not be necessary anymore
+# wget http://patches.aircrack-ng.org/channel-negative-one-maxim.patch -O ../patches/negative.patch
+patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
+# patch -p1 --no-backup-if-mismatch < ../patches/negative.patch
+
+echo "Downloading/replacing defconfig file"
+# Clean kernel folder, enable default config, overwrite .config with one containing enabled wireless and bluetooth devices
+make clean
+make tegra3_android_defconfig
+#wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-kangaroo/kangaroo_defconfig -O .config
+
+echo "Building Kernel"
+make -j $(grep -c processor /proc/cpuinfo)
+
+echo "Copying Kernel to flashable kernel folder"
+# Copy kernel to flashable kernel folder
+if [ -d "${basedir}/flash/" ]; then
+	cp ${basedir}/kernel/arch/arm/boot/zImage ${basedir}/flash/kernel/zImage
+fi
+
+cp ${basedir}/kernel/arch/arm/boot/zImage ${basedir}/flashkernel/kernel/zImage
+cd ${basedir}
+
+# Attach kernel builder to updater-script
+cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+#KERNEL_SCRIPT_START
+ui_print("Kang-aroo V2 kernel for Nexus 7");
+ui_print("MODIFIED FOR KALI LINUX");
+set_progress(1.000000);
+ui_print("Installing kernel...");
+mount("ext4", "EMMC", "/dev/block/platform/sdhci-tegra.3/by-name/APP", "/system");
+package_extract_dir("system", "/system");
+set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
+unmount("/system");
+package_extract_dir("kernel", "/tmp");
+set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
+set_perm(0, 0, 0777, "/tmp/mkbootimg");
+set_perm(0, 0, 0777, "/tmp/unpackbootimg");
+set_perm(0, 0, 0777, "/tmp/busybox");
+set_perm(0, 0, 0777, "/tmp/unpack_add_init.sh");
+run_program("/sbin/busybox", "dd", "if=/dev/block/platform/sdhci-tegra.3/by-name/LNX", "of=/tmp/boot.img");
+run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
+run_program("/tmp/mkbootimg.sh");
+run_program("/sbin/busybox", "dd", "if=/tmp/newboot.img", "of=/dev/block/mmcblk0p2");
+ui_print("");
+ui_print("Done, please reboot.");
+EOF
+
+# Adding Kernel build
+# 1. Will check if kernel was added to main flashable zip (one with rootfs).  If yes it will skip.
+# 2. If it detects #KERNEL_SCRIPT_START it will not add it to flashable zip (rootfs)
+# 3. If the updater-script is not found it will assume this is a kernel only build so it will not try to add it
+
+if	grep -Fxq "#KERNEL_SCRIPT_START" "${basedir}/flash/META-INF/com/google/android/updater-script"; then
+	echo "Kernel already added to main updater-script"
+else
+	echo "Adding Kernel install to updater-script in main update.zip"
+	cat ${basedir}/flashkernel/META-INF/com/google/android/updater-script >> ${basedir}/flash/META-INF/com/google/android/updater-script
+fi
+
+}
+
 #####################################################
 # Zip and save 
 #####################################################
@@ -421,7 +570,6 @@ sha1sum update-kali-$VERSION.zip > ${basedir}/update-kali-$VERSION.sha1sum
 echo "Flashable Kali zip now located at ${basedir}/update-kali-$VERSION.zip"
 echo "Transfer file to device and flash in recovery"
 sleep 5
-f_interface
 }
 
 f_zip_kernel_save(){
@@ -437,7 +585,6 @@ sha1sum kernel-kali-$VERSION.zip > ${basedir}/kernel-kali-$VERSION.sha1sum
 echo "Kernel can be flashed seperatley if needed using kernel-kali-$VERSION.zip"
 echo "Transfer file to device and flash in recovery"
 sleep 5
-f_interface
 }
 
 f_cleanup(){
@@ -450,8 +597,8 @@ umount ${basedir}/kali-$architecture/dev/pts
 umount ${basedir}/kali-$architecture/dev/
 umount ${basedir}/kali-$architecture/proc
 
-echo "Removing temporary build files"
-rm -rf ${basedir}/patches ${basedir}/kernel ${basedir}/flash ${basedir}/kali-$architecture ${basedir}/flashkernel
+#echo "Removing temporary build files"
+#rm -rf ${basedir}/patches ${basedir}/kernel ${basedir}/flash ${basedir}/kali-$architecture ${basedir}/flashkernel
 }
 
 f_check_version
