@@ -194,6 +194,7 @@ EOF
 # Add missing folders to chroot needed
 cap=kali-$architecture/captures
 
+mkdir -p kali-$architecture/var/run/sshd
 mkdir -p kali-$architecture/sdcard kali-$architecture/system
 mkdir -p $cap/evilap $cap/ettercap $cap/kismet/db $cap/nmap $cap/sslstrip $cap/tshark $cap/wifite
 
