@@ -350,8 +350,6 @@ cd ../../../
 #tar jcvf ${basedir}/flash/data/local/kalifs.tar.bz2 ${basedir}/kali-$architecture
 echo "Structure for flashable zip file is complete."
 echo "Build a kernel next or select build flashable zip form the main menu."
-sleep 5
-f_interface
 }
 
 #####################################################
