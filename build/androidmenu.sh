@@ -88,8 +88,8 @@ read -p "Choice: " grouper_menuchoice
 
 case $grouper_menuchoice in
 
-1) f_rootfs ; f_flashzip ; f_nexus7_grouper_kernel ; f_zip_save ; f_zip_kernel_save ;;
-2) f_nexus7_grouper_kernel ; f_zip_kernel_save ;;
+1) clear; f_rootfs ; f_flashzip ; f_nexus7_grouper_kernel ; f_zip_save ; f_zip_kernel_save ;;
+2) clear; f_nexus7_grouper_kernel ; f_zip_kernel_save ;;
 0) clear; f_interface ;;
 *) echo "Incorrect choice... " ;
 esac
