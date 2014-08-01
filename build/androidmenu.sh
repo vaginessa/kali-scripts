@@ -7,7 +7,7 @@
 f_check_version(){
 		
 		# Allower user input of version number/folder creation to make set up easier
-
+		echo ""
         read -p "Create working folder. Enter version number: " VERSION
         basedir=`pwd`/android-$VERSION
 
@@ -31,17 +31,17 @@ f_interface(){
 clear
 echo "		         KALI LINUX BUILDER FOR ANDROID DEVICES"
 echo ""
-echo "		WORK PATH: ${basedir}"
+echo "	WORK PATH: ${basedir}"
 echo ""
-echo "----------------------------   NEXUS 10    ----------------------------"
-echo "[1] Build for Nexus 10 Kernel with wireless USB support (Android 4.4+)"
+echo "	----------------------------   NEXUS 10    ----------------------------"
+echo "	[1] Build for Nexus 10 Kernel with wireless USB support (Android 4.4+)"
 echo ""
-echo "----------------------------  NEXUS 7 (2012) --------------------------"
-echo "[2] Build for Nexus 7 (2012) with wireless USB support (Android 4.4+)"
+echo "	----------------------------  NEXUS 7 (2012) --------------------------"
+echo "	[2] Build for Nexus 7 (2012) with wireless USB support (Android 4.4+)"
 echo ""
 echo ""
-echo "[99] Unmount and Clean Work Folders (file dir removal currently disabled)"
-echo "[0] Exit"
+echo "	[99] Unmount and Clean Work Folders (file dir removal currently disabled)"
+echo "	[0] Exit"
 # wait for character input
 
 read -p "Choice:" menuchoice
@@ -51,17 +51,17 @@ case $menuchoice in
 1) clear; f_manta ;;
 2) clear; f_grouper ;;
 99) f_cleanup ;;
-0) clear; exit 0 ;;
+0) clear; exit 1 ;;
 *) echo "Incorrect choice..." ;
 esac
 }
 
 f_manta(){
-echo "------------------------- NEXUS 10 -----------------------"
+echo "	------------------------- NEXUS 10 -----------------------"
 echo ""
-echo "[1] Build All - Kali rootfs and Kernel (Android 4.4+)"
-echo "[2] Build Kernel Only"
-echo "[0] Exit to Main Menu"
+echo "	[1] Build All - Kali rootfs and Kernel (Android 4.4+)"
+echo "	[2] Build Kernel Only"
+echo "	[0] Exit to Main Menu"
 # wait for character input
 
 read -p "Choice: " manta_menuchoice
@@ -77,11 +77,11 @@ esac
 }
 
 f_grouper(){
-echo "------------------------- NEXUS 7 (2012) -----------------------"
+echo "	------------------------- NEXUS 7 (2012) -----------------------"
 echo ""
-echo "[1] Build All - Kali rootfs and Kernel (Android 4.4+)"
-echo "[2] Build Kernel Only"
-echo "[0] Exit to Main Menu"
+echo "	[1] Build All - Kali rootfs and Kernel (Android 4.4+)"
+echo "	[2] Build Kernel Only"
+echo "	[0] Exit to Main Menu"
 # wait for character input
 
 read -p "Choice: " grouper_menuchoice
@@ -390,9 +390,13 @@ echo "Applying Patches"
 # Applying wireless patches
 mkdir -p ../patches
 wget http://patches.aircrack-ng.org/mac80211.compat08082009.wl_frag+ack_v1.patch -O ../patches/mac80211.patch
+patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
+# Patch enables the Android device to act as a keyboard and mouse through usb (send commands to computer)
+wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
+patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
+
 # negative one may not be necessary anymore
 # wget http://patches.aircrack-ng.org/channel-negative-one-maxim.patch -O ../patches/negative.patch
-patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 # patch -p1 --no-backup-if-mismatch < ../patches/negative.patch
 
 echo "Downloading/replacing defconfig file"
@@ -490,10 +494,10 @@ echo "Applying Patches"
 # Applying wireless patches
 mkdir -p ../patches
 wget http://patches.aircrack-ng.org/mac80211.compat08082009.wl_frag+ack_v1.patch -O ../patches/mac80211.patch
-# negative one may not be necessary anymore
-# wget http://patches.aircrack-ng.org/channel-negative-one-maxim.patch -O ../patches/negative.patch
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
-# patch -p1 --no-backup-if-mismatch < ../patches/negative.patch
+# Patch enables the Android device to act as a keyboard and mouse through usb (send commands to computer)
+wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
+patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
 
 echo "Downloading/replacing defconfig file"
 # Clean kernel folder, enable default config, overwrite .config with one containing enabled wireless and bluetooth devices
