@@ -7,6 +7,7 @@
 f_check_version(){
 		
 		# Allower user input of version number/folder creation to make set up easier
+		clear
 		echo ""
         read -p "Create working folder. Enter version number: " VERSION
         basedir=`pwd`/android-$VERSION
@@ -31,7 +32,7 @@ f_interface(){
 clear
 echo "		         KALI LINUX BUILDER FOR ANDROID DEVICES"
 echo ""
-echo "	WORK PATH: ${basedir}"
+echo "	   WORK PATH: ${basedir}"
 echo ""
 echo "	----------------------------   NEXUS 10    ----------------------------"
 echo "	[1] Build for Nexus 10 Kernel with wireless USB support (Android 4.4+)"
@@ -42,6 +43,8 @@ echo ""
 echo ""
 echo "	[99] Unmount and Clean Work Folders (file dir removal currently disabled)"
 echo "	[0] Exit"
+echo ""
+echo ""
 # wait for character input
 
 read -p "Choice:" menuchoice
@@ -62,6 +65,8 @@ echo ""
 echo "	[1] Build All - Kali rootfs and Kernel (Android 4.4+)"
 echo "	[2] Build Kernel Only"
 echo "	[0] Exit to Main Menu"
+echo ""
+echo ""
 # wait for character input
 
 read -p "Choice: " manta_menuchoice
@@ -82,6 +87,8 @@ echo ""
 echo "	[1] Build All - Kali rootfs and Kernel (Android 4.4+)"
 echo "	[2] Build Kernel Only"
 echo "	[0] Exit to Main Menu"
+echo ""
+echo ""
 # wait for character input
 
 read -p "Choice: " grouper_menuchoice
@@ -364,7 +371,6 @@ clear
 echo "Creating kernel directory structure"
 git clone https://github.com/binkybear/flash.git ${basedir}/flashkernel
 rm -rf ${basedir}/flashkernel/data
-rm -rf ${basedir}/flashkernel/system/bin
 rm -rf ${basedir}/flashkernel/system/lib
 rm -rf ${basedir}/flashkernel/system/xbin
 rm -rf ${basedir}/flashkernel/xbin/
@@ -434,6 +440,8 @@ ui_print("Deleting old kernel modules...");
 delete_recursive("/system/modules");
 ui_print("*Extracting system firmware...   *");
 package_extract_dir("system/etc/firmware", "/system/etc/firmware");
+ui_print("*Extracting system bin files...")
+package_extract_dir("system/bin", "/system/bin");
 ui_print("Installing kernel...");
 package_extract_dir("kernel", "/tmp");
 set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
@@ -471,7 +479,6 @@ clear
 echo "Creating kernel directory structure"
 git clone https://github.com/binkybear/flash.git ${basedir}/flashkernel
 rm -rf ${basedir}/flashkernel/data
-rm -rf ${basedir}/flashkernel/system/bin
 rm -rf ${basedir}/flashkernel/system/lib
 rm -rf ${basedir}/flashkernel/system/xbin
 rm -rf ${basedir}/flashkernel/xbin/
