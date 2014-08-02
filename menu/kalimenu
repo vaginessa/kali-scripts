@@ -1,0 +1,452 @@
+#!/bin/bash
+#
+########################## MAIN MENU ###############################
+
+f_interface(){
+clear
+echo "				KALI ANDROID MAIN MENU"
+echo ""
+echo ""
+echo "[1]	Wireless Attacks		[5]	Information Gathering"
+echo "[2]	Sniffing/Spoofing		[6]	Vulnerability Analysis"
+echo "[3]	Web Applications		[7]	Exploitation Tools"
+echo "[4]	Maintain Access			[8]	Reverse Engineering" 	
+echo ""
+echo "[99]  Settings"
+echo ""
+echo "[0]	Exit To Command Line"
+echo ""
+
+# wait for character input
+
+read -p "Choice:" menuchoice
+
+case $menuchoice in
+
+1) clear; f_wireless_attacks ;;
+2) clear; f_sniffing ;;
+3) clear; f_web_applications ;;
+4) clear; f_access ;;
+5) clear; f_information_gathering ;;
+6) clear; f_vulnerability ;;
+7) clear; f_exploitation ;;
+8) clear; f_reverse ;;
+99) clear; f_settings ;;
+0) clear; exit 1 ;;
+*) echo "Incorrect choice..." ;
+esac
+}
+
+########################## WIRELESS MENU ###############################
+f_wireless_attacks(){
+f_wlan1check
+
+echo "				WIRELESS ATTACKS MAIN MENU"
+echo ""
+echo ""
+echo "[1]	Wifite					[4]	Kismet"
+echo "[2]	EvilAP"
+echo "[3]	Aircrack-ng"
+echo ""
+echo "[0]	Exit"
+
+read -p "Choice:" wirelesschoice
+
+case $wirelesschoice in
+
+1) clear; f_wifite ;;
+2) clear; f_evilap ;;
+3) clear; f_aircrack-ng ;;
+4) clear; f_kismet ;;
+0) clear; f_interface ;;
+*) echo "Incorrect choice..." ;
+esac
+}
+
+f_wlan1check(){
+adaptor=`ip addr | grep wlan1`
+if [ -z "$adaptor" ]; then
+    ifconfig wlan1 up
+    sleep 2
+    echo "Attempting to bring wlan1 up"
+    	if [ -z "$adaptor" ]; then
+    		echo "Still not detecting wlan1, please try plugging it in again."
+    		sleep 5
+    		clear
+    		echo "WLAN1: NOT FOUND"
+    		echo ""
+    	fi
+else
+	echo "WLAN1: FOUND" 
+	echo ""
+fi
+}
+
+f_wifite(){
+cd /captures/wifite
+while :
+do
+clear
+echo "* WIFITE QUICK SELECT *"
+echo ""
+echo "[1] Regular Wifite"
+echo "[2] Attack all WEP"
+echo "[3] Capture all WPA (no cracking)"
+echo "[4] Attack WPS with power over 40+"
+echo "[0] Exit to Wirelss Attack Menu"
+echo -n "Enter your menu choice [1-3]: "
+read yourch
+case $yourch in
+1) wifite mac -i wlan1 ;;
+2) wifite -all -wep mac ;;
+3) wifite -all -wpa --dict none mac ;;
+4) wifite -p 40 -wps ;;
+0) f_wireless_attacks ;;
+*) echo "Incorrect choice..." ;
+echo "Press Enter to continue. . ." ; read ;; esac
+done
+}
+
+f_evilap(){
+	echo "Insert"
+}
+
+f_aircrack-ng(){
+	echo "Insert"
+}
+
+f_kismet(){
+#!/bin/bash
+echo "Make sure BlueNMEA is running before starting with GPS support"
+sleep 3
+read -p "Would you like to run Kismet with GPS enabled? (y/n)" CONT
+if [ "$CONT" == "y" ]; then
+	(socat TCP:127.0.0.1:4352 PTY,link=/tmp/gps & gpsd /tmp/gps) & kismet;
+	killall gpsd
+	f_giskismet;
+	wipe -f -P 5 /tmp/gps
+else
+  echo "Running Kismet WITHOUT GPS support..."
+  sleep 2
+  kismet;
+  clear
+fi
+}
+
+f_giskismet(){
+## date format ##
+NOW=$(date +"%m-%d-%y-%H%M%S")
+# create database folder or check if one exsists
+if [ ! -d "/captures/kismet_db" ]; then
+	mkdir -p "/captures/kismet_db"
+fi
+# process all netxml files
+cd /captures/kismet/
+for capture in $(find . -iname '*.netxml'); do
+echo "Adding $capture to datbase"
+sleep 5
+giskismet -x "$capture" --database "/captures/kismet_db/wireless.dbl"
+done
+# export kml of all wireless data and copy files to sdcard
+giskismet --database "/opt/pwnpad/captures/kismet_db/wireless.dbl" -q "select * from wireless" -o "/captures/kismet/kismet-$NOW.kml"
+echo "Created kismet-$NOW.kml file for Google Earth"
+cd /sdcard/
+zip -rj "kismet-captures-$NOW.zip" /captures/kismet/
+echo "Successfully copied to /sdcard/kismet-captures-$NOW.zip"
+# option to erase files
+read -p "Would you like to secure erase all files in Kismet folder? (y/n)" CONT
+if [ "$CONT" == "y" ]; then
+	echo "Removing capture files..."
+	wipe -f -i -r /captures/kismet/*
+else
+  echo "All files copied successfully!";
+fi
+}
+##########################   SNIFFING MENU     ###############################
+
+f_sniffing(){
+echo "				SNIFFING/SPOOFING MAIN MENU"
+echo ""
+echo "[1]	tcpdump"
+echo "[2]	tshark"
+echo "[3]	dnsspoof"
+echo "[4]	urlsnarf"
+echo "[5]	dsniff"
+echo ""
+echo "[0]	Exit"
+
+read -p "Choice:" sniffchoice
+
+case $sniffchoice in
+
+1) clear; f_tcpdump ;;
+2) clear; f_tshark ;;
+3) clear; f_dnsspoof ;;
+4) clear; f_urlsnarf ;;
+5) clear; f_dsniff ;;
+0) clear; exit 1 ;;
+*) echo "Incorrect choice..." ;
+esac
+
+f_tcpdump(){
+		echo "Insert"
+}
+f_tshark(){
+		echo "Insert"
+}
+f_dnsspoof(){
+		echo "Insert"
+}
+f_urlsnarf(){
+		echo "Insert"
+}
+f_dsniff(){
+		echo "Insert"
+}
+
+##########################   WEB APP MENU    ###############################
+
+f_web_applications(){
+echo "				WEB APPLICATION MAIN MENU"
+echo ""
+echo "[1]	sqlmap"
+echo "[2]	sqlninja"
+echo "[3]	xsser"
+echo ""
+echo "[0]	Exit"
+
+read -p "Choice:" webchoice
+
+case $webchoice in
+1) clear; f_tcpdump ;;
+2) clear; f_tshark ;;
+3) clear; xsser ;;
+*) echo "Incorrect choice..." ;
+esac
+}
+##########################   ACCESS MENU   ###############################
+
+f_access(){
+	echo "Insert"
+}
+########################## INFO GATHER MENU ##############################
+
+f_information_gathering(){
+	echo "Insert"
+}
+########################## VULNERABILITY MENU ###########################
+
+f_vulnerability(){
+	echo "Insert"
+}
+########################## EXPLOITATION MENU ############################
+
+f_exploitation(){
+	echo "Insert"
+}
+########################## REVERSE MENU ################################
+
+f_reverse(){
+	echo "Insert"
+}
+########################## SETTINGS MENU ###############################
+
+f_settings(){
+echo "				SETTINGS"
+echo ""
+echo "[1] Configure Timezone"
+echo "[2] Start VNC server"
+echo "[3] Kill all VNC instances (remove pid/logs)"
+echo "[4] Change VNC Password"
+echo "[5] Macchanger"
+echo "[0] Exit to main menu"
+
+ead -p "Choice:" settingschoice
+
+case $settingschoice in
+1) clear; dpkg-reconfigure tzdata ;;
+2) clear; f_vncstart ;;
+3) clear; f_vnckill ;;
+4) clear; vncpasswd ;;
+5) clear; f_macchanger ;;
+6) clear; f_vpnmenu ;;
+0) f_interface ;;
+*) echo "Incorrect choice..." ;
+esac
+}
+
+f_vnckill(){
+	echo "Removing all PID and log files from /root/.vnc/"
+	echo "Killing all VNC process ID's"
+	sleep 2
+	kill $(ps aux | grep 'Xtightvnc' | awk '{print $2}')
+	echo "Removing PID files"
+	sleep 2
+	vncdisplay=$(ls ~/.vnc/*.pid | sed -e s/[^0-9]//g)
+	for x in $vncdisplay; do tightvncserver -kill :$x; done;
+	echo "Removing log files"
+	sleep 2
+	rm /root/.vnc/*.log;
+	echo "Removing lock file"
+	sleep 2
+	rm -r /tmp/.X*
+	echo "All VNC process/logs have hopefully been removed"
+	sleep 3
+}
+
+f_vncstart(){
+clear
+echo "VNC START MENU"
+echo "[1] Start Nexus 7 (2012) - 1280x1024"
+echo "[2] Start Nexus 7 (2013) - 1920x1200"
+echo "[3] Start Nexus 10 - 2650x1600"
+echo "[4] Custom Display Size"
+echo "[5] Exit to main menu"
+echo -n "Enter your menu choice [1-5]: "
+read -p "Choice:" vncmenustart
+
+case $vncmenustart in
+1) vncserver -geometry 1280x1024 -depth 24 && echo "Display Number :X will be port 590X." && read -p "Press any key to continue..." && f_interface ;;
+2) vncserver -geometry 1920x1200 -depth 24 && echo "Display Number :X will be port 590X." && read -p "Press any key to continue..." && f_interface ;;
+3) vncserver -geometry 2650x1600 -depth 24 && echo "Display Number :X will be port 590X." && read -p "Press any key to continue..." && f_interface ;;
+4) f_customvnc ;;
+5) f_interface ;;
+*) echo "Incorrect choice..." ;
+esac
+}
+
+f_customvnc(){
+	read -p "Enter Custom Display Size (e.g. ####x####) " CUSTOMVNCSIZE
+	vncserver -geometry $CUSTOMVNCSIZE -depth 24
+	echo "Display Number :X will be port 590X." && read -p "Press any key to continue..." && f_interface
+}
+
+f_macchanger(){
+	echo "Insert"
+}
+
+##################################################################
+#                   GENERATE VPN SERVER                          #
+##################################################################
+f_vpnmenu(){
+clear
+echo "[1] Build VPN Server Keys (will remove previous old keys)"
+echo "[2] Use custom domain or dynamic DNS"
+echo "[3] Export Client Keys to SDCARD"
+echo "[4] Start VPN Server"
+echo "[5] Exit to Main Menu"
+echo -n "Enter your menu choice [1-6]: "
+read -p "Choice:" vpnkeychoice
+
+case $vpnkeychoice in
+1) f_server_key ;;
+2) f_domain_clientkey ;;
+3) f_exportkeys ;;
+4) f_startvpn ;;
+5) f_settings ;;
+*) echo "Incorrect choice..." ;
+esac
+}
+
+f_server_key(){
+echo "Checking Dependencies"
+sleep 3
+apt-get update
+cd /etc/openvpn
+echo "Removing previous server..."
+rm -rf easy-rsa
+cp -r /usr/share/doc/openvpn/examples/easy-rsa/2.0 ./easy-rsa
+cd easy-rsa
+echo 'export EASY_RSA="/etc/openvpn/easy-rsa"' >> vars
+source vars
+./clean-all
+./pkitool --initca
+ln -s openssl-1.0.0.cnf openssl.cnf
+echo "Building Server Certificates"
+sleep 3
+echo "Generating Certificate Authority Key..."
+./build-ca OpenVPN
+echo "Generating Server Key..."
+./build-key-server server
+echo "Generating client1 Key..."
+./build-key client1
+./build-dh
+cd /etc/openvpn
+echo "Creating configuration file in /etc/opevpn/openvpn.conf"
+cat << EOF > /etc/opevpn/openvpn.conf
+dev tun
+proto udp
+port 1194
+ca /etc/openvpn/easy-rsa/keys/ca.crt
+cert /etc/openvpn/easy-rsa/keys/server.crt
+key /etc/openvpn/easy-rsa/keys/server.key
+dh /etc/openvpn/easy-rsa/keys/dh1024.pem
+user nobody
+group nogroup
+server 10.8.0.0 255.255.255.0
+persist-key
+persist-tun
+status /var/log/openvpn-status.log
+verb 3
+client-to-client
+push "redirect-gateway def1"
+#set the dns servers
+push "dhcp-option DNS 8.8.8.8"
+push "dhcp-option DNS 8.8.4.4"
+log-append /var/log/openvpn
+comp-lzo
+EOF
+# RETURN TO VPN MENU
+f_vpnmenu
+}
+
+f_domain_clientkey(){
+clear
+PUBLIC_IP=$(curl www.icanhazip.com)
+echo "Your current ip is: $PUBLIC_IP"
+echo ""
+read -p "Enter custom domain/IP/dynamic IP:" DOMAIN_IP
+cat << EOF > /etc/openvpn/easy-rsa/keys/kaliserver.ovpn
+dev tun
+client
+proto udp
+remote $DOMAIN_IP 1194
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+ca ca.crt
+cert client1.crt
+key client1.key
+comp-lzo
+verb 3	
+EOF
+echo "Finished. Returning to menu."
+sleep 5
+# RETURN TO VPN MENU
+f_vpnmenu
+}
+f_exportkeys(){
+echo "Zipping client keys to /sdcard/openvpn-kaliserver-clientcert.zip"
+sleep 5
+cd /etc/openvpn/easy-rsa/keys/
+zip -r6 /sdcard/openvpn-kaliserver-clientcert.zip openvpn-keys.tgz ca.crt ca.key client1.crt client1.csr client1.key kaliserver.ovpn
+echo "If you received an error things may have gone wrong when generating a certificate..."
+sleep 6
+# RETURN TO VPN MENU
+f_vpnmenu
+}
+
+f_startvpn(){
+echo "Starting OpenVPN"
+sleep 3
+iptables -t nat -A POSTROUTING -s 10.0.0.0/8 ! -d 10.0.0.0/8 -o wlan0 -j MASQUERADE
+service openvpn start
+echo "OpenVPN started"
+sleep 5
+f_vpnmenu
+}
+
+}
+# **** START **** #
+f_interface

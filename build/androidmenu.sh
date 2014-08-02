@@ -157,11 +157,12 @@ arm="abootimg cgpt fake-hwclock ntpdate vboot-utils vboot-kernel-utils uboot-mki
 base="kali-menu kali-defaults initramfs-tools usbutils openjdk-7-jre"
 desktop="kali-defaults kali-root-login desktop-base xfce4 xfce4-places-plugin xfce4-goodies"
 tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-ng wipe socat ettercap-text-only"
+android="apktool bakmsali dex2jar smali"
 wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet hostapd dnsmasq wvdial"
-services="openssh-server lighttpd tightvncserver postgresql"
+services="openssh-server lighttpd tightvncserver postgresql openvpn"
 extras="wpasupplicant zip"
 
-export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras}"
+export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras} ${android}"
 export architecture="armhf"
 
 mkdir -p ${basedir}
@@ -428,8 +429,8 @@ wget http://patches.aircrack-ng.org/mac80211.compat08082009.wl_frag+ack_v1.patch
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 
 # Patch enables the Android device to act as a keyboard and mouse through usb (send commands to computer)
-wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
-patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
+#wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
+#patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
 
 # negative one may not be necessary 
 # wget http://patches.aircrack-ng.org/channel-negative-one-maxim.patch -O ../patches/negative.patch
