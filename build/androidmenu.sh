@@ -403,8 +403,6 @@ patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 # Patch enables the Android device to act as a keyboard and mouse through usb (send commands to computer)
 wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
 patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
-wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/ueventd.patch -O ../patches/keyboard_ueventd.patch
-patch -p1 --no-backup-if-mismatch < ../patches/keyboard_ueventd.patch
 
 # negative one may not be necessary 
 # wget http://patches.aircrack-ng.org/channel-negative-one-maxim.patch -O ../patches/negative.patch
