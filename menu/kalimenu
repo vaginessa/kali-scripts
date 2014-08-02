@@ -101,7 +101,7 @@ case $yourch in
 2) wifite -all -wep mac ;;
 3) wifite -all -wpa --dict none mac ;;
 4) wifite -p 40 -wps ;;
-0) f_wireless_attacks ;;
+0) clear; f_wireless_attacks ;;
 *) echo "Incorrect choice..." ;
 echo "Press Enter to continue. . ." ; read ;; esac
 done

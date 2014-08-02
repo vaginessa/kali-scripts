@@ -191,7 +191,7 @@ echo "kali" > kali-$architecture/etc/hostname
 # add fd to enable stdin/stdout/stderr
 
 cat << EOF > kali-$architecture/root/.bash_profile
-stty columns 80
+export TERM=xterm-256color
 echo "---------------------= CURRENT CONNECTIONS =------------------------"
 w -h
 if [ ! -d "/dev/net/" ]; then
@@ -284,11 +284,14 @@ LANG=C chroot kali-$architecture /third-stage
 
 # Modify kismet configuration to work with gpsd and socat
 sed -i 's/\# logprefix=\/some\/path\/to\/logs/logprefix=\/captures\/kismet/g' kali-$architecture/etc/kismet/kismet.conf
-sed -i 's/gpshost=localhost:2947/gpshots=127.0.0.1:2947/g' kali-$architecture/etc/kismet/kismet.conf
+sed -i 's/# ncsource=wlan0/# ncsource=wlan1/g' kali-$architecture/etc/kismet/kismet.conf
+sed -i 's/gpshost=localhost:2947/gpshost=127.0.0.1:2947/g' kali-$architecture/etc/kismet/kismet.conf
 
 # Modify Wifite log saving folder
 sed -i 's/hs/\/captures/g' kali-$architecture/etc/kismet/kismet.conf
 
+# Kali Menu (bash script) to quickly launch common Android Programs
+wget -P ${basedir}/root/kalimenu https://raw.githubusercontent.com/binkybear/kali-scripts/master/menu/kalimenu
 
 # DNSMASQ Configuration options for optional access point
 # Default access point would be wlan0 however external USB
@@ -319,9 +322,7 @@ EOF
 
 # Add missing folders to chroot needed
 cap=kali-$architecture/captures
-
 mkdir -p kali-$architecture/root/.ssh/
-mkdir -p kali-$architecture/var/run/sshd
 mkdir -p kali-$architecture/sdcard kali-$architecture/system
 mkdir -p $cap/evilap $cap/ettercap $cap/kismet/db $cap/nmap $cap/sslstrip $cap/tshark $cap/wifite
 
