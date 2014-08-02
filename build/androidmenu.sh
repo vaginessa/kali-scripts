@@ -30,19 +30,23 @@ fi
 
 f_interface(){
 clear
-echo "		         KALI LINUX BUILDER FOR ANDROID DEVICES"
+echo -e "		         \e[1mKALI LINUX BUILDER FOR ANDROID DEVICES\e[0m"
 echo ""
 echo "	   WORK PATH: ${basedir}"
 echo ""
-echo "	----------------------------   NEXUS 10    ----------------------------"
+echo -e "\e[31m	----------------------------   NEXUS 10    -----------MANTA ------------\e[0m"
 echo "	[1] Build for Nexus 10 Kernel with wireless USB support (Android 4.4+)"
 echo ""
-echo "	----------------------------  NEXUS 7 (2012) --------------------------"
+echo -e "\e[31m	----------------------------  NEXUS 7 (2012) ----GROUPER/NAKASI---------\e[0m"
 echo "	[2] Build for Nexus 7 (2012) with wireless USB support (Android 4.4+)"
 echo ""
+echo -e "\e[31m	----------------------------  NEXUS 7 (2013) --------DEB/FLO-----------\e[0m"
+echo "	[3] Build for Nexus 7 (2012) with wireless USB support (Android 4.4+)"
 echo ""
+echo ""
+echo "	[88] Rootfs only - For any rooted and unlocked device but without kernel support"
 echo "	[99] Unmount and Clean Work Folders (file dir removal currently disabled)"
-echo "	[0] Exit"
+echo "	[00] Exit"
 echo ""
 echo ""
 # wait for character input
@@ -53,14 +57,16 @@ case $menuchoice in
 
 1) clear; f_manta ;;
 2) clear; f_grouper ;;
+3) clear; f_deb ;;
+88) clear; f_rootfs ; f_flashzip; f_zip_save ;;
 99) f_cleanup ;;
-0) clear; exit 1 ;;
+00) clear; exit 1 ;;
 *) echo "Incorrect choice..." ;
 esac
 }
 
 f_manta(){
-echo "	------------------------- NEXUS 10 -----------------------"
+echo -e "\e[31m	------------------------- NEXUS 10 -----------------------\e[0m"
 echo ""
 echo "	[1] Build All - Kali rootfs and Kernel (Android 4.4+)"
 echo "	[2] Build Kernel Only"
@@ -82,7 +88,7 @@ esac
 }
 
 f_grouper(){
-echo "	------------------------- NEXUS 7 (2012) -----------------------"
+echo -e "\e[31m	------------------------- NEXUS 7 (2012) -----------------------\e[0m"
 echo ""
 echo "	[1] Build All - Kali rootfs and Kernel (Android 4.4+)"
 echo "	[2] Build Kernel Only"
@@ -101,6 +107,27 @@ case $grouper_menuchoice in
 *) echo "Incorrect choice... " ;
 esac
 
+}
+
+f_deb(){
+echo -e "\e[31m	------------------------- NEXUS 7 (2013) -----------------------\e[0m"
+echo ""
+echo "	[#] Build All - Kali rootfs and Kernel (Android 4.4+)"
+echo "	[#] Build Kernel Only"
+echo "	[0] Exit to Main Menu"
+echo ""
+echo ""
+# wait for character input
+
+read -p "Choice: " deb_menuchoice
+
+case $deb_menuchoice in
+
+#) clear; f_rootfs ; f_flashzip ; f_nexus7_deb_kernel ; f_zip_save ; f_zip_kernel_save ;;
+#) clear; f_nexus7_deb_kernel ; f_zip_kernel_save ;;
+0) clear; f_interface ;;
+*) echo "Incorrect choice... " ;
+esac
 }
 
 f_check_crosscompile(){
@@ -496,8 +523,8 @@ echo "Downloading Android Toolchian"
 git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8 ${basedir}/toolchain
 
 echo "Downloading Kernel"
-# Using Thunderkat kernel but feel free to change to Android source
-git clone https://github.com/lostdeveloper/kangaroo.git ${basedir}/kernel
+# Using Kangaroo kernel but feel free to change to Android source
+git clone https://github.com/lostdeveloper/kangaroo.git -b kangaroo ${basedir}/kernel
 cd ${basedir}/kernel
 
 echo "Applying Patches"
@@ -506,14 +533,14 @@ mkdir -p ../patches
 wget http://patches.aircrack-ng.org/mac80211.compat08082009.wl_frag+ack_v1.patch -O ../patches/mac80211.patch
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 # Patch enables the Android device to act as a keyboard and mouse through usb (send commands to computer)
-wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
+wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.1.patch -O ../patches/keyboard_mouse_hid.patch
 patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
 
 echo "Downloading/replacing defconfig file"
 # Clean kernel folder, enable default config, overwrite .config with one containing enabled wireless and bluetooth devices
 make clean
-make tegra3_android_defconfig
-#wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-kangaroo/kangaroo_defconfig -O .config
+make kangaroo_defconfig
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-kangaroo/kangaroo_kali_grouper_defconfig -O .config
 
 echo "Building Kernel"
 make -j $(grep -c processor /proc/cpuinfo)
