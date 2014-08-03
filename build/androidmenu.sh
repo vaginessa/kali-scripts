@@ -157,12 +157,11 @@ arm="abootimg cgpt fake-hwclock ntpdate vboot-utils vboot-kernel-utils uboot-mki
 base="kali-menu kali-defaults initramfs-tools usbutils openjdk-7-jre"
 desktop="kali-defaults kali-root-login desktop-base xfce4 xfce4-places-plugin xfce4-goodies"
 tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-ng wipe socat ettercap-text-only beef-xss"
-android="apktool bakmsali dex2jar smali"
 wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet hostapd dnsmasq wvdial"
 services="openssh-server lighttpd tightvncserver postgresql openvpn"
 extras="wpasupplicant zip"
 
-export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras} ${android}"
+export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras}"
 export architecture="armhf"
 
 mkdir -p ${basedir}
@@ -193,6 +192,7 @@ echo "kali" > kali-$architecture/etc/hostname
 cat << EOF > kali-$architecture/root/.bash_profile
 export TERM=xterm-256color
 stty columns 80
+cd /root/
 if [ ! -d "/dev/net/" ]; then
   mkdir -p /dev/net
   ln -sf /dev/tun /dev/net/tun
