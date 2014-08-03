@@ -12,6 +12,7 @@ echo "[2]	Sniffing/Spoofing		[6]	Vulnerability Analysis"
 echo "[3]	Web Applications		[7]	Exploitation Tools"
 echo "[4]	Maintain Access			[8]	Reverse Engineering" 	
 echo ""
+echo "[88]	Services"
 echo "[99]  Settings"
 echo ""
 echo "[0]	Exit To Command Line"
@@ -31,6 +32,7 @@ case $menuchoice in
 6) clear; f_vulnerability ;;
 7) clear; f_exploitation ;;
 8) clear; f_reverse ;;
+88) clear; f_services;;
 99) clear; f_settings ;;
 0) clear; exit 1 ;;
 *) echo "Incorrect choice..." ;
@@ -108,7 +110,64 @@ done
 }
 
 f_evilap(){
-	echo "Insert"
+
+	f_evilap_check(){
+	# Check for hostapd.conf and if not there create a default one
+	if [ ! -e "/etc/hostapd/hostapd.conf" ]; then
+		echo "Default hostapd.conf was not found. Creating new one."
+		sleep 5
+		cat <<EOF > /etc/hostapd/hostapd.conf
+		interface=wlan1
+		driver=nl80211
+		ssid=FreeWifi
+		channel=1
+		# Yes, we support the Karma attack.
+		#enable_karma=1
+EOF
+	fi
+
+	# Check for dnsmasq.conf and if not there create a default one
+	if [ ! -e "/etc/dnsmasq.conf" ]; then
+		echo "Default dnsmasq.conf was not found. Creating new one."
+		sleep 5
+		cat <<EOF > /etc/dnsmasq.conf
+		log-facility=/var/log/dnsmasq.log
+		#address=/#/10.0.0.1
+		#address=/google.com/10.0.0.1
+		interface=wlan0
+		dhcp-range=10.0.0.10,10.0.0.250,12h
+		dhcp-option=3,10.0.0.1
+		dhcp-option=6,10.0.0.1
+		#no-resolv
+		log-queries
+EOF
+	fi
+	}
+	f_evilap_menu(){
+	clear
+	echo "				EVIL ACCESS POINT"
+	echo ""
+	echo "[1] Set interface with internet access (default is wlan0)"
+	echo "[2] Set interface acting as access point (default is wlan1)"
+	echo "[3] Start EvilAP"
+	echo "[4] Stop EvilAP and flush iptables"
+	echo ""
+	echo "[0]	Exit"
+
+	read -p "Choice:" sniffchoice
+
+	case $sniffchoice in
+
+	1) clear; f_evilap_int_internet ;;
+	2) clear; f_evilap_int_ap ;;
+	3) clear; f_evilap_start_ap ;;
+	4) clear; service hostapd stop; service dnsmasq stop;iptables --flush;iptables --table nat --flush;iptables --delete-chain;iptables --table nat --delete-chain;echo "Stoped Services/Flushed iptables"; sleep 5 ;;
+	0) clear; exit 1 ;;
+	*) echo "Incorrect choice..." ;
+	esac
+	}
+f_evilap_check
+f_evilap_menu
 }
 
 f_aircrack-ng(){
@@ -249,49 +308,29 @@ f_exploitation(){
 f_reverse(){
 	echo "Insert"
 }
-########################## SETTINGS MENU ###############################
+########################## SERVICES MENU ###############################
 
 f_settings(){
-echo "				SETTINGS"
-echo ""
-echo "[1] Configure Timezone"
-echo "[2] Start VNC server"
+echo "				SERVICES"
+echo "[1] Start SSH Server"
+echo "[2] Start VNC Server"
 echo "[3] Kill all VNC instances (remove pid/logs)"
-echo "[4] Change VNC Password"
-echo "[5] Macchanger"
 echo "[0] Exit to main menu"
 
 ead -p "Choice:" settingschoice
 
 case $settingschoice in
-1) clear; dpkg-reconfigure tzdata ;;
+1) clear; f_ssh ;;
 2) clear; f_vncstart ;;
 3) clear; f_vnckill ;;
-4) clear; vncpasswd ;;
-5) clear; f_macchanger ;;
-6) clear; f_vpnmenu ;;
+4) clear; f_vpnmenu ;;
 0) f_interface ;;
 *) echo "Incorrect choice..." ;
 esac
 }
 
-f_vnckill(){
-	echo "Removing all PID and log files from /root/.vnc/"
-	echo "Killing all VNC process ID's"
-	sleep 2
-	kill $(ps aux | grep 'Xtightvnc' | awk '{print $2}')
-	echo "Removing PID files"
-	sleep 2
-	vncdisplay=$(ls ~/.vnc/*.pid | sed -e s/[^0-9]//g)
-	for x in $vncdisplay; do tightvncserver -kill :$x; done;
-	echo "Removing log files"
-	sleep 2
-	rm /root/.vnc/*.log;
-	echo "Removing lock file"
-	sleep 2
-	rm -r /tmp/.X*
-	echo "All VNC process/logs have hopefully been removed"
-	sleep 3
+f_ssh(){
+	echo "Insert"
 }
 
 f_vncstart(){
@@ -321,18 +360,31 @@ f_customvnc(){
 	echo "Display Number :X will be port 590X." && read -p "Press any key to continue..." && f_interface
 }
 
-f_macchanger(){
-	echo "Insert"
+f_vnckill(){
+	echo "Removing all PID and log files from /root/.vnc/"
+	echo "Killing all VNC process ID's"
+	sleep 2
+	kill $(ps aux | grep 'Xtightvnc' | awk '{print $2}')
+	echo "Removing PID files"
+	sleep 2
+	vncdisplay=$(ls ~/.vnc/*.pid | sed -e s/[^0-9]//g)
+	for x in $vncdisplay; do tightvncserver -kill :$x; done;
+	echo "Removing log files"
+	sleep 2
+	rm /root/.vnc/*.log;
+	echo "Removing lock file"
+	sleep 2
+	rm -r /tmp/.X*
+	echo "All VNC process/logs have hopefully been removed"
+	sleep 3
 }
 
-##################################################################
-#                   GENERATE VPN SERVER                          #
-##################################################################
+
 f_vpnmenu(){
 clear
 echo "[1] Build VPN Server Keys (will remove previous old keys)"
 echo "[2] Use custom domain or dynamic DNS"
-echo "[3] Export Client Keys to SDCARD"
+echo "[3] Export Client Keys to /SDCARD"
 echo "[4] Start VPN Server"
 echo "[5] Exit to Main Menu"
 echo -n "Enter your menu choice [1-6]: "
@@ -447,6 +499,29 @@ sleep 5
 f_vpnmenu
 }
 
+}
+########################## SETTINGS MENU ###############################
+f_settings(){
+echo "				SETTINGS"
+echo ""
+echo "[1] Configure Timezone"
+echo "[2] Change VNC Password"
+echo "[3] Macchanger"
+echo "[0] Exit to main menu"
+
+ead -p "Choice:" settingschoice
+
+case $settingschoice in
+1) clear; dpkg-reconfigure tzdata ;;
+2) clear; vncpasswd ;;
+3) clear; f_macchanger ;;
+0) f_interface ;;
+*) echo "Incorrect choice..." ;
+esac
+}
+
+f_macchanger(){
+	echo "Insert"
 }
 # **** START **** #
 f_interface
