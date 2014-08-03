@@ -156,7 +156,7 @@ f_check_crosscompile
 arm="abootimg cgpt fake-hwclock ntpdate vboot-utils vboot-kernel-utils uboot-mkimage"
 base="kali-menu kali-defaults initramfs-tools usbutils openjdk-7-jre"
 desktop="kali-defaults kali-root-login desktop-base xfce4 xfce4-places-plugin xfce4-goodies"
-tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-ng wipe socat ettercap-text-only"
+tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-ng wipe socat ettercap-text-only beef-xss"
 android="apktool bakmsali dex2jar smali"
 wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet hostapd dnsmasq wvdial"
 services="openssh-server lighttpd tightvncserver postgresql openvpn"
@@ -302,7 +302,7 @@ cat <<EOF > kali-$architecture/etc/dnsmasq.conf
 log-facility=/var/log/dnsmasq.log
 #address=/#/10.0.0.1
 #address=/google.com/10.0.0.1
-interface=wlan0
+interface=wlan1
 dhcp-range=10.0.0.10,10.0.0.250,12h
 dhcp-option=3,10.0.0.1
 dhcp-option=6,10.0.0.1
@@ -311,10 +311,10 @@ log-queries
 EOF
 
 cat <<EOF > kali-$architecture/etc/hostapd/hostapd.conf
-interface=wlan0
+interface=wlan1
 driver=nl80211
 ssid=FreeWifi
-channel=1
+channel=6
 # Yes, we support the Karma attack.
 #enable_karma=1
 EOF
@@ -380,9 +380,9 @@ wget -P ${basedir}/flash/data/app/ https://hackerskeyboard.googlecode.com/files/
 
 # Compress filesystem and add to our flashable zip
 mkdir -p ${basedir}/flash/data/local/
-cd ${basedir}/flash/data/local/
-tar jcvf kalifs.tar.bz2 -C ${basedir} kali-$architecture
-cd ../../../
+cd ${basedir}
+tar jcvf kalifs.tar.bz2 kali-$architecture
+mv kalifs.tar.bz2 ${basedir}/flash/data/local/
 
 #tar jcvf ${basedir}/flash/data/local/kalifs.tar.bz2 ${basedir}/kali-$architecture
 echo "Structure for flashable zip file is complete."
@@ -603,7 +603,7 @@ clear
 cd ${basedir}/flash/
 zip -r6 update-kali-$VERSION.zip *
 mv update-kali-$VERSION.zip ${basedir}
-cd {$basedir}
+cd ${basedir}
 # Generate sha1sum
 echo "Generating sha1sum for update-kali$1.zip"
 sha1sum update-kali-$VERSION.zip > ${basedir}/update-kali-$VERSION.sha1sum
