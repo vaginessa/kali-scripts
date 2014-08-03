@@ -192,8 +192,7 @@ echo "kali" > kali-$architecture/etc/hostname
 
 cat << EOF > kali-$architecture/root/.bash_profile
 export TERM=xterm-256color
-echo "---------------------= CURRENT CONNECTIONS =------------------------"
-w -h
+stty columns 80
 if [ ! -d "/dev/net/" ]; then
   mkdir -p /dev/net
   ln -sf /dev/tun /dev/net/tun
