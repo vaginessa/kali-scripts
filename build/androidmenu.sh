@@ -41,7 +41,7 @@ echo -e "\e[31m	----------------------------  NEXUS 7 (2012) ----GROUPER/NAKASI-
 echo "	[2] Build for Nexus 7 (2012) with wireless USB support (Android 4.4+)"
 echo ""
 echo -e "\e[31m	----------------------------  NEXUS 7 (2013) --------DEB/FLO-----------\e[0m"
-echo "	[3] Build for Nexus 7 (2012) with wireless USB support (Android 4.4+)"
+echo "	[3] Build for Nexus 7 (2013) with wireless USB support (Android 4.4+)"
 echo ""
 echo ""
 echo "	[88] Rootfs only - For any rooted and unlocked device but without kernel support"
@@ -290,13 +290,12 @@ sed -i 's/gpshost=localhost:2947/gpshost=127.0.0.1:2947/g' kali-$architecture/et
 sed -i 's/hs/\/captures/g' kali-$architecture/etc/kismet/kismet.conf
 
 # Kali Menu (bash script) to quickly launch common Android Programs
-wget -P ${basedir}/root/kalimenu https://raw.githubusercontent.com/binkybear/kali-scripts/master/menu/kalimenu
+wget -P ${basedir}/usr/bin https://raw.githubusercontent.com/binkybear/kali-scripts/master/menu/kalimenu
+
+# Sets the default for hostapd.conf but not really needed as evilap will create it's own now
+#sed -i 's#^DAEMON_CONF=.*#DAEMON_CONF=/etc/hostapd/hostapd.conf#' kali-$architecture/etc/init.d/hostapd
 
 # DNSMASQ Configuration options for optional access point
-# Default access point would be wlan0 however external USB
-# Might be utilitized so this will be changed through a bash script
-
-sed -i 's#^DAEMON_CONF=.*#DAEMON_CONF=/etc/hostapd/hostapd.conf#' kali-$architecture/etc/init.d/hostapd
 
 cat <<EOF > kali-$architecture/etc/dnsmasq.conf
 log-facility=/var/log/dnsmasq.log
@@ -308,15 +307,6 @@ dhcp-option=3,10.0.0.1
 dhcp-option=6,10.0.0.1
 #no-resolv
 log-queries
-EOF
-
-cat <<EOF > kali-$architecture/etc/hostapd/hostapd.conf
-interface=wlan1
-driver=nl80211
-ssid=FreeWifi
-channel=6
-# Yes, we support the Karma attack.
-#enable_karma=1
 EOF
 
 # Add missing folders to chroot needed
@@ -464,10 +454,8 @@ ui_print("Mounting system...");
 mount("ext4", "EMMC", "/dev/block/platform/dw_mmc.0/by-name/system", "/system");
 ui_print("Deleting old kernel modules...");
 delete_recursive("/system/modules");
-ui_print("*Extracting system firmware...   *");
-package_extract_dir("system/etc/firmware", "/system/etc/firmware");
-ui_print("*Extracting system bin files...")
-package_extract_dir("system/bin", "/system/bin");
+package_extract_dir("system", "/system");
+set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 ui_print("Installing kernel...");
 package_extract_dir("kernel", "/tmp");
 set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
@@ -564,6 +552,7 @@ set_progress(1.000000);
 ui_print("Installing kernel...");
 mount("ext4", "EMMC", "/dev/block/platform/sdhci-tegra.3/by-name/APP", "/system");
 package_extract_dir("system", "/system");
+set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");

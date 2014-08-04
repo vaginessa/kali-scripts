@@ -1,7 +1,6 @@
 #!/bin/bash
 #
 ########################## MAIN MENU ###############################
-
 f_interface(){
 clear
 echo "			KALI ANDROID MAIN MENU"
@@ -20,7 +19,7 @@ echo ""
 
 # wait for character input
 
-read -p "Choice:" menuchoice
+read -p "Choice: " menuchoice
 
 case $menuchoice in
 
@@ -42,7 +41,6 @@ esac
 ########################## WIRELESS MENU ###############################
 f_wireless_attacks(){
 f_wlan1check
-
 echo "				WIRELESS ATTACKS MAIN MENU"
 echo ""
 echo ""
@@ -52,7 +50,7 @@ echo "[3]	Aircrack-ng"
 echo ""
 echo "[0]	Exit"
 
-read -p "Choice:" wirelesschoice
+read -p "Choice: " wirelesschoice
 
 case $wirelesschoice in
 
@@ -75,11 +73,11 @@ if [ -z "$adaptor" ]; then
     		echo "Still not detecting wlan1, please try plugging it in again."
     		sleep 5
     		clear
-    		echo "WLAN1: NOT FOUND"
+    		echo -e "\e[31mWLAN1: NOT FOUND\e[0m"
     		echo ""
     	fi
 else
-	echo "WLAN1: FOUND" 
+	echo -e "\e[92mWLAN1: FOUND\e[0m" 
 	echo ""
 fi
 }
@@ -117,15 +115,15 @@ f_evilap(){
 		echo "Default dnsmasq.conf was not found. Creating new one."
 		sleep 5
 		cat <<EOF > /etc/dnsmasq.conf
-		log-facility=/var/log/dnsmasq.log
-		#address=/#/10.0.0.1
-		#address=/google.com/10.0.0.1
-		interface=wlan1
-		dhcp-range=10.0.0.10,10.0.0.250,12h
-		dhcp-option=3,10.0.0.1
-		dhcp-option=6,10.0.0.1
-		#no-resolv
-		log-queries
+log-facility=/var/log/dnsmasq.log
+#address=/#/10.0.0.1
+#address=/google.com/10.0.0.1
+interface=wlan1
+dhcp-range=10.0.0.10,10.0.0.250,12h
+dhcp-option=3,10.0.0.1
+dhcp-option=6,10.0.0.1
+#no-resolv
+log-queries
 EOF
 	fi
 	}
@@ -140,77 +138,124 @@ EOF
 	echo ""
 	echo "[0]	Exit to Wireless Menu"
 
-	read -p "Choice:" sniffchoice
+	read -p "Choice: " evilchoice
 
-	case $sniffchoice in
+	case $evilchoice in
 
 	1) clear; f_evilap_start_ap ;;
-	2) clear; service hostapd stop; service dnsmasq stop;iptables --flush;iptables --table nat --flush;iptables --delete-chain;iptables --table nat --delete-chain;echo "Stoped Services/Flushed iptables"; sleep 5 ;;
+	2) clear; f_evilap_stop_ap ;;
 	0) clear; f_wireless_attacks ;;
 	*) echo "Incorrect choice..." ;
 	esac
 	}
 
+f_evilap_stop_ap(){
+clear
+if [ -e "/opt/evilap.pid" ]; then
+	echo "Shutting Down EvilAP"
+	evilpid="$(cat $honssh_pid)"
+	kill -15 $evilpid &>/dev/null
+	if [ $? != 0 ]
+        then
+            echo "Unable to shutdown EvilAP: $evilpid"        
+        else
+            echo "EvilAP has been shutdown"
+        fi
+else
+	echo "EvilAP does not appear to be running: evilap.pid was not found"
+	sleep 3
+fi
+echo "Shutting down dnsmasq"
+service dnsmasq stop
+sleep 3
+echo "Flushing IP tables"
+iptables --flush
+iptables --table nat --flush
+iptables --delete-chain
+iptables --table nat --delete-chain
+echo "Bringing down wlan1"
+ifconfig wlan1 down
+echo "Bringing up wlan1"
+ifconfig wlan1 up
+sleep 5
+}
+
 f_evilap_int_internet(){
 	clear
-    echo "Select which interface you are using for Internet?:"
+    echo "Select which interface that is connected to the internet:"
     echo
-    echo "1) rmnet0 (3G GSM connection)"
-    echo "2) eth0  (USB ethernet adapter - depends on kernel y-cable support)"
-    echo "3) wlan0  (Internal Wifi)"
-    echo
-
+    echo "1) wlan0  (Internal Wifi)"
+    echo "2) rmnet0 (3G GSM)"
+    echo "3) eth0  (USB ethernet adapter - depends on kernel y-cable support)"
+    echo ""
     read -p "Choice: " interfacechoice
 
 case $interfacechoice in
-    1) INT_EVIL_INTERNET=rmnet0; f_evilap_menu ;;
-    2) INT_EVIL_INTERNET=eth0; f_evilap_menu ;;
-    3) INT_EVIL_INTERNET=wlan0; f_evilap_menu ;;
-    *) INT_EVIL_INTERNET=rmnet0 ;;
+	1) INT_EVIL_INTERNET=wlan0 ;;
+    2) INT_EVIL_INTERNET=rmnet0 ;;
+    3) INT_EVIL_INTERNET=eth0 ;;
+    *) INT_EVIL_INTERNET=wlan0 ;;
 esac
 }
 
 f_evilap_start_ap(){
-	#EVIL_LOGNAME="/captures/evilap/evilap-$(date +%s).log"
-	clear
+	EVIL_LOGNAME="/captures/evilap/evilap-$(date +%s).log"
 	f_evilap_int_internet
+	clear
+	echo "Restarting wlan1"
+	ifconfig wlan1 down
+	sleep 2
+	ifconfig wlan1 up
+	ifconfig wlan1 10.0.0.1/24
 	read -p "Enter an SSID name for Access Point: " EVIL_SSID
-	if [ -z $EVIL_SSID ]; then
-		EVIL_SSID=freewifi
-	fi
-	echo "Starting EvilAP"
+	echo "Using $EVIL_SSID as SSID"
+		if [ $EVIL_SSID -eq 0 ]; then
+			EVIL_SSID=default
+			echo "Using default as SSID"
+		fi
+	echo "Setting iptables"
 	iptables -t nat -F
 	iptables -F
 	iptables -t nat -A POSTROUTING -o $INT_EVIL_INTERNET -j MASQUERADE
 	iptables -A FORWARD -i wlan1 -o $INT_EVIL_INTERNET -j ACCEPT
-	read -p "Enable Karma (access point will claim to be everything)? (y/n)" karma
+	# remove previous hostapd
+	rm /etc/hostapd/evilhostapd.conf
+	# check for karma option
+	clear
+	echo "Karma enabled will cause your AP to pretend to be any clients previous associated AP"
+	echo ""
+	read -p "Enable Karma? (y/n)" karma
 	if [ "$karma" == "y" ]; then
-	rm /etc/hostapd/hostapd.conf
-	cat <<EOF > /etc/hostapd/hostapd.conf
-	interface=wlan1
-	driver=nl80211
-	ssid=$EVIL_SSID
-	channel=1
-	# Yes, we support the Karma attack.
-	enable_karma=1
-	#logger_syslog=-1
-	#logger_syslog_level=1
+	cat <<EOF > /etc/hostapd/evilhostapd.conf
+interface=wlan1
+driver=nl80211
+ssid=$EVIL_SSID
+channel=1
+# Yes, we support the Karma attack.
+enable_karma=1
+#logger_syslog=-1
+#logger_syslog_level=1
 EOF
 	else
-	rm /etc/hostapd/hostapd.conf
-	cat <<EOF > /etc/hostapd/hostapd.conf
-	interface=wlan1
-	driver=nl80211
-	ssid=$EVIL_SSID
-	channel=1
-	# Yes, we support the Karma attack.
-	#enable_karma=1
-	#logger_syslog=-1
-	#logger_syslog_level=1
+	cat <<EOF > /etc/hostapd/evilhostapd.conf
+interface=wlan1
+driver=nl80211
+ssid=$EVIL_SSID
+channel=1
+# Yes, we support the Karma attack.
+#enable_karma=1
+#logger_syslog=-1
+#logger_syslog_level=1
 EOF
 	fi
+	echo "Staring dnsmasq (DNS server)"
 	service dnsmasq start
-	hostapd -d -p /opt/hostapd.pid /etc/hostapd/hostapd.conf
+	echo "Starting hostapd (AP)"
+	hostapd -d -B -P /opt/evilap.pid /etc/hostapd/evilhostapd.conf > $EVIL_LOGNAME 2>&1 &
+	echo "Logging to $EVIL_LOGNAME:"
+	tail -f $EVIL_LOGNAME
+	sleep 5
+	f_evilap_menu
 }
 
 # This is where EvilAP launches the menu
