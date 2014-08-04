@@ -156,10 +156,10 @@ f_check_crosscompile
 arm="abootimg cgpt fake-hwclock ntpdate vboot-utils vboot-kernel-utils uboot-mkimage"
 base="kali-menu kali-defaults initramfs-tools usbutils openjdk-7-jre"
 desktop="kali-defaults kali-root-login desktop-base xfce4 xfce4-places-plugin xfce4-goodies"
-tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-ng wipe socat ettercap-text-only beef-xss"
+tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-ng wipe socat ettercap-text-only beef-xss "
 wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet hostapd dnsmasq wvdial"
 services="openssh-server lighttpd tightvncserver postgresql openvpn"
-extras="wpasupplicant zip"
+extras="wpasupplicant zip macchanger"
 
 export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras}"
 export architecture="armhf"
@@ -313,7 +313,7 @@ EOF
 cap=kali-$architecture/captures
 mkdir -p kali-$architecture/root/.ssh/
 mkdir -p kali-$architecture/sdcard kali-$architecture/system
-mkdir -p $cap/evilap $cap/ettercap $cap/kismet/db $cap/nmap $cap/sslstrip $cap/tshark $cap/wifite
+mkdir -p $cap/evilap $cap/ettercap $cap/kismet/db $cap/nmap $cap/sslstrip $cap/tshark $cap/wifite $cap/tcpdump 
 
 # Add postgresql user to inet so it can access network
 echo "inet:x:3004:postgres,root" >> kali-$architecture/etc/group
@@ -367,6 +367,8 @@ wget -P ${basedir}/flash/data/app/ http://jackpal.github.com/Android-Terminal-Em
 wget -P ${basedir}/flash/data/app/ http://max.kellermann.name/download/blue-nmea/BlueNMEA-2.1.apk
 # Suggested: Hackers Keyboard for easier typing in the terminal
 wget -P ${basedir}/flash/data/app/ https://hackerskeyboard.googlecode.com/files/hackerskeyboard-v1037.apk
+# Suggested: Android VNC Viewer
+wget -P ${basedir}/flash/data/app/ https://f-droid.org/repo/android.androidVNC_13.apk
 
 # Compress filesystem and add to our flashable zip
 mkdir -p ${basedir}/flash/data/local/
@@ -527,8 +529,10 @@ patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
 
 echo "Downloading/replacing defconfig file"
 # Clean kernel folder, enable default config, overwrite .config with one containing enabled wireless and bluetooth devices
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-kangaroo/kangaroo_kali_grouper_defconfig -O .config
 make clean
 make kangaroo_defconfig
+sleep 10
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-kangaroo/kangaroo_kali_grouper_defconfig -O .config
 
 echo "Building Kernel"
