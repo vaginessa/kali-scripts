@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+## date format ##
+NOW=$(date +"%m-%d-%y-%H%M%S")
 ########################## MAIN MENU ###############################
 f_interface(){
 clear
@@ -31,7 +33,7 @@ case $menuchoice in
 6) clear; f_vulnerability ;;
 7) clear; f_exploitation ;;
 8) clear; f_reverse ;;
-88) clear; f_services;;
+88) clear; f_services ;;
 99) clear; f_settings ;;
 0) clear; exit 1 ;;
 *) echo "Incorrect choice..." ;
@@ -44,9 +46,9 @@ f_wlan1check
 echo "				WIRELESS ATTACKS MAIN MENU"
 echo ""
 echo ""
-echo "[1]	Wifite					[4]	Kismet"
+echo "[1]	Wifite"
 echo "[2]	EvilAP"
-echo "[3]	Aircrack-ng"
+echo "[3]	Kismet"
 echo ""
 echo "[0]	Exit"
 
@@ -56,8 +58,7 @@ case $wirelesschoice in
 
 1) clear; f_wifite ;;
 2) clear; f_evilap ;;
-3) clear; f_aircrack-ng ;;
-4) clear; f_kismet ;;
+3) clear; f_kismet ;;
 0) clear; f_interface ;;
 *) echo "Incorrect choice..." ;
 esac
@@ -186,6 +187,7 @@ f_evilap_start_ap(){
 	clear
 	echo "Restarting wlan1"
 	ifconfig wlan1 down
+
 	sleep 2
 	ifconfig wlan1 up
 	ifconfig wlan1 10.0.0.1/24
@@ -237,10 +239,6 @@ f_evilap_check
 f_evilap_menu
 }
 
-f_aircrack-ng(){
-	echo "Insert"
-}
-
 f_kismet(){
 #!/bin/bash
 echo "Make sure BlueNMEA is running before starting with GPS support"
@@ -260,8 +258,7 @@ fi
 }
 
 f_giskismet(){
-## date format ##
-NOW=$(date +"%m-%d-%y-%H%M%S")
+
 # create database folder or check if one exsists
 if [ ! -d "/captures/kismet_db" ]; then
 	mkdir -p "/captures/kismet_db"
@@ -295,39 +292,57 @@ echo "				SNIFFING/SPOOFING MAIN MENU"
 echo ""
 echo "[1]	tcpdump"
 echo "[2]	tshark"
-echo "[3]	dnsspoof"
-echo "[4]	urlsnarf"
-echo "[5]	dsniff"
+echo "[3]	urlsnarf"
+echo "[4]	dsniff"
 echo ""
 echo "[0]	Exit"
-
-read -p "Choice:" sniffchoice
+echo ""
+read -p "Choice: " sniffchoice
 
 case $sniffchoice in
 
 1) clear; f_tcpdump ;;
 2) clear; f_tshark ;;
-3) clear; f_dnsspoof ;;
-4) clear; f_urlsnarf ;;
-5) clear; f_dsniff ;;
+3) clear; f_urlsnarf ;;
+4) clear; f_dsniff ;;
 0) clear; exit 1 ;;
 *) echo "Incorrect choice..." ;
 esac
+}
 
 f_tcpdump(){
-		echo "Insert"
+	f_sniff_interface
+	tcpdump -n -tttt -i $sniffinterface -w /captures/tcpdump/tcpdump-$NOW.pcap;
 }
 f_tshark(){
-		echo "Insert"
-}
-f_dnsspoof(){
-		echo "Insert"
+	f_sniff_interface
+	tshark -i $sniffinterface -w /captures/tshark/tshark-$now.cap;
 }
 f_urlsnarf(){
-		echo "Insert"
+	f_sniff_interface
 }
 f_dsniff(){
-		echo "Insert"
+	f_sniff_interface
+}
+
+f_sniff_interface(){
+echo "Choose which interface to start sniffing on"
+echo ""
+echo "[1]	wlan0"
+echo "[2]	wlan1"
+echo "[3]	rmnet0"
+echo "[4]	eth0"
+echo ""
+read -p "Choice:" sniffinterface
+
+case $sniffinterface in
+
+1) clear; sniffinterface=wlan0 ;;
+1) clear; sniffinterface=wlan1 ;;
+1) clear; sniffinterface=rmnet0 ;;
+1) clear; sniffinterface=eth0 ;;
+*) echo "Incorrect choice..." ;
+esac
 }
 
 ##########################   WEB APP MENU    ###############################
@@ -341,7 +356,7 @@ echo "[3]	xsser"
 echo ""
 echo "[0]	Exit"
 
-read -p "Choice:" webchoice
+read -p "Choice: " webchoice
 
 case $webchoice in
 1) clear; f_tcpdump ;;
@@ -377,16 +392,16 @@ f_reverse(){
 }
 ########################## SERVICES MENU ###############################
 
-f_settings(){
+f_services(){
 echo "				SERVICES"
 echo "[1] Start SSH Server"
 echo "[2] Start VNC Server"
 echo "[3] Kill all VNC instances (remove pid/logs)"
 echo "[0] Exit to main menu"
+echo ""
+read -p "Choice: " serviceschoice
 
-ead -p "Choice:" settingschoice
-
-case $settingschoice in
+case $serviceschoice in
 1) clear; f_ssh ;;
 2) clear; f_vncstart ;;
 3) clear; f_vnckill ;;
@@ -397,7 +412,8 @@ esac
 }
 
 f_ssh(){
-	echo "Insert"
+	# need to add more to this later
+	service ssh start
 }
 
 f_vncstart(){
@@ -412,9 +428,9 @@ echo -n "Enter your menu choice [1-5]: "
 read -p "Choice:" vncmenustart
 
 case $vncmenustart in
-1) vncserver -geometry 1280x1024 -depth 24 && echo "Display Number :X will be port 590X." && read -p "Press any key to continue..." && f_interface ;;
-2) vncserver -geometry 1920x1200 -depth 24 && echo "Display Number :X will be port 590X." && read -p "Press any key to continue..." && f_interface ;;
-3) vncserver -geometry 2650x1600 -depth 24 && echo "Display Number :X will be port 590X." && read -p "Press any key to continue..." && f_interface ;;
+1) vncserver -geometry 1280x1024 -depth 24 && echo "Display Number :X will be port 590X." && read -p "Press any key to continue..." && f_services ;;
+2) vncserver -geometry 1920x1200 -depth 24 && echo "Display Number :X will be port 590X." && read -p "Press any key to continue..." && f_services ;;
+3) vncserver -geometry 2650x1600 -depth 24 && echo "Display Number :X will be port 590X." && read -p "Press any key to continue..." && f_services ;;
 4) f_customvnc ;;
 5) f_interface ;;
 *) echo "Incorrect choice..." ;
@@ -455,7 +471,7 @@ echo "[3] Export Client Keys to sdcard"
 echo "[4] Start VPN Server"
 echo "[5] Exit to Main Menu"
 echo -n "Enter your menu choice [1-6]: "
-read -p "Choice:" vpnkeychoice
+read -p "Choice: " vpnkeychoice
 
 case $vpnkeychoice in
 1) f_server_key ;;
@@ -545,6 +561,7 @@ sleep 5
 # RETURN TO VPN MENU
 f_vpnmenu
 }
+
 f_exportkeys(){
 echo "Zipping client keys to /sdcard/openvpn-kaliserver-clientcert.zip"
 sleep 5
@@ -565,8 +582,6 @@ echo "OpenVPN started"
 sleep 5
 f_vpnmenu
 }
-
-}
 ########################## SETTINGS MENU ###############################
 f_settings(){
 echo "				SETTINGS"
@@ -574,7 +589,7 @@ echo ""
 echo "[1] Configure Timezone"
 echo "[2] Change VNC Password"
 echo "[3] Create Metasploit User and Database"
-echo "[4] Macchanger"
+echo "[4] Macchanger (wlan1)"
 echo "[0] Exit to main menu"
 
 ead -p "Choice:" settingschoice
@@ -599,14 +614,23 @@ f_msuser() {
 	createdb --owner=$msuser $dbname
 	su root
 	echo "You can now add database connection to startup at ~/.msf4/msfconsole.rc"
-	echo "Just add:"
+	echo "Add:"
 	echo "db_connect $msuser:YOURPASSWORD@127.0.0.1:5432/$dbname"
 	sleep 4
 	f_interface
 }
 
 f_macchanger(){
-	echo "Insert"
+	read -p "Use random MAC address on wlan1? (y/n)" randommac
+	if [ "$randommac" == "y" ]; then
+		macchanger --random wlan1
+	else
+		read -p "Would you like to set a specific MAC address?" specificmac
+			if [ "$specificmac" == "y" ]; then
+				read -p "Enter your specific MAC address: " spec_evil_mac
+				macchanger --mac=$spec_evil_mac wlan1
+			fi
+	fi
 }
 # **** START **** #
 f_interface
