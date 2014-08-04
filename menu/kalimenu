@@ -133,8 +133,9 @@ EOF
 	echo ""
 	echo "	Using hostapd requires external wireless (wlan1)"
 	echo ""
-	echo "[1] Start EvilAP"
-	echo "[2] Stop EvilAP and flush iptables"
+	echo "[1] Start EvilAP with internet from wlan0"
+	echo "[2] Start EvilAP with internet from rmnet0 (3G)"
+	echo "[3] Stop EvilAP and flush iptables"
 	echo ""
 	echo "[0]	Exit to Wireless Menu"
 
@@ -142,8 +143,9 @@ EOF
 
 	case $evilchoice in
 
-	1) clear; f_evilap_start_ap ;;
-	2) clear; f_evilap_stop_ap ;;
+	1) clear; INT_EVIL_INTERNET=wlan0; f_evilap_start_ap ;;
+	2) clear; INT_EVIL_INTERNET=rmnet0; f_evilap_start_ap ;;
+	3) clear; f_evilap_stop_ap ;;
 	0) clear; f_wireless_attacks ;;
 	*) echo "Incorrect choice..." ;
 	esac
@@ -153,11 +155,10 @@ f_evilap_stop_ap(){
 clear
 if [ -e "/opt/evilap.pid" ]; then
 	echo "Shutting Down EvilAP"
-	evilpid="$(cat $honssh_pid)"
-	kill -15 $evilpid &>/dev/null
+	kill -KILL $(cat /opt/evilap.pid)
 	if [ $? != 0 ]
         then
-            echo "Unable to shutdown EvilAP: $evilpid"        
+            echo "Unable to shutdown EvilAP"        
         else
             echo "EvilAP has been shutdown"
         fi
@@ -180,27 +181,8 @@ ifconfig wlan1 up
 sleep 5
 }
 
-f_evilap_int_internet(){
-	clear
-    echo "Select which interface that is connected to the internet:"
-    echo
-    echo "1) wlan0  (Internal Wifi)"
-    echo "2) rmnet0 (3G GSM)"
-    echo "3) eth0  (USB ethernet adapter - depends on kernel y-cable support)"
-    echo ""
-    read -p "Choice: " interfacechoice
-
-case $interfacechoice in
-	1) INT_EVIL_INTERNET=wlan0 ;;
-    2) INT_EVIL_INTERNET=rmnet0 ;;
-    3) INT_EVIL_INTERNET=eth0 ;;
-    *) INT_EVIL_INTERNET=wlan0 ;;
-esac
-}
-
 f_evilap_start_ap(){
 	EVIL_LOGNAME="/captures/evilap/evilap-$(date +%s).log"
-	f_evilap_int_internet
 	clear
 	echo "Restarting wlan1"
 	ifconfig wlan1 down
@@ -233,8 +215,6 @@ ssid=$EVIL_SSID
 channel=1
 # Yes, we support the Karma attack.
 enable_karma=1
-#logger_syslog=-1
-#logger_syslog_level=1
 EOF
 	else
 	cat <<EOF > /etc/hostapd/evilhostapd.conf
@@ -244,18 +224,12 @@ ssid=$EVIL_SSID
 channel=1
 # Yes, we support the Karma attack.
 #enable_karma=1
-#logger_syslog=-1
-#logger_syslog_level=1
 EOF
 	fi
 	echo "Staring dnsmasq (DNS server)"
 	service dnsmasq start
 	echo "Starting hostapd (AP)"
-	hostapd -d -B -P /opt/evilap.pid /etc/hostapd/evilhostapd.conf > $EVIL_LOGNAME 2>&1 &
-	echo "Logging to $EVIL_LOGNAME:"
-	tail -f $EVIL_LOGNAME
-	sleep 5
-	f_evilap_menu
+	hostapd -d -P /opt/evilap.pid /etc/hostapd/evilhostapd.conf & > $EVIL_LOGNAME
 }
 
 # This is where EvilAP launches the menu
