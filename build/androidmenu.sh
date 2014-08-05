@@ -410,8 +410,7 @@ echo "Downloading Android Toolchian"
 git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8 ${basedir}/toolchain
 
 echo "Downloading Kernel"
-# Using Thunderkat kernel but feel free to change to Android source
-git clone https://github.com/craigacgomez/kernel_samsung_manta.git -b thunderkat ${basedir}/kernel
+git clone --depth=1 https://android.googlesource.com/kernel/exynos.git -b android-exynos-manta-3.4-kitkat-mr2 ${basedir}/kernel
 cd ${basedir}/kernel
 
 echo "Applying Patches"
@@ -420,22 +419,19 @@ mkdir -p ../patches
 wget http://patches.aircrack-ng.org/mac80211.compat08082009.wl_frag+ack_v1.patch -O ../patches/mac80211.patch
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 
-# Patch enables the Android device to act as a keyboard and mouse through usb (send commands to computer)
-#wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
-#patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
-
-# negative one may not be necessary 
-# wget http://patches.aircrack-ng.org/channel-negative-one-maxim.patch -O ../patches/negative.patch
-# patch -p1 --no-backup-if-mismatch < ../patches/negative.patch
-
 echo "Downloading/replacing defconfig file"
 # Clean kernel folder, enable default config, overwrite .config with one containing enabled wireless and bluetooth devices
 make clean
-make thunderkat_manta_defconfig
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus10-thunderkat/thunderkali_defconfig -O .config
+make manta_defconfig
+sleep 5
+#make thunderkat_manta_defconfig
+#wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus10-thunderkat/thunderkali_defconfig -O .config
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus10-thunderkat/exynos_kali_defconfig -O .config
 
 echo "Building Kernel"
 make -j $(grep -c processor /proc/cpuinfo)
+mkdir -p modules
+make modules_install INSTALL_MOD_PATH=${basedir}/kernel/modules
 
 echo "Copying Kernel to flashable kernel folder"
 # Copy kernel to flashable kernel folder
@@ -633,6 +629,5 @@ umount ${basedir}/kali-$architecture/proc
 #echo "Removing temporary build files"
 #rm -rf ${basedir}/patches ${basedir}/kernel ${basedir}/flash ${basedir}/kali-$architecture ${basedir}/flashkernel
 }
-
 f_check_version
 f_interface
