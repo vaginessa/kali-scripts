@@ -46,7 +46,7 @@ echo ""
 echo ""
 echo "	[88] Rootfs only - For any rooted and unlocked device but without kernel support"
 echo "	[99] Unmount and Clean Work Folders (file dir removal currently disabled)"
-echo "	[00] Exit"
+echo "	[q] Exit"
 echo ""
 echo ""
 # wait for character input
@@ -60,7 +60,7 @@ case $menuchoice in
 3) clear; f_deb ;;
 88) clear; f_rootfs ; f_flashzip; f_zip_save ;;
 99) f_cleanup ;;
-00) clear; exit 1 ;;
+q) clear; exit 1 ;;
 *) echo "Incorrect choice..." ;
 esac
 }
@@ -394,7 +394,7 @@ make manta_defconfig
 sleep 10
 #make thunderkat_manta_defconfig
 #wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus10-thunderkat/thunderkali_defconfig -O .config
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus10-thunderkat/exynos_kali_defconfig -O .config
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus10/exynos_kali_defconfig -O .config
 
 # Attach kernel builder to updater-script
 cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
