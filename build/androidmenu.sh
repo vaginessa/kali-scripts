@@ -51,7 +51,7 @@ echo ""
 echo ""
 # wait for character input
 
-read -p "Choice:" menuchoice
+read -p "Choice: " menuchoice
 
 case $menuchoice in
 
@@ -158,8 +158,8 @@ base="kali-menu kali-defaults initramfs-tools usbutils openjdk-7-jre"
 desktop="kali-defaults kali-root-login desktop-base xfce4 xfce4-places-plugin xfce4-goodies"
 tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-ng wipe socat ettercap-text-only beef-xss "
 wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet hostapd dnsmasq wvdial"
-services="openssh-server lighttpd tightvncserver postgresql openvpn"
-extras="wpasupplicant zip macchanger"
+services="autossh openssh-server lighttpd tightvncserver postgresql openvpn"
+extras="wpasupplicant zip macchanger dbd ptunnel"
 
 export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras}"
 export architecture="armhf"
@@ -229,13 +229,6 @@ nameserver 8.8.8.8
 nameserver 8.8.4.4
 EOF
 
-# Fix for Armitage so it can run on Android.  Easier to create seperate binary as
-# updates will destroy /usr/bin/armitage
-cat << EOF > kali-$architecture/usr/bin/armitagearm
-#!/bin/bash
-cd /usr/share/armitage/ && export PATH=/usr/lib/jvm/java-7-openjdk-armhf/bin:$$PATH && ./armitage "$@"
-EOF
-
 # THIRD STAGE CHROOT
 
 export MALLOC_CHECK_=0 # workaround for LP: #520465
@@ -290,7 +283,9 @@ sed -i 's/gpshost=localhost:2947/gpshost=127.0.0.1:2947/g' kali-$architecture/et
 sed -i 's/hs/\/captures/g' kali-$architecture/etc/kismet/kismet.conf
 
 # Kali Menu (bash script) to quickly launch common Android Programs
-wget -P ${basedir}/usr/bin https://raw.githubusercontent.com/binkybear/kali-scripts/master/menu/kalimenu
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/menu/kalimenu -O kali-$architecture/usr/bin/kalimenu
+sleep 5
+LANG=C chroot kali-$architecture chmod 755 /usr/bin/kalimenu
 
 # Sets the default for hostapd.conf but not really needed as evilap will create it's own now
 #sed -i 's#^DAEMON_CONF=.*#DAEMON_CONF=/etc/hostapd/hostapd.conf#' kali-$architecture/etc/init.d/hostapd
@@ -475,6 +470,51 @@ run_program("/sbin/busybox", "dd", "if=/tmp/newboot.img", "of=/dev/block/mmcblk0
 ui_print("");
 ui_print("Done, please reboot.");
 EOF
+f_kernel_build
+}
+
+#####################################################
+# Create Nexus 7 Grouper Kernel (4.4+)
+#####################################################
+f_nexus7_deb_kernel(){
+f_kernel_build_init
+clear
+echo "  Depending on which ROM, there are two types of kernels"
+echo "  a user may use.  Choose which kernel your ROM uses."
+echo ""
+echo "  [1] Create Stock/AOSP Kernel"
+echo "  [2] Create Cyanogenmod/CAF Kernel"
+# wait for character input
+read -p "Choice: " deb_kernel_menuchoice
+case $deb_kernel_menuchoice in
+
+1) clear; f_deb_stock_kernel ;;
+2) clear; f_deb_cm_kernel ;;
+*) echo "Incorrect choice..." ;
+esac
+
+f_deb_stock_kernel(){
+echo "Downloading Kernel"
+# Using ElementalX kernel but feel free to change to Android source
+git clone https://github.com/flar2/flo.git -b ElementalX ${basedir}/kernel
+cd ${basedir}/kernel
+echo "Applying Patches"
+# Compat 80211 patch
+patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
+}
+
+f_deb_cm_kernel(){
+echo "Downloading Kernel"
+# Using ElementalX kernel but feel free to change to Android source
+git clone https://github.com/flar2/flo.git -b Cyanogenmod ${basedir}/kernel
+cd ${basedir}/kernel
+echo "Applying Patches"
+# Compat 80211 patch
+patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
+}
+
+echo "Downloading Kernel"
+
 f_kernel_build
 }
 

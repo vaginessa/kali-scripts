@@ -11,7 +11,7 @@ echo ""
 echo "[1]	Wireless Attacks		[5]	Information Gathering"
 echo "[2]	Sniffing/Spoofing		[6]	Vulnerability Analysis"
 echo "[3]	Web Applications		[7]	Exploitation Tools"
-echo "[4]	Maintain Access			[8]	Reverse Engineering" 	
+echo "[4]	Reverse Shells			[8]	Reverse Engineering" 	
 echo ""
 echo "[88]	Services"
 echo "[99]	Settings"
@@ -28,7 +28,7 @@ case $menuchoice in
 1) clear; f_wireless_attacks ;;
 2) clear; f_sniffing ;;
 3) clear; f_web_applications ;;
-4) clear; f_access ;;
+4) clear; f_reverse ;;
 5) clear; f_information_gathering ;;
 6) clear; f_vulnerability ;;
 7) clear; f_exploitation ;;
@@ -365,11 +365,6 @@ case $webchoice in
 *) echo "Incorrect choice..." ;
 esac
 }
-##########################   ACCESS MENU   ###############################
-
-f_access(){
-	echo "Insert"
-}
 ########################## INFO GATHER MENU ##############################
 
 f_information_gathering(){
@@ -388,8 +383,31 @@ f_exploitation(){
 ########################## REVERSE MENU ################################
 
 f_reverse(){
-	echo "Insert"
+echo "				REVERSE SHELLS"
+echo "[1] AutoSSH - SSH Server (if you can ssh out)"
+echo "[2] pTunnel - TCP over ICMP (if you can ping)"
+echo "[3] "
+echo "[0] Exit to main menu"
+echo ""
+read -p "Choice: " serviceschoice
+
+case $serviceschoice in
+1) clear; f_autossh ;;
+2) clear; f_ptunnel ;;
+3) clear; f_vnckill ;;
+4) clear; f_vpnmenu ;;
+0) f_interface ;;
+*) echo "Incorrect choice..." ;
+esac
 }
+
+f_autossh(){
+
+
+
+
+}
+
 ########################## SERVICES MENU ###############################
 
 f_services(){
