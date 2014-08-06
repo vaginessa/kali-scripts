@@ -384,9 +384,11 @@ f_exploitation(){
 
 f_reverse(){
 echo "				REVERSE SHELLS"
-echo "[1] AutoSSH - SSH Server (if you can ssh out)"
-echo "[2] pTunnel - TCP over ICMP (if you can ping)"
-echo "[3] "
+echo ""
+echo "[1] Setup AutoSSH (if you can ssh out)"
+echo "[2] Setup pTunnel - (if you can ping out)"
+echo "[#] "
+echo "[3] Start AutoSSH reverse shell"
 echo "[0] Exit to main menu"
 echo ""
 read -p "Choice: " serviceschoice
@@ -394,18 +396,88 @@ read -p "Choice: " serviceschoice
 case $serviceschoice in
 1) clear; f_autossh ;;
 2) clear; f_ptunnel ;;
-3) clear; f_vnckill ;;
-4) clear; f_vpnmenu ;;
+3) clear; f_start_autossh ;;
 0) f_interface ;;
 *) echo "Incorrect choice..." ;
 esac
 }
 
 f_autossh(){
+clear
+if [ -e "/root/.ssh/auto_id_rsa" ]; then
+        echo "SSH keys found at /root/.ssh/auto_id_rsa"
+        read -p "Would you like to generate new SSH keys? (y/n):" autossh_new_keys
+        if [ "$autossh_new_keys" == "y"]
+        	rm -rf /root/.ssh/auto_id*
+        	f_generate_autossh_keys
+else
+	echo "KEY AUTO_ID_RSA NOT FOUND: Generate new SSH keys?"
+	f_generate_autossh_keys
+fi
 
+	f_generate_autossh_keys()
+	{
+		echo "Generating new keys"
+		chmod 700 /root/.ssh
+		ssh-keygen -b 1024 -N '' -f /root/.ssh/auto_id_rsa -t rsa -q
+		chmod 600 /root/.ssh/auto_id_rsa
+		chmod 644 /root/.ssh/auto_id_rsa.pub
+		sleep 4
+	}
 
+read -p "Copy keys to remote (middle) server? (y/n)" copykeymiddle
+if [ "$copykeymiddle" == "y" ]; then
+		echo "Enter remote host connection details:"
+		echo ""
+		read -p "Enter remote server username: " -e -i "root" amu
+		read -p "Enter remote server address (ip/domain): " amh
+		read -p "Enter remote server port: " -e -i "22" amp
+		ssh-copy-id -i /root/.ssh/auto_id_rsa.pub "-p $amp $amu@$amh"
+fi
+}
 
+f_start_autossh(){
+#
+# For help setting up autossh, I utilized the guide here:
+# https://raymii.org/s/tutorials/Autossh_persistent_tunnels.html
+#
+if [ -e "/root/autossh_config" ]; then
+	read -p "Use previous autossh configuration? (y/n): " autossh_previous
+		if [ "$autossh_previous" == "y" ]; then
+			echo "Starting autossh..."
+			/root/autossh_config
+			f_reverse
+		fi
+	else
+	read -p "Would you like to remove configuration? (y/n): " autossh_remove
+		if [ "autossh_remove" == "y" ]; then
+			rm -rf /root/autossh_config
+		fi
+fi
+clear
+read -p "Enter local autossh monitoring port: " -e -i "1010" autossh_local_port
+read -p "Enter local autossh reverse tunnel port: " -e -i "6666" autossh_forward_port
+read -p "Enter remote server username: " -e -i "root" amu
+read -p "Enter remote server address (ip/domain): " amh
+read -p "Enter remote server port: " -e -i "22" amp
+echo ""
+echo "Starting autossh..."
+autossh -M $autossh_local_port -o "PubkeyAuthentication=yes" -o "PasswordAuthentication=no" -i /root/.ssh/auto_id_rsa -R $autossh_forward_port:localhost:22 $amu@$amh -p $amp
+echo "You can now access this Android device from the remote server using:"
+echo "ssh -p $autossh_forward_port"
+sleep 8
+clear
+read -p "Would you like to save configuration as an executable file? (y/n): " autossh_file
+	if [ "$autossh_file" == "y"]; then
+		echo "autossh -M $autossh_local_port -o "PubkeyAuthentication=yes" -o "PasswordAuthentication=no" -i /root/.ssh/auto_id_rsa -R $autossh_forward_port:localhost:22 $amu@$amh -p $amp" > /root/autossh_config
+		chmod +x /root/autossh_config
+		echo "File saved to /root/autossh_config"
+		sleep 5
+	fi
+}
 
+f_ptunnel(){
+	echo "Set up pTunnel"
 }
 
 ########################## SERVICES MENU ###############################
