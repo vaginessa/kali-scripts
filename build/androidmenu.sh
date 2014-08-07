@@ -276,7 +276,7 @@ LANG=C chroot kali-$architecture /third-stage
 
 # Modify kismet configuration to work with gpsd and socat
 sed -i 's/\# logprefix=\/some\/path\/to\/logs/logprefix=\/captures\/kismet/g' kali-$architecture/etc/kismet/kismet.conf
-sed -i 's/# ncsource=wlan0/# ncsource=wlan1/g' kali-$architecture/etc/kismet/kismet.conf
+sed -i 's/# ncsource=wlan0/ncsource=wlan1/g' kali-$architecture/etc/kismet/kismet.conf
 sed -i 's/gpshost=localhost:2947/gpshost=127.0.0.1:2947/g' kali-$architecture/etc/kismet/kismet.conf
 
 # Modify Wifite log saving folder
