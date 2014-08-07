@@ -287,6 +287,10 @@ wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/menu/kalime
 sleep 5
 LANG=C chroot kali-$architecture chmod 755 /usr/bin/kalimenu
 
+# Install nodeJS
+wget http://node-arm.herokuapp.com/node_latest_armhf.deb -O kali-$architecture/tmp/node_latest_armhf.deb
+LANG=C chroot kali-$architecture dpkg -i /tmp/node_latest_armhf.deb
+
 # Sets the default for hostapd.conf but not really needed as evilap will create it's own now
 #sed -i 's#^DAEMON_CONF=.*#DAEMON_CONF=/etc/hostapd/hostapd.conf#' kali-$architecture/etc/init.d/hostapd
 
@@ -381,6 +385,13 @@ cd ${basedir}/kernel
 echo "Applying Patches"
 # Compat 80211 patch
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
+
+# Fastcharge and y-cable support
+# This is working but unstable...it requires plugging in and unplugging before registering on system
+# Someone not aware would think it was broken
+wget https://raw.githubusercontent.com/flar2/flo/1cdf962eee4a09a393cd398409ba2e2da5b5d529/include/linux/fastchg.h -O ${basedir}/kernel/include/linux/fastchg.h
+wget https://raw.githubusercontent.com/flar2/flo/ElementalX/drivers/usb/otg/msm_otg.c -O ${basedir}/kernel/drivers/usb/otg/msm_otg.c
+sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' ${basedir}/kernel/drivers/usb/otg/msm_otg.c
 
 echo "Downloading/replacing defconfig file"
 # Clean kernel folder, enable default config, overwrite .config with one containing enabled wireless and bluetooth devices

