@@ -1,0 +1,113 @@
+#!/bin/bash
+# Check if first run has already been set up.
+configfile=/root/.firstrun.option
+source $configfile
+if [ "$FIRSTRUN" == "1" ]; then
+exit
+fi
+touch $configfile
+#
+# BEGIN THE START UP OPTIONS
+#
+echo ""
+echo ""
+echo "Welcome to Kali Linux for Android!"
+echo ""
+echo "Before we begin, this script will assist with start up options"
+echo "and other settings."
+echo ""
+read -p "Would you like to continue with setup? (y/n): " continue_on
+if [ "$continue_on" == "n" ]; then
+	clear
+	echo ""
+	echo "You can visit the settings in kalimenu to change startup settings."
+	echo "FIRSTRUN=1" > $configfile
+	exit
+fi
+# TIME ZONE
+read -p "Would you like to set your timezone? (y/n): " timezone
+if [ "$timezone" == "y" ]; then
+	dpkg-reconfigure tzdata;
+fi
+# SSH KEYS
+clear
+read -p "Would you like to generate SSH keys? (y/n): " sshkeys
+if [ "$sshkeys" == "y" ]; then
+	echo "Generating new keys and removing old ones."
+	sleep 3
+	cd ~/.ssh/
+	rm *
+	sleep 3
+	ssh-keygen -t rsa
+	echo "Finished!"
+	sleep 2
+fi
+clear
+# SSH STARTUP
+read -p "Would you like to start SSH server on boot? (y/n): " sshonboot
+if [ "$sshonboot" == "y" ]; then
+	echo "sshonboot=1" > $configfile
+else
+	echo "sshonboot=0" > $configfile
+fi
+# CONFIG SSH
+clear
+read -p "Configure default SSH server? (y/n): " configssh
+if [ "$configssh" == "y" ]; then
+	#LOCAL OR ALL
+	read -p "Listen on localhost (Android Device) only? (y/n): " $SSHLOCAL
+	sed -i 's/#ListenAddress 0.0.0.0/ListenAddress 127.0.0.1/g' /etc/ssh/sshd_config
+	#PORT
+	read -p "Enter SSH server port: " -e -i "22" SSHPORT
+	sed -i 's/Port 22/Port $SSHPORT/g' /etc/ssh/sshd_config
+fi
+# VNC STARTUP
+clear
+read -p "Would you like to start a VNC server on boot? (y/n): " vnconboot
+if [ "$vnconboot" == "y" ]; then
+	echo "vnconboot=1" >> $configfile
+else
+	echo "vnconboot=0" >> $configfile
+fi
+# CONFIG VNC RESOLUTION
+clear
+read -p "Configure VNC server? (y/n): " configvncres
+if [ "$configvncres" == "y" ]; then
+	clear
+	echo "Choose a resolution"
+	echo "[1] Start Nexus 7 (2012) - 1280x1024"
+	echo "[2] Start Nexus 7 (2013) - 1920x1200"
+	echo "[3] Start Nexus 10 - 2650x1600"
+	echo "[4] Custom Display Size (Computer Monitor)"
+	echo ""
+	echo -n "Enter your menu choice [1-4]: "
+	read -p "Choice:" vncmenu
+	case $vncmenu in
+	1) echo "RES=1280x1024" >> $configfile ;;
+	2) echo "RES=1920x1200" >> $configfile ;;
+	3) echo "RES=2560x1600" >> $configfile ;;
+	4) f_custom_vnc ;;
+	*) echo "Incorrect choice..." ;
+	esac
+fi
+# CONFIG VNC LISTEN
+clear
+read -p "Configure VNC listen address? (y/n): " configvnclisten
+if [ "$configvnclisten" == "y" ]; then
+	echo "Listen on localhost or all interfaces:"
+	echo "[1] localhost only - Connect to VNC through Android device or SSH only"
+	echo "[2] All Interfaces - Device will show up across network"
+	echo ""
+	read -p "Choice:" vnclistenchoice
+
+	case $vnclistenchoice in
+	1) echo "VNCLISTEN=local" >> $configfile ;;
+	2) echo "VNCLISTEN=allint" >> $configfile ;;
+	*) echo "Incorrect choice..." ;
+	esac
+fi
+
+f_customvnc(){
+	read -p "Enter Custom Display Size (e.g. ####x####) " CUSTOMVNCSIZE
+	echo "RES=$CUSTOMVNCSIZE" >> $configfile
+}
