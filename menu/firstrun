@@ -83,17 +83,22 @@ if [ "$configvncres" == "y" ]; then
 	echo -n "Enter your menu choice [1-4]: "
 	read -p "Choice:" vncmenu
 	case $vncmenu in
-	1) echo "RES=1280x1024" >> $configfile ;;
-	2) echo "RES=1920x1200" >> $configfile ;;
-	3) echo "RES=2560x1600" >> $configfile ;;
-	4) f_custom_vnc ;;
+	1) echo "RES=1280x1024" >> $configfile ; f_configvnc_listen ;;
+	2) echo "RES=1920x1200" >> $configfile ; f_configvnc_listen ;;
+	3) echo "RES=2560x1600" >> $configfile ; f_configvnc_listen ;;
+	4) f_custom_vnc ; f_configvnc_listen ;;
 	*) echo "Incorrect choice..." ;
 	esac
 fi
+# SETUP METASPLOIT
+
+echo "Initial Setup Complete!"
+echo "You can alter settings by launching Kali menu"
+
+################# HELPER FUNCTIONS ##############################
 # CONFIG VNC LISTEN
+f_configvnc_listen(){
 clear
-read -p "Configure VNC listen address? (y/n): " configvnclisten
-if [ "$configvnclisten" == "y" ]; then
 	echo "Listen on localhost or all interfaces:"
 	echo "[1] localhost only - Connect to VNC through Android device or SSH only"
 	echo "[2] All Interfaces - Device will show up across network"
@@ -101,11 +106,12 @@ if [ "$configvnclisten" == "y" ]; then
 	read -p "Choice:" vnclistenchoice
 
 	case $vnclistenchoice in
-	1) echo "VNCLISTEN=local" >> $configfile ;;
-	2) echo "VNCLISTEN=allint" >> $configfile ;;
+	1) echo "VNCLISTEN=-localhost" >> $configfile ;;
+	2) echo "VNCLISTEN=" >> $configfile ;;
 	*) echo "Incorrect choice..." ;
 	esac
 fi
+}
 
 f_customvnc(){
 	read -p "Enter Custom Display Size (e.g. ####x####) " CUSTOMVNCSIZE

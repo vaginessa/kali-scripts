@@ -188,10 +188,10 @@ echo "kali" > kali-$architecture/etc/hostname
 # fix for TUN symbolic link to enable programs like openvpn
 # set terminal length to 80 because root destroy terminal length
 # add fd to enable stdin/stdout/stderr
-
 cat << EOF > kali-$architecture/root/.bash_profile
 export TERM=xterm-256color
 stty columns 80
+/usr/bin/firstrun # we can remove this with sed at the end of the firstrun script
 cd /root/
 if [ ! -d "/dev/net/" ]; then
   mkdir -p /dev/net
@@ -284,18 +284,19 @@ sed -i 's/hs/\/captures/g' kali-$architecture/etc/kismet/kismet.conf
 
 # Kali Menu (bash script) to quickly launch common Android Programs
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/menu/kalimenu -O kali-$architecture/usr/bin/kalimenu
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/menu/firstrun -O kali-$architecture/usr/bin/firstrun
 sleep 5
 LANG=C chroot kali-$architecture chmod 755 /usr/bin/kalimenu
+LANG=C chroot kali-$architecture chmod 755 /usr/bin/firstrun
 
 # Install nodeJS
-wget http://node-arm.herokuapp.com/node_latest_armhf.deb -O kali-$architecture/tmp/node_latest_armhf.deb
-LANG=C chroot kali-$architecture dpkg -i /tmp/node_latest_armhf.deb
+#wget http://node-arm.herokuapp.com/node_latest_armhf.deb -O kali-$architecture/tmp/node_latest_armhf.deb
+#LANG=C chroot kali-$architecture dpkg -i /tmp/node_latest_armhf.deb
 
 # Sets the default for hostapd.conf but not really needed as evilap will create it's own now
 #sed -i 's#^DAEMON_CONF=.*#DAEMON_CONF=/etc/hostapd/hostapd.conf#' kali-$architecture/etc/init.d/hostapd
 
 # DNSMASQ Configuration options for optional access point
-
 cat <<EOF > kali-$architecture/etc/dnsmasq.conf
 log-facility=/var/log/dnsmasq.log
 #address=/#/10.0.0.1
@@ -389,29 +390,25 @@ patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 # Fastcharge and y-cable support
 # This is working but its a nasty hack from taking the y-cable support in FLO/DEB and putting it into Nexus 10
 # Not sure if the battery (smb347.c) needs additional modifications either
-wget https://raw.githubusercontent.com/flar2/flo/1cdf962eee4a09a393cd398409ba2e2da5b5d529/include/linux/fastchg.h -O ${basedir}/kernel/include/linux/fastchg.h
-wget https://raw.githubusercontent.com/flar2/flo/ElementalX/drivers/usb/otg/msm_otg.c -O ${basedir}/kernel/drivers/usb/otg/msm_otg.c
-sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' ${basedir}/kernel/drivers/usb/otg/msm_otg.c
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_ycable/fastchg.h -O include/linux/fastchg.h
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_ycable/msm_otg.c -O drivers/usb/otg/msm_otg.c
 
 echo "Downloading/replacing defconfig file"
 # Clean kernel folder, enable default config, overwrite .config with one containing enabled wireless and bluetooth devices
 make clean
 make manta_defconfig
 sleep 10
-#make thunderkat_manta_defconfig
-#wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus10-thunderkat/thunderkali_defconfig -O .config
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus10/exynos_kali_defconfig -O .config
 
 # Attach kernel builder to updater-script
 cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 #KERNEL_SCRIPT_START
 assert(getprop("ro.product.device") == "manta" || getprop("ro.build.product") == "manta");
-ui_print("ThunderKat Kernel - Nexus 10/Manta - Android KitKat 4.4.3/4.4.2/4.4.1");
-ui_print("* MODIFIED FOR KALI LINUX *");
+ui_print("* Kali Kernel for the Nexus 10 *");
 ui_print("Mounting system...");
 mount("ext4", "EMMC", "/dev/block/platform/dw_mmc.0/by-name/system", "/system");
 ui_print("Deleting old kernel modules...");
-delete_recursive("/system/modules");
+delete_recursive("/system/lib/modules");
 package_extract_dir("system", "/system");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 ui_print("Installing kernel...");
@@ -506,31 +503,44 @@ esac
 
 f_deb_stock_kernel(){
 echo "Downloading Kernel"
-# Using ElementalX kernel but feel free to change to Android source
-git clone https://github.com/flar2/flo.git -b ElementalX ${basedir}/kernel
+git clone https://github.com/flar2/flo.git -b ElementalX kernel
+
 cd ${basedir}/kernel
 echo "Applying Patches"
 # Compat 80211 patch
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 
-# Turn on y-cable support
-sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' ${basedir}/kernel/drivers/usb/otg/msm_otg.c
+# Patch enables the Android device to act as a keyboard and mouse through usb (send keyboard commands to computer)
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_hid_3_4/f_hid_android_mouse.c -O drivers/usb/gadget/f_hid_android_mouse.c
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_hid_3_4/f_hid_android_keyboard.c -O drivers/usb/gadget/f_hid_android_keyboard.c
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_hid_3_4/f_hid.h -O drivers/usb/gadget/f_hid.h
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_hid_3_4/f_hid.c -O drivers/usb/gadget/f_hid.c
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_hid_3_4/android.c -O drivers/usb/gadget/android.c
 
+# Turn on y-cable support
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_ycable/fastchg.h -O include/linux/fastchg.h
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_ycable/msm_otg.c -O drivers/usb/otg/msm_otg.c
+
+make clean
+make elementalx_defconfig
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig -O .config
+f_kernel_build
 }
 
 f_deb_cm_kernel(){
 echo "Downloading Kernel"
 # Using ElementalX kernel but feel free to change to Android source
-git clone https://github.com/flar2/flo.git -b Cyanogenmod ${basedir}/kernel
+
 cd ${basedir}/kernel
+
 echo "Applying Patches"
 # Compat 80211 patch
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 
 # Turn on y-cable support
-sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' ${basedir}/kernel/drivers/usb/otg/msm_otg.c
-
-
+wget https://raw.githubusercontent.com/flar2/flo/1cdf962eee4a09a393cd398409ba2e2da5b5d529/include/linux/fastchg.h -O include/linux/fastchg.h
+wget https://raw.githubusercontent.com/flar2/flo/ElementalX/drivers/usb/otg/msm_otg.c -O drivers/usb/otg/msm_otg.c
+sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
 
 }
 
