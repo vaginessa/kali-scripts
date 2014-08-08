@@ -387,8 +387,8 @@ echo "Applying Patches"
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 
 # Fastcharge and y-cable support
-# This is working but unstable...it requires plugging in and unplugging before registering on system
-# Someone not aware would think it was broken
+# This is working but its a nasty hack from taking the y-cable support in FLO/DEB and putting it into Nexus 10
+# Not sure if the battery (smb347.c) needs additional modifications either
 wget https://raw.githubusercontent.com/flar2/flo/1cdf962eee4a09a393cd398409ba2e2da5b5d529/include/linux/fastchg.h -O ${basedir}/kernel/include/linux/fastchg.h
 wget https://raw.githubusercontent.com/flar2/flo/ElementalX/drivers/usb/otg/msm_otg.c -O ${basedir}/kernel/drivers/usb/otg/msm_otg.c
 sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' ${basedir}/kernel/drivers/usb/otg/msm_otg.c
@@ -485,7 +485,7 @@ f_kernel_build
 }
 
 #####################################################
-# Create Nexus 7 Grouper Kernel (4.4+)
+# Create Nexus 7 (2013) FLO/DEB Kernel (4.4+)
 #####################################################
 f_nexus7_deb_kernel(){
 f_kernel_build_init
@@ -512,6 +512,10 @@ cd ${basedir}/kernel
 echo "Applying Patches"
 # Compat 80211 patch
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
+
+# Turn on y-cable support
+sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' ${basedir}/kernel/drivers/usb/otg/msm_otg.c
+
 }
 
 f_deb_cm_kernel(){
@@ -522,6 +526,12 @@ cd ${basedir}/kernel
 echo "Applying Patches"
 # Compat 80211 patch
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
+
+# Turn on y-cable support
+sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' ${basedir}/kernel/drivers/usb/otg/msm_otg.c
+
+
+
 }
 
 echo "Downloading Kernel"
