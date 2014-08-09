@@ -112,8 +112,8 @@ esac
 f_deb(){
 echo -e "\e[31m	------------------------- NEXUS 7 (2013) -----------------------\e[0m"
 echo ""
-echo "	[#] Build All - Kali rootfs and Kernel (Android 4.4+)"
-echo "	[#] Build Kernel Only"
+echo "	[1] Build All - Kali rootfs and Kernel (Android 4.4+)"
+echo "	[2] Build Kernel Only"
 echo "	[0] Exit to Main Menu"
 echo ""
 echo ""
@@ -123,8 +123,8 @@ read -p "Choice: " deb_menuchoice
 
 case $deb_menuchoice in
 
-#) clear; f_rootfs ; f_flashzip ; f_nexus7_deb_kernel ; f_zip_save ; f_zip_kernel_save ;;
-#) clear; f_nexus7_deb_kernel ; f_zip_kernel_save ;;
+1) clear; f_rootfs ; f_flashzip ; f_nexus7_deb_kernel ; f_zip_save ; f_zip_kernel_save ;;
+2) clear; f_nexus7_deb_kernel ; f_zip_kernel_save ;;
 0) clear; f_interface ;;
 *) echo "Incorrect choice... " ;
 esac
@@ -498,6 +498,7 @@ if [ ! -e "/usr/bin/lz4c" ]; then
   cd ..
   rm -rf lz4-r112.tar.gz lz4-r112
 fi
+
 f_kernel_build_init
 clear
 echo "  Depending on which ROM, there are two types of kernels"
@@ -513,6 +514,7 @@ case $deb_kernel_menuchoice in
 2) clear; f_deb_cm_kernel ;;
 *) echo "Incorrect choice..." ;
 esac
+}
 
 f_deb_stock_kernel(){
 echo "Downloading Kernel"
@@ -620,7 +622,6 @@ EOF
 
 f_kernel_build
 }
-
 #####################################################
 # Zip and save 
 #####################################################
@@ -758,5 +759,6 @@ else
   cat ${basedir}/flashkernel/META-INF/com/google/android/updater-script >> ${basedir}/flash/META-INF/com/google/android/updater-script
 fi
 }
+
 f_check_version
 f_interface
