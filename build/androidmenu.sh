@@ -486,6 +486,18 @@ f_kernel_build
 # Create Nexus 7 (2013) FLO/DEB Kernel (4.4+)
 #####################################################
 f_nexus7_deb_kernel(){
+if [ ! -e "/usr/bin/lz4c" ]; then
+  echo "Missing lz4c which is needed to build the ROMs.  Downloading and making for system:"
+  cd ${basedir}
+  wget http://lz4.googlecode.com/files/lz4-r112.tar.gz
+  tar -xf lz4-r112.tar.gz
+  cd lz4-r112
+  make
+  make install
+  echo "lz4c now installed.  Removing leftovers"
+  cd ..
+  rm -rf lz4-r112.tar.gz lz4-r112
+fi
 f_kernel_build_init
 clear
 echo "  Depending on which ROM, there are two types of kernels"
@@ -527,7 +539,28 @@ wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
-# need to add install script
+ui_print("MODIFIED FOR KALI LINUX");
+set_progress(1.000000);
+ui_print("Installing kernel...");
+ui_print("Mounting /system");
+mount("ext4", "EMMC", "/dev/block/platform/msm_sdcc.1/by-name/system", "/system");
+package_extract_dir("system", "/system");
+set_perm_recursive(0, 0, 0644, 0644, "/system/lib/modules");
+set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
+set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
+unmount("/system");
+package_extract_dir("kernel", "/tmp");
+set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
+set_perm(0, 0, 0777, "/tmp/mkbootimg");
+set_perm(0, 0, 0777, "/tmp/unpackbootimg");
+set_perm(0, 0, 0777, "/tmp/busybox");
+set_perm(0, 0, 0777, "/tmp/unpack_add_init.sh");
+run_program("/sbin/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
+run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
+run_program("/tmp/mkbootimg.sh");
+run_program("/sbin/busybox", "dd", "if=/tmp/newboot.img", "/dev/block/mmcblk0p14");
+ui_print("");
+ui_print("Done, please reboot.");
 EOF
 
 # Start kernel build
@@ -546,21 +579,21 @@ echo "Applying Patches"
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 
 # HID
-#wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
-#patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
-
+wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
+patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_hid_3_4/android.c -O drivers/usb/gadget/android.c
 
 # Turn on y-cable support
 sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
 
 make clean
 make elementalx_defconfig
-#wget 
+sleep 10
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elxcm_kali_defconfig -O .config
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
-# need to add install script
 ui_print("MODIFIED FOR KALI LINUX");
 set_progress(1.000000);
 ui_print("Installing kernel...");
