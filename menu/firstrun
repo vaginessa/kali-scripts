@@ -58,11 +58,7 @@ read -p "Configure the default SSH server? (y/n): " configssh
 if [ "$configssh" == "y" ]; then
 	#LOCAL OR ALL
 	clear
-	read -p "Listen on localhost (Android Device) only? (y/n): " SSHLOCAL
-	if [ "$SSHLOCAL" == "y"]; then
-		sed -i 's/#ListenAddress 0.0.0.0/ListenAddress 127.0.0.1/g' /etc/ssh/sshd_config
-	fi
-		read -p "Enable password based SSH login? (y/n): " SSHPASS
+	read -p "Enable password based SSH login? (y/n): " SSHPASS
 	if [ "$SSHPASS" == "y"]; then
 		sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 	else
@@ -113,23 +109,24 @@ if [ "$configvncres" == "y" ]; then
 	esac
 
 	echo "VNC Server listen on localhost or all interfaces:"
-	echo "[1] localhost only - Connect to VNC through Android device or SSH only"
-	echo "[2] All Interfaces - Device will show up across network"
+	echo "[1] localhost only - Connect to VNC through Android device or SSH only (most secure)"
+	echo "[2] All Interfaces - Device will show up across network (least secure)"
 	echo ""
 	read -p "Choice:" vnclistenchoice
 
 	case $vnclistenchoice in
-	1) echo "VNCLISTEN=-localhost" >> $configfile ;;
+	1) echo 'VNCLISTEN="-localhost -nolisten tcp"' >> $configfile ;;
 	2) echo "VNCLISTEN=" >> $configfile ;;
 	*) echo "Incorrect choice..." ;
 	esac
 	# CONFIG VNC LISTEN
 	f_customvnc(){
 		read -p "Enter Custom Display Size (e.g. ####x####) " CUSTOMVNCSIZE
-		echo "RES=$CUSTOMVNCSIZE" >> $configfile
+		echo "RES=${CUSTOMVNCSIZE}" >> $configfile
 	}
 fi
 # SETUP METASPLOIT
+
 ##############################################################
 echo "FIRSTRUN=1" >> $configfile
 echo "Initial Setup Complete!"

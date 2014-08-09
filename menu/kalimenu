@@ -245,14 +245,14 @@ echo "Make sure BlueNMEA is running before starting with GPS support"
 sleep 3
 read -p "Would you like to run Kismet with GPS enabled? (y/n)" CONT
 if [ "$CONT" == "y" ]; then
-	(socat TCP:127.0.0.1:4352 PTY,link=/tmp/gps & gpsd /tmp/gps) & kismet;
+	(socat TCP:127.0.0.1:4352 PTY,link=/tmp/gps & gpsd /tmp/gps) & kismet -g;
 	killall gpsd
 	f_giskismet;
 	wipe -f -P 5 /tmp/gps
 else
   echo "Running Kismet WITHOUT GPS support..."
   sleep 2
-  kismet;
+  kismet -g;
   clear
 fi
 }
@@ -493,6 +493,7 @@ echo "				SERVICES"
 echo "[1] Start SSH Server"
 echo "[2] Start VNC Server"
 echo "[3] Kill all VNC instances (remove pid/logs)"
+echo "[4] Start Metasploit"
 echo "[0] Exit to main menu"
 echo ""
 read -p "Choice: " serviceschoice
@@ -502,6 +503,7 @@ case $serviceschoice in
 2) clear; f_vncstart ;;
 3) clear; f_vnckill ;;
 4) clear; f_vpnmenu ;;
+5) clear; /opt/metasploit/scripts/start.sh ;;
 0) f_interface ;;
 *) echo "Incorrect choice..." ;
 esac
@@ -557,7 +559,6 @@ f_vnckill(){
 	echo "All VNC process/logs have hopefully been removed"
 	sleep 3
 }
-
 
 f_vpnmenu(){
 clear
@@ -682,22 +683,62 @@ f_vpnmenu
 f_settings(){
 echo "				SETTINGS"
 echo ""
-echo "[1] Configure Timezone"
-echo "[2] Change VNC Password"
-echo "[3] Create Metasploit User and Database"
-echo "[4] Macchanger (wlan1)"
+echo "[1] Change Start Up Settings"
+echo "[2] Configure Timezone"
+echo "[3] Change VNC Password"
+echo "[4] Create Metasploit User and Database"
+echo "[5] Macchanger (wlan1)"
 echo "[0] Exit to main menu"
 
 ead -p "Choice:" settingschoice
 
 case $settingschoice in
-1) clear; dpkg-reconfigure tzdata ;;
-2) clear; echo "Change your VNC password:"; vncpasswd ;;
-3) clear; f_msuser ;;
-4) clear; f_macchanger ;;
+1) clear; f_startup ;;
+2) clear; dpkg-reconfigure tzdata ;;
+3) clear; echo "Change your VNC password:"; vncpasswd ;;
+4) clear; f_msuser ;;
+5) clear; f_macchanger ;;
 0) f_interface ;;
 *) echo "Incorrect choice..." ;
 esac
+}
+f_startup(){
+configfile=/root/.firstrun.option
+if [ -e "$configfile" ]; then
+	source $configfile
+else
+	echo "Start up settings not found, exiting to settings menu"
+	sleep 5
+	f_settings
+fi
+clear
+if [ "$sshonboot" == "1" ]; then
+	echo "[X] SSH Set to start up boot"
+	read -p "Turn SSH OFF on boot? (y/n): " sshoffboot
+	if [ "$sshoffboot" == "y" ]; then sed -i 's/sshonboot=1/sshonboot=0/g' $configfile fi
+	echo "SSH will not load on boot"
+	sleep 5
+else
+	echo "[ ] SSH Not set to start on boot"
+	read -p "START SSH on boot? (y/n): " sshonboot
+	if [ "$sshonboot" == "y" ]; then sed -i 's/sshonboot=0/sshonboot=1/g' $configfile fi
+	echo "SSH will load on boot"
+	sleep 5
+fi
+
+if [ "$vnconboot" == "1" ]; then
+	echo "[X] VNC Set to start up on boot"
+	read -p "Turn VNC OFF on boot? (y/n): " vncoffboot
+	if [ "$vncoffboot" == "y" ]; then sed -i 's/vnconboot=1/vnconboot=0/g' $configfile fi
+	echo "VNC will not load on boot"
+	sleep 5
+else
+	echo "[ ] VNC Not set to start on boot"
+	read -p "START VNC on boot? (y/n): " vnconboot
+	if [ "$vnconboot" == "y" ]; then sed -i 's/vnconboot=0/vnconboot=1/g' $configfile fi
+	echo "VNC will load on boot"
+	sleep 5
+fi
 }
 
 f_msuser() {
