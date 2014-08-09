@@ -401,8 +401,8 @@ sleep 10
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus10/exynos_kali_defconfig -O .config
 
 # Attach kernel builder to updater-script
+echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
-#KERNEL_SCRIPT_START
 assert(getprop("ro.product.device") == "manta" || getprop("ro.build.product") == "manta");
 ui_print("* Kali Kernel for the Nexus 10 *");
 ui_print("Mounting system...");
@@ -410,6 +410,7 @@ mount("ext4", "EMMC", "/dev/block/platform/dw_mmc.0/by-name/system", "/system");
 ui_print("Deleting old kernel modules...");
 delete_recursive("/system/lib/modules");
 package_extract_dir("system", "/system");
+set_perm_recursive(0, 0, 0644, 0644, "/system/lib/modules");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 ui_print("Installing kernel...");
 package_extract_dir("kernel", "/tmp");
@@ -454,14 +455,14 @@ sleep 10
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-kangaroo/kangaroo_kali_grouper_defconfig -O .config
 
 # Attach kernel builder to updater-script
+echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
-#KERNEL_SCRIPT_START
-ui_print("Kang-aroo V2 kernel for Nexus 7");
 ui_print("MODIFIED FOR KALI LINUX");
 set_progress(1.000000);
 ui_print("Installing kernel...");
 mount("ext4", "EMMC", "/dev/block/platform/sdhci-tegra.3/by-name/APP", "/system");
 package_extract_dir("system", "/system");
+set_perm_recursive(0, 0, 0644, 0644, "/system/lib/modules");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
@@ -511,25 +512,32 @@ echo "Applying Patches"
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 
 # Patch enables the Android device to act as a keyboard and mouse through usb (send keyboard commands to computer)
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_hid_3_4/f_hid_android_mouse.c -O drivers/usb/gadget/f_hid_android_mouse.c
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_hid_3_4/f_hid_android_keyboard.c -O drivers/usb/gadget/f_hid_android_keyboard.c
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_hid_3_4/f_hid.h -O drivers/usb/gadget/f_hid.h
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_hid_3_4/f_hid.c -O drivers/usb/gadget/f_hid.c
+wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
+patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_hid_3_4/android.c -O drivers/usb/gadget/android.c
 
 # Turn on y-cable support
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_ycable/fastchg.h -O include/linux/fastchg.h
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_ycable/msm_otg.c -O drivers/usb/otg/msm_otg.c
+sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
 
 make clean
 make elementalx_defconfig
+sleep 10
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig -O .config
+
+# Attach kernel builder to updater-script
+echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+# need to add install script
+EOF
+
+# Start kernel build
 f_kernel_build
 }
 
 f_deb_cm_kernel(){
 echo "Downloading Kernel"
 # Using ElementalX kernel but feel free to change to Android source
+git clone https://github.com/flar2/flo.git -b Cyanogenmod kernel
 
 cd ${basedir}/kernel
 
@@ -537,14 +545,45 @@ echo "Applying Patches"
 # Compat 80211 patch
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 
+# HID
+#wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
+#patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
+
+
 # Turn on y-cable support
-wget https://raw.githubusercontent.com/flar2/flo/1cdf962eee4a09a393cd398409ba2e2da5b5d529/include/linux/fastchg.h -O include/linux/fastchg.h
-wget https://raw.githubusercontent.com/flar2/flo/ElementalX/drivers/usb/otg/msm_otg.c -O drivers/usb/otg/msm_otg.c
 sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
 
-}
+make clean
+make elementalx_defconfig
+#wget 
 
-echo "Downloading Kernel"
+# Attach kernel builder to updater-script
+echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+# need to add install script
+ui_print("MODIFIED FOR KALI LINUX");
+set_progress(1.000000);
+ui_print("Installing kernel...");
+ui_print("Mounting /system");
+mount("ext4", "EMMC", "/dev/block/platform/msm_sdcc.1/by-name/system", "/system");
+package_extract_dir("system", "/system");
+set_perm_recursive(0, 0, 0644, 0644, "/system/lib/modules");
+set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
+set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
+unmount("/system");
+package_extract_dir("kernel", "/tmp");
+set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
+set_perm(0, 0, 0777, "/tmp/mkbootimg");
+set_perm(0, 0, 0777, "/tmp/unpackbootimg");
+set_perm(0, 0, 0777, "/tmp/busybox");
+set_perm(0, 0, 0777, "/tmp/unpack_add_init.sh");
+run_program("/sbin/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
+run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
+run_program("/tmp/mkbootimg.sh");
+run_program("/sbin/busybox", "dd", "if=/tmp/newboot.img", "/dev/block/mmcblk0p14");
+ui_print("");
+ui_print("Done, please reboot.");
+EOF
 
 f_kernel_build
 }
@@ -679,7 +718,7 @@ cd ${basedir}
 # 2. If it detects #KERNEL_SCRIPT_START it will not add it to flashable zip (rootfs)
 # 3. If the updater-script is not found it will assume this is a kernel only build so it will not try to add it
 
-if  grep -Fxq "#KERNEL_SCRIPT_START" "${basedir}/flash/META-INF/com/google/android/updater-script"; then
+if grep -Fxq "#KERNEL_SCRIPT_START" "${basedir}/flash/META-INF/com/google/android/updater-script"; then
   echo "Kernel already added to main updater-script"
 else
   echo "Adding Kernel install to updater-script in main update.zip"

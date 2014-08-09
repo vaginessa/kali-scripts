@@ -1,27 +1,27 @@
 #!/bin/bash
 # Check if first run has already been set up.
 configfile=/root/.firstrun.option
-source $configfile
-if [ "$FIRSTRUN" == "1" ]; then
-exit
+# Check to see if firstrun has been run already
+if [ -e "$configfile" ]; then
+	source $configfile	
+	if [ "$FIRSTRUN" == "1" ]; then
+		exit
+	fi
 fi
 touch $configfile
 #
 # BEGIN THE START UP OPTIONS
 #
 echo ""
-echo ""
 echo "Welcome to Kali Linux for Android!"
 echo ""
-echo "Before we begin, this script will assist with start up options"
-echo "and other settings."
+echo "This script will assist with setting up Kali on your Android Device"
 echo ""
 read -p "Would you like to continue with setup? (y/n): " continue_on
 if [ "$continue_on" == "n" ]; then
 	clear
-	echo ""
 	echo "You can visit the settings in kalimenu to change startup settings."
-	echo "FIRSTRUN=1" > $configfile
+	echo "FIRSTRUN=1" >> $configfile
 	exit
 fi
 # TIME ZONE
@@ -39,6 +39,8 @@ if [ "$sshkeys" == "y" ]; then
 	rm *
 	sleep 3
 	ssh-keygen -t rsa
+	chmod 600 /root/.ssh/id_rsa
+	chmod 644 /root/.ssh/id_rsa.pub
 	echo "Finished!"
 	sleep 2
 fi
@@ -52,14 +54,29 @@ else
 fi
 # CONFIG SSH
 clear
-read -p "Configure default SSH server? (y/n): " configssh
+read -p "Configure the default SSH server? (y/n): " configssh
 if [ "$configssh" == "y" ]; then
 	#LOCAL OR ALL
-	read -p "Listen on localhost (Android Device) only? (y/n): " $SSHLOCAL
-	sed -i 's/#ListenAddress 0.0.0.0/ListenAddress 127.0.0.1/g' /etc/ssh/sshd_config
+	clear
+	read -p "Listen on localhost (Android Device) only? (y/n): " SSHLOCAL
+	if [ "$SSHLOCAL" == "y"]; then
+		sed -i 's/#ListenAddress 0.0.0.0/ListenAddress 127.0.0.1/g' /etc/ssh/sshd_config
+	fi
+		read -p "Enable password based SSH login? (y/n): " SSHPASS
+	if [ "$SSHPASS" == "y"]; then
+		sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+	else
+		if [ -e "/root/.ssh/id_rsa" ]; then
+		read -p "SSH private key detected.  Would you like to copy private key to SDCARD? (y/n): " SSHKEYCOPY
+	if [ "$SSHKEYCOPY" == "y"]; then
+		mkdir -p /sdcard/ssh-keys
+		cp /root/.ssh/id_rsa /sdcard/ssh-keys/id_rsa
+		echo "Copied SSH key to /sdcard/ssh-keys/id_rsa"
+		sleep 5
+	fi
 	#PORT
-	read -p "Enter SSH server port: " -e -i "22" SSHPORT
-	sed -i 's/Port 22/Port $SSHPORT/g' /etc/ssh/sshd_config
+	read -p "Enter custom SSH server port (default is 22): " -e -i "22" SSHPORT
+	sed -i 's/Port .*/Port ${SSHPORT}/g' /etc/ssh/sshd_config
 fi
 # VNC STARTUP
 clear
@@ -74,32 +91,28 @@ clear
 read -p "Configure VNC server? (y/n): " configvncres
 if [ "$configvncres" == "y" ]; then
 	clear
-	echo "Choose a resolution"
-	echo "[1] Start Nexus 7 (2012) - 1280x1024"
-	echo "[2] Start Nexus 7 (2013) - 1920x1200"
-	echo "[3] Start Nexus 10 - 2650x1600"
+	echo "Create a VNC password (between six and eight characters): "
+	echo ""
+	vncpasswd
+	clear
+	echo "Choose a default VNC server display resolution:"
+	echo ""
+	echo "[1] Nexus 7 (2012) - 1280x1024"
+	echo "[2] Nexus 7 (2013) - 1920x1200"
+	echo "[3] Nexus 10 - 2650x1600"
 	echo "[4] Custom Display Size (Computer Monitor)"
 	echo ""
 	echo -n "Enter your menu choice [1-4]: "
 	read -p "Choice:" vncmenu
 	case $vncmenu in
-	1) echo "RES=1280x1024" >> $configfile ; f_configvnc_listen ;;
-	2) echo "RES=1920x1200" >> $configfile ; f_configvnc_listen ;;
-	3) echo "RES=2560x1600" >> $configfile ; f_configvnc_listen ;;
-	4) f_custom_vnc ; f_configvnc_listen ;;
+	1) echo "RES=1280x1024" >> $configfile ;;
+	2) echo "RES=1920x1200" >> $configfile ;;
+	3) echo "RES=2560x1600" >> $configfile ;;
+	4) f_custom_vnc ;;
 	*) echo "Incorrect choice..." ;
 	esac
-fi
-# SETUP METASPLOIT
 
-echo "Initial Setup Complete!"
-echo "You can alter settings by launching Kali menu"
-
-################# HELPER FUNCTIONS ##############################
-# CONFIG VNC LISTEN
-f_configvnc_listen(){
-clear
-	echo "Listen on localhost or all interfaces:"
+	echo "VNC Server listen on localhost or all interfaces:"
 	echo "[1] localhost only - Connect to VNC through Android device or SSH only"
 	echo "[2] All Interfaces - Device will show up across network"
 	echo ""
@@ -110,10 +123,14 @@ clear
 	2) echo "VNCLISTEN=" >> $configfile ;;
 	*) echo "Incorrect choice..." ;
 	esac
+	# CONFIG VNC LISTEN
+	f_customvnc(){
+		read -p "Enter Custom Display Size (e.g. ####x####) " CUSTOMVNCSIZE
+		echo "RES=$CUSTOMVNCSIZE" >> $configfile
+	}
 fi
-}
-
-f_customvnc(){
-	read -p "Enter Custom Display Size (e.g. ####x####) " CUSTOMVNCSIZE
-	echo "RES=$CUSTOMVNCSIZE" >> $configfile
-}
+# SETUP METASPLOIT
+##############################################################
+echo "FIRSTRUN=1" >> $configfile
+echo "Initial Setup Complete!"
+echo "You can alter settings by launching Kali menu"
