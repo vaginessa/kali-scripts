@@ -159,7 +159,7 @@ desktop="kali-defaults kali-root-login desktop-base xfce4 xfce4-places-plugin xf
 tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-ng wipe socat ettercap-text-only beef-xss "
 wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet hostapd dnsmasq wvdial"
 services="autossh openssh-server lighttpd tightvncserver postgresql openvpn"
-extras="wpasupplicant zip macchanger dbd ptunnel"
+extras="wpasupplicant zip macchanger dbd florence"
 
 export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras}"
 export architecture="armhf"
@@ -290,8 +290,9 @@ LANG=C chroot kali-$architecture chmod 755 /usr/bin/kalimenu
 LANG=C chroot kali-$architecture chmod 755 /usr/bin/firstrun
 
 # Install nodeJS
-#wget http://node-arm.herokuapp.com/node_latest_armhf.deb -O kali-$architecture/tmp/node_latest_armhf.deb
-#LANG=C chroot kali-$architecture dpkg -i /tmp/node_latest_armhf.deb
+#wget http://nodejs.org/dist/node-latest.tar.gz -O kali-$architecture/tmp/node-latest.tar.gz
+#tar xvf node-latest.tar.gz -C kali-$architecture/tmp/
+#LANG=C chroot kali-$architecture "cd tmp && ./configure --without-snapshot --dest-cpu=arm --dest-os=linux" && make && make install
 
 # Sets the default for hostapd.conf but not really needed as evilap will create it's own now
 #sed -i 's#^DAEMON_CONF=.*#DAEMON_CONF=/etc/hostapd/hostapd.conf#' kali-$architecture/etc/init.d/hostapd
@@ -740,7 +741,7 @@ if [ -d "${basedir}/flash/" ]; then
   cp ${basedir}/kernel/arch/arm/boot/zImage ${basedir}/flash/kernel/kernel
   cp ${basedir}/flashkernel/system/lib/modules/* ${basedir}/flash/system/lib/modules
   # Kali rootfs (chroot) looks for modules in a different folder then Android (/system/lib) when using modprobe
-  rsync -avm --include='*.ko' -f 'hide,! */' modules/lib/modules ../kali-armhf/lib/modules
+  rsync -HPavm --include='*.ko' -f 'hide,! */' ${basedir}/kali-armhf/kernel/modules/lib/modules ${basedir}/kali-armhf/lib/
 fi
 
 # Copy kernel to flashable package

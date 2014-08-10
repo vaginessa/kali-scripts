@@ -494,6 +494,7 @@ echo "[1] Start SSH Server"
 echo "[2] Start VNC Server"
 echo "[3] Kill all VNC instances (remove pid/logs)"
 echo "[4] Start Metasploit"
+echo "[5] Start XServer on localhost (XServer XSDL)"
 echo "[0] Exit to main menu"
 echo ""
 read -p "Choice: " serviceschoice
@@ -502,8 +503,8 @@ case $serviceschoice in
 1) clear; f_ssh ;;
 2) clear; f_vncstart ;;
 3) clear; f_vnckill ;;
-4) clear; f_vpnmenu ;;
-5) clear; /opt/metasploit/scripts/start.sh ;;
+4) clear; /opt/metasploit/scripts/start.sh ;;
+5) clear; DISPLAY=127.0.0.1:0.0 startxfce4; echo "Server started on localhost to be used with Xserver XSDL application" ;;
 0) f_interface ;;
 *) echo "Incorrect choice..." ;
 esac
@@ -689,8 +690,8 @@ echo "[3] Change VNC Password"
 echo "[4] Create Metasploit User and Database"
 echo "[5] Macchanger (wlan1)"
 echo "[0] Exit to main menu"
-
-ead -p "Choice:" settingschoice
+echo ""
+read -p "Choice:" settingschoice
 
 case $settingschoice in
 1) clear; f_startup ;;
@@ -702,6 +703,7 @@ case $settingschoice in
 *) echo "Incorrect choice..." ;
 esac
 }
+
 f_startup(){
 configfile=/root/.firstrun.option
 if [ -e "$configfile" ]; then
@@ -715,13 +717,19 @@ clear
 if [ "$sshonboot" == "1" ]; then
 	echo "[X] SSH Set to start up boot"
 	read -p "Turn SSH OFF on boot? (y/n): " sshoffboot
-	if [ "$sshoffboot" == "y" ]; then sed -i 's/sshonboot=1/sshonboot=0/g' $configfile fi
+	if [ "$sshoffboot" == "y" ]; then 
+		sed -i '/sshonboot=1/d' $configfile
+		echo "sshonboot=0" >> $configfile
+	fi
 	echo "SSH will not load on boot"
 	sleep 5
 else
 	echo "[ ] SSH Not set to start on boot"
 	read -p "START SSH on boot? (y/n): " sshonboot
-	if [ "$sshonboot" == "y" ]; then sed -i 's/sshonboot=0/sshonboot=1/g' $configfile fi
+	if [ "$sshonboot" == "y" ]; then
+		sed -i '/sshonboot=0/d' $configfile 
+		echo "sshonboot=1" >> $configfile
+	fi
 	echo "SSH will load on boot"
 	sleep 5
 fi
@@ -729,13 +737,19 @@ fi
 if [ "$vnconboot" == "1" ]; then
 	echo "[X] VNC Set to start up on boot"
 	read -p "Turn VNC OFF on boot? (y/n): " vncoffboot
-	if [ "$vncoffboot" == "y" ]; then sed -i 's/vnconboot=1/vnconboot=0/g' $configfile fi
+	if [ "$vncoffboot" == "y" ]; then 
+		sed -i '/vnconboot=1/d' $configfile 
+		echo "vnconboot=0" >> $configfile
+	fi
 	echo "VNC will not load on boot"
 	sleep 5
 else
 	echo "[ ] VNC Not set to start on boot"
 	read -p "START VNC on boot? (y/n): " vnconboot
-	if [ "$vnconboot" == "y" ]; then sed -i 's/vnconboot=0/vnconboot=1/g' $configfile fi
+	if [ "$vnconboot" == "y" ]; then 
+		sed -i '/vnconboot=0/d' $configfile 
+		echo "vnconboot=1" >> $configfile
+	fi
 	echo "VNC will load on boot"
 	sleep 5
 fi
