@@ -569,8 +569,9 @@ esac
 
 f_deb_stock_kernel(){
 echo "Downloading Kernel"
+cd ${basedir}
 #git clone https://android.googlesource.com/kernel/msm.git -b android-msm-flo-3.4-kitkat-mr2
-git clone https://github.com/flar2/flo.git -b ElementalX kernel
+git clone https://github.com/flar2/flo.git -b ElementalX ${basedir}/kernel
 
 cd ${basedir}/kernel
 echo "Applying Patches"
@@ -623,8 +624,9 @@ f_kernel_build
 
 f_deb_cm_kernel(){
 echo "Downloading Kernel"
+cd ${basedir}
 # Using ElementalX kernel but feel free to change to Android source
-git clone https://github.com/flar2/flo.git -b Cyanogenmod kernel
+git clone https://github.com/flar2/flo.git -b Cyanogenmod ${basedir}/kernel
 
 cd ${basedir}/kernel
 
@@ -710,8 +712,9 @@ esac
 }
 
 f_hammerhead_stock_kernel(){
+cd ${basedir}
 echo "Downloading Kernel"
-git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2 kernel
+git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2 ${basedir}/kernel
 
 cd ${basedir}/kernel
 echo "Applying Patches"
@@ -770,8 +773,8 @@ f_kernel_build
 
 f_hammerhead_cm_kernel(){
 echo "Downloading Kernel"
-git clone https://github.com/CyanogenMod/android_kernel_lge_hammerhead.git -b "stable/cm-11.0" kernel
-
+cd ${basedir}
+git clone https://github.com/CyanogenMod/android_kernel_lge_hammerhead.git -b "stable/cm-11.0" ${basedir}/kernel
 cd ${basedir}/kernel
 
 echo "Applying Patches"
