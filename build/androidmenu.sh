@@ -5,7 +5,7 @@
 # Kernel Development requires Kali 64bit host
 
 f_check_version(){
-		
+
 		# Allower user input of version number/folder creation to make set up easier
 		clear
 		echo ""
@@ -43,8 +43,8 @@ echo ""
 echo -e "\e[31m	----------------------------  NEXUS 7 (2013) --------DEB/FLO-----------\e[0m"
 echo "	[3] Build for Nexus 7 (2013) with wireless USB support (Android 4.4+)"
 echo ""
-echo -e "\e[31m ----------------------------  NEXUS 5 --------------HAMMERHEAD---------\e[0m"
-echo "  [4] Build for Nexus 5 (2013) with wireless USB support (Android 4.4+)"
+echo -e "\e[31m	----------------------------  NEXUS 5 --------------HAMMERHEAD---------\e[0m"
+echo "	[4] Build for Nexus 5 (2013) with wireless USB support (Android 4.4+)"
 echo ""
 echo ""
 echo "	[88] Rootfs only - For any rooted and unlocked device but without kernel support"
@@ -303,6 +303,28 @@ LANG=C chroot kali-$architecture /third-stage
 sed -i 's/\# logprefix=\/some\/path\/to\/logs/logprefix=\/captures\/kismet/g' kali-$architecture/etc/kismet/kismet.conf
 sed -i 's/# ncsource=wlan0/ncsource=wlan1/g' kali-$architecture/etc/kismet/kismet.conf
 sed -i 's/gpshost=localhost:2947/gpshost=127.0.0.1:2947/g' kali-$architecture/etc/kismet/kismet.conf
+
+# PHP Working with lighttpd for future webserver.  Bind to localhost will be changable in settings
+sed -i 's/^;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' kali-$architecture/etc/php5/fpm/php.ini
+sed -i 's/^#       "mod_rewrite",/        "mod_rewrite",/g' kali-$architecture/etc/lighttpd/lighttpd.conf
+echo 'server.bind = "127.0.0.1"' >> kali-$architecture/etc/lighttpd.conf
+
+cat << EOF > kali-$architecture/etc/lighttpd/conf-available/15-fastcgi-php.conf
+# -*- depends: fastcgi -*-
+# /usr/share/doc/lighttpd/fastcgi.txt.gz
+# http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs:ConfigurationOptions#mod_fastcgi-fastcgi
+## Start an FastCGI server for php (needs the php5-cgi package)
+index-file.names += ("index.php")
+fastcgi.server += ( 
+    ".php" => (
+      "localhost" => ( 
+          "socket" => "/var/run/php5-fpm.sock",
+          "broken-scriptfilename" => "enable"
+        ))
+)
+EOF
+LANG=C chroot kali-$architecture lighty-enable-mod fastcgi-php
+LANG=C chroot kali-$architecture chown -R www-data:www-data /var/www
 
 # Modify Wifite log saving folder
 sed -i 's/hs/\/captures/g' kali-$architecture/etc/kismet/kismet.conf
@@ -713,7 +735,7 @@ patch -p1 --no-backup-if-mismatch < ../patches/kexec.patch
 make clean
 make hammerhead_defconfig
 sleep 10
-wget ######### -O .config
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus5-hammerhead/kali_hammerhead_stock_defconfig -O .config
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
@@ -748,7 +770,7 @@ f_kernel_build
 
 f_hammerhead_cm_kernel(){
 echo "Downloading Kernel"
-git clone https://github.com/CyanogenMod/android_kernel_lge_hammerhead.git -b stable/cm-11.0 kernel
+git clone https://github.com/CyanogenMod/android_kernel_lge_hammerhead.git -b "stable/cm-11.0" kernel
 
 cd ${basedir}/kernel
 
@@ -769,7 +791,7 @@ patch -p1 --no-backup-if-mismatch < ../patches/kexec.patch
 make clean
 make cyanogenmod_hammerhead_defconfig
 sleep 10
-wget ############## -O .config
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus5-hammerhead/kali_hammerhead_stock_defconfig -O .config
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script

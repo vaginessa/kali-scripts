@@ -58,7 +58,7 @@ read -p "Choice: " wirelesschoice
 case $wirelesschoice in
 
 1) clear; f_wifite ;;
-2) clear; f_evilap ;;
+2) clear; trap 'f_wireless_attacks' 2; f_evilap ;;
 3) clear; f_kismet ;;
 0) clear; f_interface ;;
 *) echo "Incorrect choice..." ;
@@ -232,7 +232,11 @@ EOF
 	echo "Staring dnsmasq (DNS server)"
 	service dnsmasq start
 	echo "Starting hostapd (AP)"
-	hostapd -d -P /opt/evilap.pid /etc/hostapd/evilhostapd.conf & > $EVIL_LOGNAME
+	echo ""
+	echo "CTRL-C will return you to the main menu but hostapd will continue to run."
+	sleep 3
+	hostapd -d -P /opt/evilap.pid /etc/hostapd/evilhostapd.conf > $EVIL_LOGNAME
+	f_wireless_attacks
 }
 
 # This is where EvilAP launches the menu
