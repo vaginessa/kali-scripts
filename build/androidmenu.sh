@@ -34,14 +34,17 @@ echo -e "		         \e[1mKALI LINUX BUILDER FOR ANDROID DEVICES\e[0m"
 echo ""
 echo "	   WORK PATH: ${basedir}"
 echo ""
-echo -e "\e[31m	----------------------------   NEXUS 10    -----------MANTA ------------\e[0m"
+echo -e "\e[31m	----------------------------   NEXUS 10    -----------MANTA -----------\e[0m"
 echo "	[1] Build for Nexus 10 Kernel with wireless USB support (Android 4.4+)"
 echo ""
-echo -e "\e[31m	----------------------------  NEXUS 7 (2012) ----GROUPER/NAKASI---------\e[0m"
+echo -e "\e[31m	----------------------------  NEXUS 7 (2012) ----GROUPER/NAKASI--------\e[0m"
 echo "	[2] Build for Nexus 7 (2012) with wireless USB support (Android 4.4+)"
 echo ""
 echo -e "\e[31m	----------------------------  NEXUS 7 (2013) --------DEB/FLO-----------\e[0m"
 echo "	[3] Build for Nexus 7 (2013) with wireless USB support (Android 4.4+)"
+echo ""
+echo -e "\e[31m ----------------------------  NEXUS 5 --------------HAMMERHEAD---------\e[0m"
+echo "  [4] Build for Nexus 5 (2013) with wireless USB support (Android 4.4+)"
 echo ""
 echo ""
 echo "	[88] Rootfs only - For any rooted and unlocked device but without kernel support"
@@ -58,6 +61,7 @@ case $menuchoice in
 1) clear; f_manta ;;
 2) clear; f_grouper ;;
 3) clear; f_deb ;;
+4) clear; f_hammerhead ;;
 88) clear; f_rootfs ; f_flashzip; f_zip_save ;;
 99) f_cleanup ;;
 q) clear; exit 1 ;;
@@ -130,6 +134,27 @@ case $deb_menuchoice in
 esac
 }
 
+f_hammerhead(){
+echo -e "\e[31m ------------------------- NEXUS 7 (2013) -----------------------\e[0m"
+echo ""
+echo "  [1] Build All - Kali rootfs and Kernel (Android 4.4+)"
+echo "  [2] Build Kernel Only"
+echo "  [0] Exit to Main Menu"
+echo ""
+echo ""
+# wait for character input
+
+read -p "Choice: " deb_menuchoice
+
+case $deb_menuchoice in
+
+1) clear; f_rootfs ; f_flashzip ; f_hammerhead_kernel ; f_zip_save ; f_zip_kernel_save ;;
+2) clear; f_hammerhead_kernel ; f_zip_kernel_save ;;
+0) clear; f_interface ;;
+*) echo "Incorrect choice... " ;
+esac
+}
+
 f_check_crosscompile(){
 # Make sure that the cross compiler can be found in the path before we do
 # anything else, that way the builds don't fail half way through.
@@ -157,8 +182,8 @@ arm="abootimg cgpt fake-hwclock ntpdate vboot-utils vboot-kernel-utils uboot-mki
 base="kali-menu kali-defaults initramfs-tools usbutils openjdk-7-jre"
 desktop="kali-defaults kali-root-login desktop-base xfce4 xfce4-places-plugin xfce4-goodies"
 tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-ng wipe socat ettercap-text-only beef-xss "
-wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet hostapd dnsmasq wvdial"
-services="autossh openssh-server lighttpd tightvncserver postgresql openvpn"
+wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet hostapd dnsmasq wvdial dsniff sslstrip"
+services="autossh openssh-server tightvncserver lighttpd postgresql openvpn php5-fpm php5"
 extras="wpasupplicant zip macchanger dbd florence"
 
 export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras}"
@@ -290,9 +315,10 @@ LANG=C chroot kali-$architecture chmod 755 /usr/bin/kalimenu
 LANG=C chroot kali-$architecture chmod 755 /usr/bin/firstrun
 
 # Install nodeJS
-#wget http://nodejs.org/dist/node-latest.tar.gz -O kali-$architecture/tmp/node-latest.tar.gz
-#tar xvf node-latest.tar.gz -C kali-$architecture/tmp/
-#LANG=C chroot kali-$architecture "cd tmp && ./configure --without-snapshot --dest-cpu=arm --dest-os=linux" && make && make install
+#wget https://raw.github.com/creationix/nvm/master/install.sh && chmod +x install.sh
+#source ~/.nvm/nvm.sh
+#nvm install 0.11.11
+#rm -rf ~/.nvm
 
 # Sets the default for hostapd.conf but not really needed as evilap will create it's own now
 #sed -i 's#^DAEMON_CONF=.*#DAEMON_CONF=/etc/hostapd/hostapd.conf#' kali-$architecture/etc/init.d/hostapd
@@ -310,11 +336,13 @@ dhcp-option=6,10.0.0.1
 log-queries
 EOF
 
+
+
 # Add missing folders to chroot needed
 cap=kali-$architecture/captures
 mkdir -p kali-$architecture/root/.ssh/
 mkdir -p kali-$architecture/sdcard kali-$architecture/system
-mkdir -p $cap/evilap $cap/ettercap $cap/kismet/db $cap/nmap $cap/sslstrip $cap/tshark $cap/wifite $cap/tcpdump 
+mkdir -p $cap/evilap $cap/ettercap $cap/kismet/db $cap/nmap $cap/sslstrip $cap/tshark $cap/wifite $cap/tcpdump $cap/urlsnarf $cap/dsniff
 
 # Add postgresql user to inet so it can access network
 echo "inet:x:3004:postgres,root" >> kali-$architecture/etc/group
@@ -519,6 +547,7 @@ esac
 
 f_deb_stock_kernel(){
 echo "Downloading Kernel"
+#git clone https://android.googlesource.com/kernel/msm.git -b android-msm-flo-3.4-kitkat-mr2
 git clone https://github.com/flar2/flo.git -b ElementalX kernel
 
 cd ${basedir}/kernel
@@ -593,6 +622,154 @@ make clean
 make elementalx_defconfig
 sleep 10
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elxcm_kali_defconfig -O .config
+
+# Attach kernel builder to updater-script
+echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+ui_print("MODIFIED FOR KALI LINUX");
+set_progress(1.000000);
+ui_print("Installing kernel...");
+ui_print("Mounting /system");
+mount("ext4", "EMMC", "/dev/block/platform/msm_sdcc.1/by-name/system", "/system");
+package_extract_dir("system", "/system");
+set_perm_recursive(0, 0, 0644, 0644, "/system/lib/modules");
+set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
+set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
+unmount("/system");
+package_extract_dir("kernel", "/tmp");
+set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
+set_perm(0, 0, 0777, "/tmp/mkbootimg");
+set_perm(0, 0, 0777, "/tmp/unpackbootimg");
+set_perm(0, 0, 0777, "/tmp/busybox");
+set_perm(0, 0, 0777, "/tmp/unpack_add_init.sh");
+run_program("/sbin/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
+run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
+run_program("/tmp/mkbootimg.sh");
+run_program("/sbin/busybox", "dd", "if=/tmp/newboot.img", "/dev/block/mmcblk0p14");
+ui_print("");
+ui_print("Done, please reboot.");
+EOF
+
+f_kernel_build
+}
+
+#####################################################
+# Create Nexus 5 Kernel (4.4+)
+#####################################################
+f_hammerhead_kernel(){
+if [ ! -e "/usr/bin/lz4c" ]; then
+  echo "Missing lz4c which is needed to build the ROMs.  Downloading and making for system:"
+  cd ${basedir}
+  wget http://lz4.googlecode.com/files/lz4-r112.tar.gz
+  tar -xf lz4-r112.tar.gz
+  cd lz4-r112
+  make
+  make install
+  echo "lz4c now installed.  Removing leftovers"
+  cd ..
+  rm -rf lz4-r112.tar.gz lz4-r112
+fi
+
+f_kernel_build_init
+clear
+echo "  Depending on which ROM, there are two types of kernels"
+echo "  a user may use.  Choose which kernel your ROM uses."
+echo ""
+echo "  [1] Create Stock/AOSP Kernel"
+echo "  [2] Create Cyanogenmod/CAF Kernel"
+# wait for character input
+read -p "Choice: " deb_kernel_menuchoice
+case $deb_kernel_menuchoice in
+
+1) clear; f_hammermead_stock_kernel ;;
+2) clear; f_hammerhead_cm_kernel ;;
+*) echo "Incorrect choice..." ;
+esac
+}
+
+f_hammerhead_stock_kernel(){
+echo "Downloading Kernel"
+git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2 kernel
+
+cd ${basedir}/kernel
+echo "Applying Patches"
+# Compat 80211 patch
+patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
+
+# Patch enables the Android device to act as a keyboard and mouse through usb (send keyboard commands to computer)
+wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
+patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
+
+# Fastcharge and y-cable support
+# This is working but its a nasty hack from taking the y-cable support in FLO/DEB and putting it into Nexus 10
+# Not sure if the battery (smb347.c) needs additional modifications either
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_ycable/fastchg.h -O include/linux/fastchg.h
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_ycable/msm_otg.c -O drivers/usb/otg/msm_otg.c
+
+# Kexec Patch
+wget https://github.com/Tasssadar/android_kernel_google_msm/commit/005cf387c1404eac862cc35153d7641d18faef4c.patch -O ../patches/kexec.patch
+patch -p1 --no-backup-if-mismatch < ../patches/kexec.patch
+
+make clean
+make hammerhead_defconfig
+sleep 10
+wget ######### -O .config
+
+# Attach kernel builder to updater-script
+echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+ui_print("MODIFIED FOR KALI LINUX");
+set_progress(1.000000);
+ui_print("Installing kernel...");
+ui_print("Mounting /system");
+mount("ext4", "EMMC", "/dev/block/platform/msm_sdcc.1/by-name/system", "/system");
+package_extract_dir("system", "/system");
+set_perm_recursive(0, 0, 0644, 0644, "/system/lib/modules");
+set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
+set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
+unmount("/system");
+package_extract_dir("kernel", "/tmp");
+set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
+set_perm(0, 0, 0777, "/tmp/mkbootimg");
+set_perm(0, 0, 0777, "/tmp/unpackbootimg");
+set_perm(0, 0, 0777, "/tmp/busybox");
+set_perm(0, 0, 0777, "/tmp/unpack_add_init.sh");
+run_program("/sbin/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
+run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
+run_program("/tmp/mkbootimg.sh");
+run_program("/sbin/busybox", "dd", "if=/tmp/newboot.img", "/dev/block/mmcblk0p14");
+ui_print("");
+ui_print("Done, please reboot.");
+EOF
+
+# Start kernel build
+f_kernel_build
+}
+
+f_hammerhead_cm_kernel(){
+echo "Downloading Kernel"
+git clone https://github.com/CyanogenMod/android_kernel_lge_hammerhead.git -b stable/cm-11.0 kernel
+
+cd ${basedir}/kernel
+
+echo "Applying Patches"
+# Compat 80211 patch
+patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
+
+# Patch enables the Android device to act as a keyboard and mouse through usb (send keyboard commands to computer)
+wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
+patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
+
+# Y-cable not work working with CM
+
+# Kexec Patch
+wget https://github.com/Tasssadar/android_kernel_google_msm/commit/005cf387c1404eac862cc35153d7641d18faef4c.patch -O ../patches/kexec.patch
+patch -p1 --no-backup-if-mismatch < ../patches/kexec.patch
+
+make clean
+make cyanogenmod_hammerhead_defconfig
+sleep 10
+wget ############## -O .config
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script

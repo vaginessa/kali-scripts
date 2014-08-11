@@ -2,10 +2,10 @@
 #
 ## date format ##
 NOW=$(date +"%m-%d-%y-%H%M%S")
-########################## MAIN MENU ###############################
+########################## QUICK MENU ###############################
 f_interface(){
 clear
-echo "			KALI ANDROID MAIN MENU"
+echo "			KALI ANDROID QUICK MENU"
 echo ""
 echo ""
 echo "[1]	Wireless Attacks		[5]	Information Gathering"
@@ -42,6 +42,7 @@ esac
 
 ########################## WIRELESS MENU ###############################
 f_wireless_attacks(){
+clear
 f_wlan1check
 echo "				WIRELESS ATTACKS MAIN MENU"
 echo ""
@@ -70,13 +71,13 @@ if [ -z "$adaptor" ]; then
     ifconfig wlan1 up
     sleep 2
     echo "Attempting to bring wlan1 up"
-    	if [ -z "$adaptor" ]; then
-    		echo "Still not detecting wlan1, please try plugging it in again."
-    		sleep 5
-    		clear
-    		echo -e "\e[31mWLAN1: NOT FOUND\e[0m"
-    		echo ""
-    	fi
+    if [ -z "$adaptor" ]; then
+    	echo "Still not detecting wlan1, please try plugging it in again."
+    	sleep 5
+    	clear
+    	echo -e "\e[31mWLAN1: NOT FOUND\e[0m"
+    	echo ""
+    fi
 else
 	echo -e "\e[92mWLAN1: FOUND\e[0m" 
 	echo ""
@@ -286,75 +287,58 @@ else
 fi
 }
 ##########################   SNIFFING MENU     ###############################
-
 f_sniffing(){
+clear
 echo "				SNIFFING/SPOOFING MAIN MENU"
+echo ""
 echo ""
 echo "[1]	tcpdump"
 echo "[2]	tshark"
 echo "[3]	urlsnarf"
 echo "[4]	dsniff"
 echo ""
-echo "[0]	Exit"
+echo "[0]	Exit to main menu"
 echo ""
 read -p "Choice: " sniffchoice
 
 case $sniffchoice in
 
-1) clear; f_tcpdump ;;
-2) clear; f_tshark ;;
-3) clear; f_urlsnarf ;;
-4) clear; f_dsniff ;;
-0) clear; exit 1 ;;
+1) clear; trap 'f_sniffing' 2; f_tcpdump ;;
+2) clear; trap 'f_sniffing' 2; f_tshark ;;
+3) clear; trap 'f_sniffing' 2; f_urlsnarf ;;
+4) clear; trap 'f_sniffing' 2; f_dsniff ;;
+0) clear; f_interface ;;
 *) echo "Incorrect choice..." ;
 esac
 }
 
 f_tcpdump(){
-	f_sniff_interface
-	tcpdump -n -tttt -i $sniffinterface -w /captures/tcpdump/tcpdump-$NOW.pcap;
-}
-f_tshark(){
-	f_sniff_interface
-	tshark -i $sniffinterface -w /captures/tshark/tshark-$now.cap;
+	f_pick_interface
+	echo "ctrl-c to quit and return to sniffing menu"
+	tshark -i $pickinterface -w /captures/tshark/tshark-$now.cap;
+	f_sniffing
 }
 f_urlsnarf(){
-	f_sniff_interface
+	f_pick_interface
+	echo "ctrl-c to quit and return to sniffing menu"
+	urlsnarf -i $pickinterface > /captures/urlsnarf/urlsnarf-$now.log
 }
 f_dsniff(){
-	f_sniff_interface
+	f_pick_interface
+	echo "ctrl-c to quit and return to sniffing menu"
+	dsniff -i $pickinterface  -w /captures/dsniff/urlsnarf-$now.cap;
+	f_sniffing
 }
-
-f_sniff_interface(){
-echo "Choose which interface to start sniffing on"
-echo ""
-echo "[1]	wlan0"
-echo "[2]	wlan1"
-echo "[3]	rmnet0"
-echo "[4]	eth0"
-echo ""
-read -p "Choice:" sniffinterface
-
-case $sniffinterface in
-
-1) clear; sniffinterface=wlan0 ;;
-1) clear; sniffinterface=wlan1 ;;
-1) clear; sniffinterface=rmnet0 ;;
-1) clear; sniffinterface=eth0 ;;
-*) echo "Incorrect choice..." ;
-esac
-}
-
 ##########################   WEB APP MENU    ###############################
-
 f_web_applications(){
+clear
 echo "				WEB APPLICATION MAIN MENU"
 echo ""
 echo "[1]	sqlmap"
 echo "[2]	sqlninja"
 echo "[3]	xsser"
 echo ""
-echo "[0]	Exit"
+echo "[0]	Exit to main menu"
 
 read -p "Choice: " webchoice
 
@@ -362,6 +346,7 @@ case $webchoice in
 1) clear; f_tcpdump ;;
 2) clear; f_tshark ;;
 3) clear; xsser ;;
+0) clear; f_interface ;;
 *) echo "Incorrect choice..." ;
 esac
 }
@@ -489,6 +474,7 @@ f_ptunnel(){
 ########################## SERVICES MENU ###############################
 
 f_services(){
+clear
 echo "				SERVICES"
 echo "[1] Start SSH Server"
 echo "[2] Start VNC Server"
@@ -511,8 +497,9 @@ esac
 }
 
 f_ssh(){
-	# need to add more to this later
 	service ssh start
+	echo "Starting SSHD"
+	sleep 3
 }
 
 f_vncstart(){
@@ -682,6 +669,7 @@ f_vpnmenu
 }
 ########################## SETTINGS MENU ###############################
 f_settings(){
+clear
 echo "				SETTINGS"
 echo ""
 echo "[1] Change Start Up Settings"
@@ -722,7 +710,7 @@ if [ "$sshonboot" == "1" ]; then
 		echo "sshonboot=0" >> $configfile
 	fi
 	echo "SSH will not load on boot"
-	sleep 5
+	sleep 3
 else
 	echo "[ ] SSH Not set to start on boot"
 	read -p "START SSH on boot? (y/n): " sshonboot
@@ -731,7 +719,7 @@ else
 		echo "sshonboot=1" >> $configfile
 	fi
 	echo "SSH will load on boot"
-	sleep 5
+	sleep 3
 fi
 
 if [ "$vnconboot" == "1" ]; then
@@ -742,7 +730,7 @@ if [ "$vnconboot" == "1" ]; then
 		echo "vnconboot=0" >> $configfile
 	fi
 	echo "VNC will not load on boot"
-	sleep 5
+	sleep 3
 else
 	echo "[ ] VNC Not set to start on boot"
 	read -p "START VNC on boot? (y/n): " vnconboot
@@ -751,12 +739,13 @@ else
 		echo "vnconboot=1" >> $configfile
 	fi
 	echo "VNC will load on boot"
-	sleep 5
+	sleep 3
 fi
+f_settings
 }
 
 f_msuser() {
-	service postgresql
+	service postgresql start
 	echo "Switching to user postgres"
 	su postgres	
 	read -p "Enter Metasploit database username:" msuser
@@ -768,20 +757,50 @@ f_msuser() {
 	echo "Add:"
 	echo "db_connect $msuser:YOURPASSWORD@127.0.0.1:5432/$dbname"
 	sleep 4
-	f_interface
+	f_settings
 }
 
 f_macchanger(){
-	read -p "Use random MAC address on wlan1? (y/n)" randommac
-	if [ "$randommac" == "y" ]; then
-		macchanger --random wlan1
+# make sure ifconfig wlan1 is up already
+adaptor=`ip addr | grep wlan1`
+if [ -z "$adaptor" ]; then
+    ifconfig wlan1 up
+fi
+f_pick_interface
+read -p "Use random MAC address on ${pickinterface}? (y/n)" randommac
+if [ "$randommac" == "y" ]; then
+	macchanger --random $pickinterface
 	else
-		read -p "Would you like to set a specific MAC address?" specificmac
-			if [ "$specificmac" == "y" ]; then
-				read -p "Enter your specific MAC address: " spec_evil_mac
-				macchanger --mac=$spec_evil_mac wlan1
-			fi
-	fi
+		read -p "Would you like to set a specific MAC address for ${pickinterface}?" specificmac
+		if [ "$specificmac" == "y" ]; then
+			read -p "Enter your specific MAC address: " spec_evil_mac
+			macchanger --mac=$spec_evil_mac $pickinterface
+		fi
+fi
+f_settings
+}
+
+##############################################
+# PICK INTERFACE USED FOR MULTPILE FUNCTIONS
+##############################################
+f_pick_interface(){
+echo "Choose which interface to use"
+echo ""
+echo "[1]	wlan0"
+echo "[2]	wlan1"
+echo "[3]	rmnet0"
+echo "[4]	eth0"
+echo ""
+read -p "Choice: " sniffinterface
+
+case $sniffinterface in
+
+1) clear; pickinterface=wlan0 ;;
+2) clear; pickinterface=wlan1 ;;
+3) clear; pickinterface=rmnet0 ;;
+4) clear; pickinterface=eth0 ;;
+*) echo "Incorrect choice..." ;
+esac
 }
 # **** START **** #
 f_interface
