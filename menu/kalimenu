@@ -235,8 +235,7 @@ EOF
 	echo ""
 	echo "CTRL-C will return you to the main menu but hostapd will continue to run."
 	sleep 3
-	hostapd -d -P /opt/evilap.pid /etc/hostapd/evilhostapd.conf > $EVIL_LOGNAME
-	f_wireless_attacks
+	hostapd -d -P /opt/evilap.pid /etc/hostapd/evilhostapd.conf > $EVIL_LOGNAME 2>&1 & 
 }
 
 # This is where EvilAP launches the menu
