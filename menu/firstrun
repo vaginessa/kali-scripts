@@ -35,8 +35,7 @@ read -p "Would you like to generate SSH keys? (y/n): " sshkeys
 if [ "$sshkeys" == "y" ]; then
 	echo "Generating new keys and removing old ones."
 	sleep 3
-	cd ~/.ssh/
-	rm *
+	rm -rf ~/.ssh/*
 	sleep 3
 	ssh-keygen -t rsa
 	chmod 600 /root/.ssh/id_rsa
@@ -59,12 +58,14 @@ if [ "$configssh" == "y" ]; then
 	#LOCAL OR ALL
 	clear
 	read -p "Enable password based SSH login? (y/n): " SSHPASS
-	if [ "$SSHPASS" == "y"]; then
+	if [ "$SSHPASS" == "y" ]; then
 		sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 	else
 		if [ -e "/root/.ssh/id_rsa" ]; then
 		read -p "SSH private key detected.  Would you like to copy private key to SDCARD? (y/n): " SSHKEYCOPY
-	if [ "$SSHKEYCOPY" == "y"]; then
+		fi
+	fi
+	if [ "$SSHKEYCOPY" == "y" ]; then
 		mkdir -p /sdcard/ssh-keys
 		cp /root/.ssh/id_rsa /sdcard/ssh-keys/id_rsa
 		echo "Copied SSH key to /sdcard/ssh-keys/id_rsa"
@@ -73,6 +74,7 @@ if [ "$configssh" == "y" ]; then
 	#PORT
 	read -p "Enter custom SSH server port (default is 22): " -e -i "22" SSHPORT
 	sed -i 's/Port .*/Port ${SSHPORT}/g' /etc/ssh/sshd_config
+	fi
 fi
 # VNC STARTUP
 clear
