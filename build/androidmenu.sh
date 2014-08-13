@@ -495,8 +495,7 @@ echo "Applying Patches"
 # Applying wireless patches
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 
-#Kexec patch
-#wget https://github.com/Tasssadar/android_kernel_asus_grouper/commit/51d308e794d077b60d193fae5f03d1d6fcd63fa2.patch -O ../patches/n7_kexec.patch
+#Kexec patch to allow for multirom support
 wget https://gist.githubusercontent.com/Tasssadar/4558647/raw/1f267f5e37c59d1d5e78d7dc79af74c8b6b3eaf6/n7_hardboot.diff -O ../patches/n7_kexec.patch
 patch -p1 --no-backup-if-mismatch < ../patches/n7_kexec.patch
 
@@ -509,7 +508,7 @@ echo "Downloading/replacing defconfig file"
 make clean
 make tegra3_android_defconfig
 sleep 10
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-kangaroo/kangaroo_kali_grouper_defconfig -O .config
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-grouper/kali_grouper_defconfig -O .config
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
@@ -524,12 +523,12 @@ package_extract_dir("system", "/system");
 set_perm_recursive(0, 0, 0644, 0644, "/system/lib/modules");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 unmount("/system");
+ui_print("Installing kernel...");
 package_extract_dir("kernel", "/tmp");
 set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
 set_perm(0, 0, 0777, "/tmp/mkbootimg");
 set_perm(0, 0, 0777, "/tmp/unpackbootimg");
 set_perm(0, 0, 0777, "/tmp/busybox");
-set_perm(0, 0, 0777, "/tmp/unpack_add_init.sh");
 run_program("/sbin/busybox", "dd", "if=/dev/block/platform/sdhci-tegra.3/by-name/LNX", "of=/tmp/boot.img");
 run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
 run_program("/tmp/mkbootimg.sh");
