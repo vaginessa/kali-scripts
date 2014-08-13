@@ -181,7 +181,7 @@ f_check_crosscompile
 arm="abootimg cgpt fake-hwclock ntpdate vboot-utils vboot-kernel-utils uboot-mkimage"
 base="kali-menu kali-defaults initramfs-tools usbutils openjdk-7-jre"
 desktop="kali-defaults kali-root-login desktop-base xfce4 xfce4-places-plugin xfce4-goodies"
-tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-ng wipe socat ettercap-text-only beef-xss "
+tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-ng wipe socat ettercap-text-only beef-xss set"
 wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet hostapd dnsmasq wvdial dsniff sslstrip"
 services="autossh openssh-server tightvncserver lighttpd postgresql openvpn php5-fpm php5"
 extras="wpasupplicant zip macchanger dbd florence"
@@ -437,6 +437,9 @@ cd ${basedir}/kernel
 echo "Applying Patches"
 # Compat 80211 patch
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
+
+wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/not-tested/kernel-3.4-nexus10-2012.patch -O ../patches/nexus10-keybarod.patch
+patch -p1 --no-backup-if-mismatch < ../patches/nexus10-keybarod.patch
 
 # Fastcharge and y-cable support
 # This is working but its a nasty hack from taking the y-cable support in FLO/DEB and putting it into Nexus 10
@@ -903,6 +906,7 @@ clear
 
 # Create seperate kernel flashable zip in case the kernel just needs to be flashed again
 echo "Creating kernel directory structure"
+cd ${basedir}
 git clone https://github.com/binkybear/flash.git ${basedir}/flashkernel
 mkdir -p ${basedir}/flashkernel/system/lib/modules
 rm -rf ${basedir}/flashkernel/data
