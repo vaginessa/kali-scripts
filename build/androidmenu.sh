@@ -488,13 +488,17 @@ f_nexus7_grouper_kernel(){
 f_kernel_build_init
 
 echo "Downloading Kernel"
-# Using Kangaroo kernel but feel free to change to Android source
-git clone https://github.com/lostdeveloper/kangaroo.git -b kangaroo ${basedir}/kernel
+git clone https://android.googlesource.com/kernel/tegra.git -b android-tegra3-grouper-3.1-kitkat-mr2 ${basedir}/kernel
 cd ${basedir}/kernel
 
 echo "Applying Patches"
 # Applying wireless patches
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
+
+#Kexec patch
+#wget https://github.com/Tasssadar/android_kernel_asus_grouper/commit/51d308e794d077b60d193fae5f03d1d6fcd63fa2.patch -O ../patches/n7_kexec.patch
+wget https://gist.githubusercontent.com/Tasssadar/4558647/raw/1f267f5e37c59d1d5e78d7dc79af74c8b6b3eaf6/n7_hardboot.diff -O ../patches/n7_kexec.patch
+patch -p1 --no-backup-if-mismatch < ../patches/n7_kexec.patch
 
 # Patch enables the Android device to act as a keyboard and mouse through usb (send keyboard commands to computer)
 wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.1.patch -O ../patches/keyboard_mouse_hid.patch
@@ -502,9 +506,8 @@ patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
 
 echo "Downloading/replacing defconfig file"
 # Clean kernel folder, enable default config, overwrite .config with one containing enabled wireless and bluetooth devices
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-kangaroo/kangaroo_kali_grouper_defconfig -O .config
 make clean
-make kangaroo_defconfig
+make tegra3_android_defconfig
 sleep 10
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-kangaroo/kangaroo_kali_grouper_defconfig -O .config
 
@@ -515,10 +518,11 @@ ui_print("MODIFIED FOR KALI LINUX");
 set_progress(1.000000);
 ui_print("Installing kernel...");
 mount("ext4", "EMMC", "/dev/block/platform/sdhci-tegra.3/by-name/APP", "/system");
+assert(getprop("ro.product.device") == "grouper" || getprop("ro.build.product") == "grouper" ||
+       getprop("ro.product.device") == "tilapia" || getprop("ro.build.product") == "tilapia");
 package_extract_dir("system", "/system");
 set_perm_recursive(0, 0, 0644, 0644, "/system/lib/modules");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
-set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");
 set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
