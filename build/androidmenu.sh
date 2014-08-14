@@ -433,8 +433,9 @@ echo "Applying Patches"
 # Compat 80211 patch
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 
-wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/not-tested/kernel-3.4-nexus10-2012.patch -O ../patches/nexus10-keyboard.patch
-patch -p1 --no-backup-if-mismatch < ../patches/nexus10-keyboard.patch
+# Keyboard patch currently not working, need to check config file when I have more free time
+#wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/not-tested/kernel-3.4-nexus10-2012.patch -O ../patches/nexus10-keyboard.patch
+#patch -p1 --no-backup-if-mismatch < ../patches/nexus10-keyboard.patch
 
 # Fastcharge and y-cable support
 # This is working but its a nasty hack from taking the y-cable support in FLO/DEB and putting it into Nexus 10
@@ -445,15 +446,15 @@ wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm
 echo "Downloading/replacing defconfig file"
 # Clean kernel folder, enable default config, overwrite .config with one containing enabled wireless and bluetooth devices
 make clean
-make manta_defconfig
-sleep 10
+sleep 3
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus10/exynos_kali_defconfig -O .config
+sleep 10
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 assert(getprop("ro.product.device") == "manta" || getprop("ro.build.product") == "manta");
-ui_print("* Kali Kernel for the Nexus 10 *");
+ui_print("MODIFIED FOR KALI LINUX");
 ui_print("Mounting system...");
 mount("ext4", "EMMC", "/dev/block/platform/dw_mmc.0/by-name/system", "/system");
 ui_print("Deleting old kernel modules...");
@@ -501,9 +502,9 @@ patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
 echo "Downloading/replacing defconfig file"
 # Clean kernel folder, enable default config, overwrite .config with one containing enabled wireless and bluetooth devices
 make clean
-make tegra3_android_defconfig
-sleep 10
+sleep 3
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-grouper/kali_grouper_defconfig -O .config
+sleep 10
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
@@ -517,7 +518,6 @@ assert(getprop("ro.product.device") == "grouper" || getprop("ro.build.product") 
 package_extract_dir("system", "/system");
 set_perm_recursive(0, 0, 0644, 0644, "/system/lib/modules");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
-unmount("/system");
 ui_print("Installing kernel...");
 package_extract_dir("kernel", "/tmp");
 set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
@@ -528,8 +528,7 @@ run_program("/sbin/busybox", "dd", "if=/dev/block/platform/sdhci-tegra.3/by-name
 run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
 run_program("/tmp/mkbootimg.sh");
 run_program("/sbin/busybox", "dd", "if=/tmp/newboot.img", "of=/dev/block/mmcblk0p2");
-ui_print("");
-ui_print("Done, please reboot.");
+unmount("/system");
 EOF
 f_kernel_build
 }
@@ -578,6 +577,9 @@ cd ${basedir}/kernel
 echo "Applying Patches"
 # Compat 80211 patch
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
+
+wget https://gist.githubusercontent.com/Tasssadar/6687647/raw/e10ba59c25cc185864920ec93d552ccd51875202/flo-aosp-Implement-kexec-hardboot-2.patch -O ../patches/nexus7-flodeb-kexec.patch
+patch -p1 --no-backup-if-mismatch < ../patches/nexus7-flodeb-kexec.patch
 
 # Patch enables the Android device to act as a keyboard and mouse through usb (send keyboard commands to computer)
 wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
@@ -634,6 +636,10 @@ cd ${basedir}/kernel
 echo "Applying Patches"
 # Compat 80211 patch
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
+
+# Kexec Patch
+wget https://gist.githubusercontent.com/Tasssadar/6687647/raw/e10ba59c25cc185864920ec93d552ccd51875202/flo-aosp-Implement-kexec-hardboot-2.patch -O ../patches/nexus7-flodeb-kexec.patch
+patch -p1 --no-backup-if-mismatch < ../patches/nexus7-flodeb-kexec.patch
 
 # HID
 wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
@@ -890,12 +896,17 @@ clear
 # FOLDER CHECKING
 #
 #if [ -d "${basedir}/kernel" ]; then
-#  read -p "Kernel folder already exsists, would you like to startover? (y/n)" kernelanswer
-#
+#  read -p "Kernel folder already exsists, would you like to remove folder and startover? (y/n)" kernelanswer
+#  if [ "$kernelanswer" == "y" ]; then
+#     rm -rf ${basedir}/kernel
+#  fi
 #fi
 
 #if [ -d "${basedir}/flashkernel" ]; then
-#  read -p "Kernel folder already exsists, would you like to rebuild? (y/n)" flashanswer
+#  read -p "Kernel folder already exsists, would you like to remove previous folder? (y/n)" flashanswer
+#  if [ "$flashanswer" == "y" ]; then
+#     rm -rf ${basedir}/flashkernel
+#  fi
 #fi
 
 #if [ -d "${basedir}/toolchain" ]; then
