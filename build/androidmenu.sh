@@ -1,17 +1,14 @@
 #!/bin/bash
-
 # Modified to include menu system
-
 # Kernel Development requires Kali 64bit host
+basedir=`pwd`/android-$VERSION
 
 f_check_version(){
-
 		# Allower user input of version number/folder creation to make set up easier
 		clear
 		echo ""
         read -p "Create working folder. Enter version number: " VERSION
-        basedir=`pwd`/android-$VERSION
-
+        export basedir=`pwd`/android-$VERSION
         if [ -d "${basedir}" ]; then
         		echo ""
                 echo "Working folder / version already exsists, use a different version number?"
@@ -23,7 +20,8 @@ f_check_version(){
                 	exit 1
                 fi
         else
-                echo "Working folder / version does not exist, using version number and creating work folder ${basedir}"
+                mkdir -p ${basedir}
+                cd ${basedir}
                 f_interface
 fi
 }
@@ -188,9 +186,6 @@ extras="wpasupplicant zip macchanger dbd florence"
 
 export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras}"
 export architecture="armhf"
-
-mkdir -p ${basedir}
-cd ${basedir}
 
 # create the rootfs - not much to modify here, except maybe the hostname.
 debootstrap --foreign --arch $architecture kali kali-$architecture http://http.kali.org/kali
@@ -438,8 +433,8 @@ echo "Applying Patches"
 # Compat 80211 patch
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 
-wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/not-tested/kernel-3.4-nexus10-2012.patch -O ../patches/nexus10-keybarod.patch
-patch -p1 --no-backup-if-mismatch < ../patches/nexus10-keybarod.patch
+wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/not-tested/kernel-3.4-nexus10-2012.patch -O ../patches/nexus10-keyboard.patch
+patch -p1 --no-backup-if-mismatch < ../patches/nexus10-keyboard.patch
 
 # Fastcharge and y-cable support
 # This is working but its a nasty hack from taking the y-cable support in FLO/DEB and putting it into Nexus 10
@@ -909,7 +904,6 @@ clear
 
 # Create seperate kernel flashable zip in case the kernel just needs to be flashed again
 echo "Creating kernel directory structure"
-cd ${basedir}
 git clone https://github.com/binkybear/flash.git ${basedir}/flashkernel
 mkdir -p ${basedir}/flashkernel/system/lib/modules
 rm -rf ${basedir}/flashkernel/data
