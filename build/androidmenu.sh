@@ -181,7 +181,7 @@ base="kali-menu kali-defaults initramfs-tools usbutils openjdk-7-jre"
 desktop="kali-defaults kali-root-login desktop-base xfce4 xfce4-places-plugin xfce4-goodies"
 tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-ng wipe socat ettercap-text-only beef-xss set"
 wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet hostapd dnsmasq wvdial dsniff sslstrip"
-services="autossh openssh-server tightvncserver lighttpd postgresql openvpn php5-fpm php5"
+services="autossh openssh-server tightvncserver lighttpd apache2 postgresql openvpn php5-fpm php5"
 extras="wpasupplicant zip macchanger dbd florence"
 
 export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras}"
@@ -303,7 +303,6 @@ sed -i 's/gpshost=localhost:2947/gpshost=127.0.0.1:2947/g' kali-$architecture/et
 sed -i 's/^;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' kali-$architecture/etc/php5/fpm/php.ini
 sed -i 's/^#       "mod_rewrite",/        "mod_rewrite",/g' kali-$architecture/etc/lighttpd/lighttpd.conf
 echo 'server.bind = "127.0.0.1"' >> kali-$architecture/etc/lighttpd.conf
-
 cat << EOF > kali-$architecture/etc/lighttpd/conf-available/15-fastcgi-php.conf
 # -*- depends: fastcgi -*-
 # /usr/share/doc/lighttpd/fastcgi.txt.gz
@@ -320,6 +319,13 @@ fastcgi.server += (
 EOF
 LANG=C chroot kali-$architecture lighty-enable-mod fastcgi-php
 LANG=C chroot kali-$architecture chown -R www-data:www-data /var/www
+
+# MANA Toolkit requires Apache2
+git clone https://github.com/sensepost/mana.git ${basedir}/kali-$architecture/opt/mana
+# need to build hostapd
+cp -rf ${basedir}/kali-$architecture/opt/mana/etc ${basedir}/kali-$architecture/etc
+cp -rf ${basedir}/kali-$architecture/opt/mana/var ${basedir}/kali-$architecture/var
+rm -rf ${basedir}/kali-$architecture/opt/mana/slides ${basedir}/kali-$architecture/opt/mana/apache
 
 # Modify Wifite log saving folder
 sed -i 's/hs/\/captures/g' kali-$architecture/etc/kismet/kismet.conf
@@ -484,7 +490,8 @@ f_nexus7_grouper_kernel(){
 f_kernel_build_init
 
 echo "Downloading Kernel"
-git clone https://android.googlesource.com/kernel/tegra.git -b android-tegra3-grouper-3.1-kitkat-mr2 ${basedir}/kernel
+# Kangaroo Kernel has y-cable support and kexec patch built in
+git clone https://github.com/lostdeveloper/kangaroo.git -b kangaroo ${basedir}/kernel
 cd ${basedir}/kernel
 
 echo "Applying Patches"
@@ -492,8 +499,8 @@ echo "Applying Patches"
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 
 #Kexec patch to allow for multirom support
-wget https://gist.githubusercontent.com/Tasssadar/4558647/raw/1f267f5e37c59d1d5e78d7dc79af74c8b6b3eaf6/n7_hardboot.diff -O ../patches/n7_kexec.patch
-patch -p1 --no-backup-if-mismatch < ../patches/n7_kexec.patch
+#wget https://gist.githubusercontent.com/Tasssadar/4558647/raw/1f267f5e37c59d1d5e78d7dc79af74c8b6b3eaf6/n7_hardboot.diff -O ../patches/n7_kexec.patch
+#patch -p1 --no-backup-if-mismatch < ../patches/n7_kexec.patch
 
 # Patch enables the Android device to act as a keyboard and mouse through usb (send keyboard commands to computer)
 wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.1.patch -O ../patches/keyboard_mouse_hid.patch
