@@ -139,7 +139,7 @@ EOF
 	echo "[2] Start EvilAP with internet from rmnet0 (3G)"
 	echo "[3] Stop EvilAP and flush iptables"
 	echo ""
-	echo "[0]	Exit to Wireless Menu"
+	echo "[0] Exit to Wireless Menu"
 
 	read -p "Choice: " evilchoice
 
@@ -194,7 +194,7 @@ f_evilap_start_ap(){
 	ifconfig wlan1 10.0.0.1/24
 	read -p "Enter an SSID name for Access Point: " EVIL_SSID
 	echo "Using $EVIL_SSID as SSID"
-		if [ $EVIL_SSID -eq 0 ]; then
+		if [ -z $EVIL_SSID ]; then
 			EVIL_SSID=default
 			echo "Using default as SSID"
 		fi
