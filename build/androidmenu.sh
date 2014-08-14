@@ -182,7 +182,7 @@ desktop="kali-defaults kali-root-login desktop-base xfce4 xfce4-places-plugin xf
 tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-ng wipe socat ettercap-text-only beef-xss set"
 wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet hostapd dnsmasq wvdial dsniff sslstrip"
 services="autossh openssh-server tightvncserver lighttpd apache2 postgresql openvpn php5-fpm php5"
-extras="wpasupplicant zip macchanger dbd florence"
+extras="wpasupplicant zip macchanger dbd florence libffi-dev python-setuptools python-pip"
 
 export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras}"
 export architecture="armhf"
@@ -327,6 +327,20 @@ cp -rf ${basedir}/kali-$architecture/opt/mana/etc ${basedir}/kali-$architecture/
 cp -rf ${basedir}/kali-$architecture/opt/mana/var ${basedir}/kali-$architecture/var
 rm -rf ${basedir}/kali-$architecture/opt/mana/slides ${basedir}/kali-$architecture/opt/mana/apache
 
+# Install HoneyProxy (MITM SSL Proxy Analyzer)
+LANG=C chroot kali-$architecture pip install pyOpenSSL pyasn1 Autobahn==0.6.5
+wget http://honeyproxy.org/download/honeyproxy-latest.zip -O ${basedir}/kali-$architecture/opt/honeyproxy.zip
+unzip ${basedir}/kali-$architecture/opt/honeyproxy.zip -d ${basedir}/kali-$architecture/opt/honeyproxy/
+rm -f ${basedir}/kali-$architecture/opt/honeyproxy.zip
+cat << EOF > ${basedir}/opt/honeyproxy/default.conf
+# Honeyproxy Configuration File
+-w /captures/honeyproxy/http_conversations_outfile
+--dump-dir /captures/honeyproxy/
+-T
+#-p port
+EOF
+
+
 # Modify Wifite log saving folder
 sed -i 's/hs/\/captures/g' kali-$architecture/etc/kismet/kismet.conf
 
@@ -365,7 +379,7 @@ EOF
 cap=kali-$architecture/captures
 mkdir -p kali-$architecture/root/.ssh/
 mkdir -p kali-$architecture/sdcard kali-$architecture/system
-mkdir -p $cap/evilap $cap/ettercap $cap/kismet/db $cap/nmap $cap/sslstrip $cap/tshark $cap/wifite $cap/tcpdump $cap/urlsnarf $cap/dsniff
+mkdir -p $cap/evilap $cap/ettercap $cap/kismet/db $cap/nmap $cap/sslstrip $cap/tshark $cap/wifite $cap/tcpdump $cap/urlsnarf $cap/dsniff $cap/honeyproxy
 
 # Add postgresql user to inet so it can access network
 echo "inet:x:3004:postgres,root" >> kali-$architecture/etc/group
