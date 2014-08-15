@@ -333,7 +333,7 @@ LANG=C chroot kali-$architecture pip install pyOpenSSL pyasn1 Autobahn==0.6.5
 wget http://honeyproxy.org/download/honeyproxy-latest.zip -O ${basedir}/kali-$architecture/opt/honeyproxy.zip
 unzip ${basedir}/kali-$architecture/opt/honeyproxy.zip -d ${basedir}/kali-$architecture/opt/honeyproxy/
 rm -f ${basedir}/kali-$architecture/opt/honeyproxy.zip
-cat << EOF > ${basedir}/opt/honeyproxy/default.conf
+cat << EOF > ${basedir}/kali-$architecture/opt/honeyproxy/default.conf
 # Honeyproxy Configuration File
 -w /captures/honeyproxy/http_conversations_outfile
 --dump-dir /captures/honeyproxy/
@@ -373,8 +373,6 @@ dhcp-option=6,10.0.0.1
 #no-resolv
 log-queries
 EOF
-
-
 
 # Add missing folders to chroot needed
 cap=kali-$architecture/captures
@@ -734,7 +732,7 @@ echo "  [2] Create Cyanogenmod/CAF Kernel"
 read -p "Choice: " deb_kernel_menuchoice
 case $deb_kernel_menuchoice in
 
-1) clear; f_hammermead_stock_kernel ;;
+1) clear; f_hammerhead_stock_kernel ;;
 2) clear; f_hammerhead_cm_kernel ;;
 *) echo "Incorrect choice..." ;
 esac
