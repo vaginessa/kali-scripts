@@ -180,10 +180,10 @@ arm="abootimg cgpt fake-hwclock ntpdate vboot-utils vboot-kernel-utils uboot-mki
 base="kali-menu kali-defaults initramfs-tools usbutils openjdk-7-jre"
 desktop="kali-defaults kali-root-login desktop-base xfce4 xfce4-places-plugin xfce4-goodies"
 tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-ng wipe socat ettercap-text-only beef-xss set"
-wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet hostapd dnsmasq wvdial dsniff sslstrip"
+wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet dnsmasq wvdial dsniff sslstrip"
 services="autossh openssh-server tightvncserver lighttpd apache2 postgresql openvpn php5-fpm php5"
 extras="wpasupplicant zip macchanger dbd florence libffi-dev python-setuptools python-pip"
-mana="python-twisted python-dnspython libnl-dev libssl-dev sslsplit"
+mana="python-twisted python-dnspython libnl1 libnl-dev libssl-dev sslsplit"
 
 export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras} ${mana}"
 export architecture="armhf"
@@ -324,8 +324,10 @@ LANG=C chroot kali-$architecture chown -R www-data:www-data /var/www
 # MANA Toolkit requires Apache2
 git clone https://github.com/sensepost/mana.git ${basedir}/kali-$architecture/opt/mana
 # need to build hostapd
-cp -rf ${basedir}/kali-$architecture/opt/mana/etc ${basedir}/kali-$architecture/etc
-cp -rf ${basedir}/kali-$architecture/opt/mana/var ${basedir}/kali-$architecture/var
+cp -rf ${basedir}/kali-$architecture/opt/mana/apache/etc/apache2/sites-available/* ${basedir}/kali-$architecture/etc/apache2/sites-available
+cp -rf ${basedir}/kali-$architecture/opt/mana/apache/etc/apache2/sites-enabled/* ${basedir}/kali-$architecture/etc/apache2/sites-enabled
+cp -rf ${basedir}/kali-$architecture/opt/mana/apache/var/www/* ${basedir}/kali-$architecture/var/www
+LANG=C chroot kali-$architecture "cd /opt/mana/hostapd-manna/hostapd; cp defconfig .config; make && make install;"
 rm -rf ${basedir}/kali-$architecture/opt/mana/slides ${basedir}/kali-$architecture/opt/mana/apache
 
 # Install HoneyProxy (MITM SSL Proxy Analyzer)
@@ -340,7 +342,6 @@ cat << EOF > ${basedir}/kali-$architecture/opt/honeyproxy/default.conf
 -T
 #-p port
 EOF
-
 
 # Modify Wifite log saving folder
 sed -i 's/hs/\/captures/g' kali-$architecture/etc/kismet/kismet.conf
@@ -572,11 +573,14 @@ fi
 
 f_kernel_build_init
 clear
+echo ""
 echo "  Depending on which ROM, there are two types of kernels"
 echo "  a user may use.  Choose which kernel your ROM uses."
 echo ""
 echo "  [1] Create Stock/AOSP Kernel"
+echo ""
 echo "  [2] Create Cyanogenmod/CAF Kernel"
+echo ""
 # wait for character input
 read -p "Choice: " deb_kernel_menuchoice
 case $deb_kernel_menuchoice in
@@ -723,12 +727,15 @@ fi
 
 f_kernel_build_init
 clear
+echo ""
 echo "  Depending on which ROM, there are two types of kernels"
 echo "  a user may use.  Choose which kernel your ROM uses."
 echo ""
 echo "  [1] Create Stock/AOSP Kernel"
+echo ""
 echo "  [2] Create Cyanogenmod/CAF Kernel"
 # wait for character input
+echo ""
 read -p "Choice: " deb_kernel_menuchoice
 case $deb_kernel_menuchoice in
 
@@ -790,7 +797,6 @@ run_program("/sbin/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img
 run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
 run_program("/tmp/mkbootimg.sh");
 run_program("/sbin/busybox", "dd", "if=/tmp/newboot.img", "/dev/block/mmcblk0p14");
-ui_print("");
 ui_print("Done, please reboot.");
 EOF
 
@@ -941,7 +947,6 @@ rm -rf ${basedir}/flashkernel/data
 rm -rf ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 
 echo "Downloading Android Toolchian"
-# Get android toolchain to compile kernel
 git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8 ${basedir}/toolchain
 
 echo "Setting export paths"
