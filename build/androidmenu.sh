@@ -1,6 +1,16 @@
 #!/bin/bash
 # Modified to include menu system
 # Kernel Development requires Kali 64bit host
+######### Dependencies #######
+# cd ~
+# wget https://raw.githubusercontent.com/offensive-security/kali-arm-build-scripts/master/build-deps.sh
+# sh build-deps.sh
+######### Compiler ###########
+# cd ~
+# git clone https://github.com/offensive-security/gcc-arm-linux-gnueabihf-4.7.git
+# export PATH=${PATH}:/root/gcc-arm-linux-gnueabihf-4.7/bin
+######### Build script #######
+
 basedir=`pwd`/android-$VERSION
 
 f_check_version(){
@@ -231,6 +241,8 @@ cat << EOF > kali-$architecture/etc/hosts
 127.0.0.1       localhost
 ::1             localhost ip6-localhost ip6-loopback
 EOF
+
+# cp /etc/hosts kali-$architecture/etc/
 
 cat << EOF > kali-$architecture/etc/network/interfaces
 auto lo
