@@ -183,8 +183,9 @@ tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-
 wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet hostapd dnsmasq wvdial dsniff sslstrip"
 services="autossh openssh-server tightvncserver lighttpd apache2 postgresql openvpn php5-fpm php5"
 extras="wpasupplicant zip macchanger dbd florence libffi-dev python-setuptools python-pip"
+mana="python-twisted python-dnspython libnl-dev libssl-dev sslsplit"
 
-export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras}"
+export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras} ${mana}"
 export architecture="armhf"
 
 # create the rootfs - not much to modify here, except maybe the hostname.
