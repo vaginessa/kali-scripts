@@ -807,7 +807,7 @@ f_kernel_build
 f_hammerhead_cm_kernel(){
 echo "Downloading Kernel"
 cd ${basedir}
-git clone https://github.com/CyanogenMod/android_kernel_lge_hammerhead.git -b "stable/cm-11.0" ${basedir}/kernel
+git clone https://github.com/neobuddy89/hammerhead_kernel_caf.git -b "kitkat-caf" ${basedir}/kernel
 cd ${basedir}/kernel
 
 echo "Applying Patches"
@@ -815,19 +815,18 @@ echo "Applying Patches"
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 
 # Patch enables the Android device to act as a keyboard and mouse through usb (send keyboard commands to computer)
-wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
-patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
+#wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
+#patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
 
 # Y-cable not work working with CM
 
 # Kexec Patch
-wget https://github.com/Tasssadar/android_kernel_google_msm/commit/005cf387c1404eac862cc35153d7641d18faef4c.patch -O ../patches/kexec.patch
-patch -p1 --no-backup-if-mismatch < ../patches/kexec.patch
+#wget https://github.com/Tasssadar/android_kernel_google_msm/commit/005cf387c1404eac862cc35153d7641d18faef4c.patch -O ../patches/kexec.patch
+#patch -p1 --no-backup-if-mismatch < ../patches/kexec.patch
 
 make clean
-make cyanogenmod_hammerhead_defconfig
+make chaos_hammerhead_defconfig
 sleep 10
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus5-hammerhead/kali_hammerhead_stock_defconfig -O .config
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
