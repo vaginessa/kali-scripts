@@ -602,8 +602,8 @@ echo "Applying Patches"
 # Compat 80211 patch
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 
-wget https://gist.githubusercontent.com/Tasssadar/6687647/raw/e10ba59c25cc185864920ec93d552ccd51875202/flo-aosp-Implement-kexec-hardboot-2.patch -O ../patches/nexus7-flodeb-kexec.patch
-patch -p1 --no-backup-if-mismatch < ../patches/nexus7-flodeb-kexec.patch
+#wget https://gist.githubusercontent.com/Tasssadar/6687647/raw/e10ba59c25cc185864920ec93d552ccd51875202/flo-aosp-Implement-kexec-hardboot-2.patch -O ../patches/nexus7-flodeb-kexec.patch
+#patch -p1 --no-backup-if-mismatch < ../patches/nexus7-flodeb-kexec.patch
 
 # Patch enables the Android device to act as a keyboard and mouse through usb (send keyboard commands to computer)
 wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
@@ -614,7 +614,6 @@ wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm
 sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
 
 make clean
-make elementalx_defconfig
 sleep 10
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig -O .config
 
@@ -662,8 +661,8 @@ echo "Applying Patches"
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 
 # Kexec Patch
-wget https://gist.githubusercontent.com/Tasssadar/6687647/raw/e10ba59c25cc185864920ec93d552ccd51875202/flo-aosp-Implement-kexec-hardboot-2.patch -O ../patches/nexus7-flodeb-kexec.patch
-patch -p1 --no-backup-if-mismatch < ../patches/nexus7-flodeb-kexec.patch
+#wget https://gist.githubusercontent.com/Tasssadar/6687647/raw/e10ba59c25cc185864920ec93d552ccd51875202/flo-aosp-Implement-kexec-hardboot-2.patch -O ../patches/nexus7-flodeb-kexec.patch
+#patch -p1 --no-backup-if-mismatch < ../patches/nexus7-flodeb-kexec.patch
 
 # HID
 wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
@@ -674,7 +673,6 @@ wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm
 sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
 
 make clean
-make elementalx_defconfig
 sleep 10
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elxcm_kali_defconfig -O .config
 
