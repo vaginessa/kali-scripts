@@ -73,7 +73,7 @@ if [ "$configssh" == "y" ]; then
 	fi
 	#PORT
 	read -p "Enter custom SSH server port (default is 22): " -e -i "22" SSHPORT
-	sed -i 's/Port .*/Port ${SSHPORT}/g' /etc/ssh/sshd_config
+	sed -i "s/Port .*/Port ${SSHPORT}/g" /etc/ssh/sshd_config
 fi
 # VNC STARTUP
 clear
