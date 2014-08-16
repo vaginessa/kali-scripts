@@ -243,7 +243,9 @@ cat << EOF > kali-$architecture/etc/hosts
 ::1             localhost ip6-localhost ip6-loopback
 EOF
 
+# Modifications for building on a local repo
 # cp /etc/hosts kali-$architecture/etc/
+# cp ../utils/* kali-$architecture/usr/bin/
 
 cat << EOF > kali-$architecture/etc/network/interfaces
 auto lo
