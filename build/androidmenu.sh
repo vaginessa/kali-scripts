@@ -194,8 +194,9 @@ wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet dnsmasq wvd
 services="autossh openssh-server tightvncserver lighttpd apache2 postgresql openvpn php5-fpm php5"
 extras="wpasupplicant zip macchanger dbd florence libffi-dev python-setuptools python-pip"
 mana="python-twisted python-dnspython libnl1 libnl-dev libssl-dev sslsplit"
+spiderfoot="python-lxml python-m2crypto python-netaddr python-mako"
 
-export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras} ${mana}"
+export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras} ${mana} ${spiderfoot}"
 export architecture="armhf"
 
 # create the rootfs - not much to modify here, except maybe the hostname.
@@ -335,15 +336,17 @@ LANG=C chroot kali-$architecture chown -R www-data:www-data /var/www
 
 # MANA Toolkit requires Apache2
 git clone https://github.com/sensepost/mana.git ${basedir}/kali-$architecture/opt/mana
-# need to build hostapd
 cp -rf ${basedir}/kali-$architecture/opt/mana/apache/etc/apache2/sites-available/* ${basedir}/kali-$architecture/etc/apache2/sites-available
 cp -rf ${basedir}/kali-$architecture/opt/mana/apache/etc/apache2/sites-enabled/* ${basedir}/kali-$architecture/etc/apache2/sites-enabled
 cp -rf ${basedir}/kali-$architecture/opt/mana/apache/var/www/* ${basedir}/kali-$architecture/var/www
-LANG=C chroot kali-$architecture "cd /opt/mana/hostapd-manna/hostapd; cp defconfig .config; make && make install;"
+cp ${basedir}/kali-$architecture/opt/mana/hostapd-manna/hostapd/defconfig ${basedir}/kali-$architecture/opt/mana/hostapd-manna/hostapd/.config
+# Make Hostapd Binary
+LANG=C chroot kali-$architecture "/usr/bin/make -C /opt/mana/hostapd-manna/hostapd/"
+LANG=C chroot kali-$architecture "/usr/bin/make install -C /opt/mana/hostapd-manna/hostapd/"
 rm -rf ${basedir}/kali-$architecture/opt/mana/slides ${basedir}/kali-$architecture/opt/mana/apache
 
 # Install HoneyProxy (MITM SSL Proxy Analyzer)
-LANG=C chroot kali-$architecture pip install pyOpenSSL pyasn1 Autobahn==0.6.5
+LANG=C chroot kali-$architecture pip install Autobahn==0.6.5
 wget http://honeyproxy.org/download/honeyproxy-latest.zip -O ${basedir}/kali-$architecture/opt/honeyproxy.zip
 unzip ${basedir}/kali-$architecture/opt/honeyproxy.zip -d ${basedir}/kali-$architecture/opt/honeyproxy/
 rm -f ${basedir}/kali-$architecture/opt/honeyproxy.zip
@@ -356,7 +359,8 @@ cat << EOF > ${basedir}/kali-$architecture/opt/honeyproxy/default.conf
 EOF
 
 # Install Spiderfoot
-LANG=C chroot kali-$architecture pip install lxml netaddr M2Crypto cherrypy mako
+# Cherrypy is newer in pip then in repo so we need to use that instead.  All other depend are fine.
+LANG=C chroot kali-$architecture pip install cherrypy
 cd ${basedir}/kali-$architecture/opt/
 wget http://downloads.sourceforge.net/project/spiderfoot/spiderfoot-2.1.5-src.tar.gz -O spiderfoot.tar.gz
 tar xvf spiderfoot.tar.gz && rm spiderfoot.tar.gz && mv spiderfoot-2.1.5 spiderfoot
@@ -469,7 +473,8 @@ f_nexus10_kernel(){
 f_kernel_build_init
 
 echo "Downloading Kernel"
-git clone --depth=1 https://android.googlesource.com/kernel/exynos.git -b android-exynos-manta-3.4-kitkat-mr2 ${basedir}/kernel
+git clone https://github.com/craigacgomez/kernel_samsung_manta.git -b thunderkat ${basedir}/kernel
+#git clone --depth=1 https://android.googlesource.com/kernel/exynos.git -b android-exynos-manta-3.4-kitkat-mr2 ${basedir}/kernel
 cd ${basedir}/kernel
 
 echo "Applying Patches"
@@ -771,7 +776,8 @@ esac
 f_hammerhead_stock_kernel(){
 cd ${basedir}
 echo "Downloading Kernel"
-git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2 ${basedir}/kernel
+git clone https://github.com/savoca/furnace_kernel_lge_hammerhead.git -b android-4.4 ${basedir}/kernel
+#git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2 ${basedir}/kernel
 
 cd ${basedir}/kernel
 echo "Applying Patches"
@@ -789,11 +795,10 @@ wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_ycable/msm_otg.c -O drivers/usb/otg/msm_otg.c
 
 # Kexec Patch
-wget https://github.com/Tasssadar/android_kernel_google_msm/commit/005cf387c1404eac862cc35153d7641d18faef4c.patch -O ../patches/kexec.patch
-patch -p1 --no-backup-if-mismatch < ../patches/kexec.patch
+#wget https://github.com/Tasssadar/android_kernel_google_msm/commit/005cf387c1404eac862cc35153d7641d18faef4c.patch -O ../patches/kexec.patch
+#patch -p1 --no-backup-if-mismatch < ../patches/kexec.patch
 
 make clean
-make hammerhead_defconfig
 sleep 10
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus5-hammerhead/kali_hammerhead_stock_defconfig -O .config
 
