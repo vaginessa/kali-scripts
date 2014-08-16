@@ -355,6 +355,13 @@ cat << EOF > ${basedir}/kali-$architecture/opt/honeyproxy/default.conf
 #-p port
 EOF
 
+# Install Spiderfoot
+LANG=C chroot kali-$architecture pip install lxml netaddr M2Crypto cherrypy mako
+cd ${basedir}/kali-$architecture/opt/
+wget http://downloads.sourceforge.net/project/spiderfoot/spiderfoot-2.1.5-src.tar.gz -O spiderfoot.tar.gz
+tar xvf spiderfoot.tar.gz && rm spiderfoot.tar.gz && mv spiderfoot-2.1.5 spiderfoot
+cd ${basedir}
+
 # Modify Wifite log saving folder
 sed -i 's/hs/\/captures/g' kali-$architecture/etc/kismet/kismet.conf
 
@@ -427,12 +434,16 @@ f_flashzip(){
 #  Flashable zip will need follow structure:
 #
 #  /busybox/busybox - for mounting data folders
-#  /data/app/terminal.apk - download terminal to ensure access to chroot
+#  /data/app/kalilauncher.apk - Launches into root or menu
 #  /data/local/kalifs.tar.bz2 - The filesystem
 #  /data/local/tmp_kali - shell scripts to unzip filesystem/boot chroot
-#  /kernel/zImage - kernel
+#  /kernel/kernel - kernel (zImage)
 #  /META-INF/com/google/android/updater-binary - Binary file for edify script
 #  /META-INF/com/google/android/updater-script - Edify script to install Kali 
+#  /system/bin/bootkali - Launches the Kali chroot
+#  /system/bin/killkali - Shutsdown Kali chroot (unmounts and stops services)
+#  /system/etc/ - Contains firmware for wireless devices and nano for text editing
+#  /system/xbin/nano - Nano binary
 #####################################################
 
 # Create base flashable zip
