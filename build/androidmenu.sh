@@ -343,8 +343,8 @@ cp -rf ${basedir}/kali-$architecture/opt/mana/apache/etc/apache2/sites-enabled/*
 cp -rf ${basedir}/kali-$architecture/opt/mana/apache/var/www/* ${basedir}/kali-$architecture/var/www
 cp ${basedir}/kali-$architecture/opt/mana/hostapd-manna/hostapd/defconfig ${basedir}/kali-$architecture/opt/mana/hostapd-manna/hostapd/.config
 # Make Hostapd Binary
-LANG=C chroot kali-$architecture "/usr/bin/make -C /opt/mana/hostapd-manna/hostapd/"
-LANG=C chroot kali-$architecture "/usr/bin/make install -C /opt/mana/hostapd-manna/hostapd/"
+LANG=C chroot kali-$architecture make -C /opt/mana/hostapd-manna/hostapd/
+LANG=C chroot kali-$architecture make install -C /opt/mana/hostapd-manna/hostapd/
 rm -rf ${basedir}/kali-$architecture/opt/mana/slides ${basedir}/kali-$architecture/opt/mana/apache
 
 # Install HoneyProxy (MITM SSL Proxy Analyzer)
@@ -778,8 +778,8 @@ esac
 f_hammerhead_stock_kernel(){
 cd ${basedir}
 echo "Downloading Kernel"
-git clone https://github.com/savoca/furnace_kernel_lge_hammerhead.git -b android-4.4 ${basedir}/kernel
-#git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2 ${basedir}/kernel
+#git clone https://github.com/savoca/furnace_kernel_lge_hammerhead.git -b android-4.4 ${basedir}/kernel
+git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2 ${basedir}/kernel
 
 cd ${basedir}/kernel
 echo "Applying Patches"
@@ -797,12 +797,13 @@ wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_ycable/msm_otg.c -O drivers/usb/otg/msm_otg.c
 
 # Kexec Patch
-#wget https://github.com/Tasssadar/android_kernel_google_msm/commit/005cf387c1404eac862cc35153d7641d18faef4c.patch -O ../patches/kexec.patch
-#patch -p1 --no-backup-if-mismatch < ../patches/kexec.patch
+wget https://github.com/Tasssadar/android_kernel_google_msm/commit/005cf387c1404eac862cc35153d7641d18faef4c.patch -O ../patches/kexec.patch
+patch -p1 --no-backup-if-mismatch < ../patches/kexec.patch
 
 make clean
 sleep 10
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus5-hammerhead/kali_hammerhead_stock_defconfig -O .config
+make hammerhead_defconfig
+#wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus5-hammerhead/kali_hammerhead_stock_defconfig -O .config
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
