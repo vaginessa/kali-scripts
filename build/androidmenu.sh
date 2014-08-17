@@ -10,17 +10,19 @@
 # git clone https://github.com/offensive-security/gcc-arm-linux-gnueabihf-4.7.git
 # export PATH=${PATH}:/root/gcc-arm-linux-gnueabihf-4.7/bin
 ######### Build script #######
-
+LOCALGIT=0
+basepwd=`pwd`/build
 basedir=`pwd`/android-$VERSION
 
 f_check_version(){
-		# Allower user input of version number/folder creation to make set up easier
-		clear
-		echo ""
+	# Allow user input of version number/folder creation to make set up easier
+	clear
+	echo ""
         read -p "Create working folder. Enter version number: " VERSION
         export basedir=`pwd`/android-$VERSION
+	export basepwd=`pwd`/build
         if [ -d "${basedir}" ]; then
-        		echo ""
+        	echo ""
                 echo "Working folder / version already exsists, use a different version number?"
                 echo ""
                 read -p "Do you wish to continue with same version number? (y/n)" CONT
@@ -33,7 +35,7 @@ f_check_version(){
                 mkdir -p ${basedir}
                 cd ${basedir}
                 f_interface
-fi
+	fi
 }
 
 f_interface(){
@@ -243,9 +245,10 @@ cat << EOF > kali-$architecture/etc/hosts
 ::1             localhost ip6-localhost ip6-loopback
 EOF
 
-# Modifications for building on a local repo
-# cp /etc/hosts kali-$architecture/etc/
-# cp ../utils/* kali-$architecture/usr/bin/
+if [ $LOCALGIT == 1 ]; then
+	cp /etc/hosts kali-$architecture/etc/
+	cp -rf ${basepwd}/utils kali-$architecture/usr/bin/
+fi
 
 cat << EOF > kali-$architecture/etc/network/interfaces
 auto lo
@@ -337,7 +340,12 @@ LANG=C chroot kali-$architecture lighty-enable-mod fastcgi-php
 LANG=C chroot kali-$architecture chown -R www-data:www-data /var/www
 
 # MANA Toolkit requires Apache2
-git clone https://github.com/sensepost/mana.git ${basedir}/kali-$architecture/opt/mana
+if [ $LOCALGIT == 1 ]; then
+        cp -rf ${basepwd}/build/mana ${basedir}/kali-$architecture/opt/
+else
+        git clone https://github.com/sensepost/mana.git ${basedir}/kali-$architecture/opt/mana
+fi
+
 cp -rf ${basedir}/kali-$architecture/opt/mana/apache/etc/apache2/sites-available/* ${basedir}/kali-$architecture/etc/apache2/sites-available
 cp -rf ${basedir}/kali-$architecture/opt/mana/apache/etc/apache2/sites-enabled/* ${basedir}/kali-$architecture/etc/apache2/sites-enabled
 cp -rf ${basedir}/kali-$architecture/opt/mana/apache/var/www/* ${basedir}/kali-$architecture/var/www
@@ -453,7 +461,12 @@ f_flashzip(){
 #####################################################
 
 # Create base flashable zip
-git clone https://github.com/binkybear/flash.git ${basedir}/flash 
+if [ $LOCALGIT == 1 ]; then
+        cp -rf ${basepwd}/build/flash ${basedir}/flash
+else
+	git clone https://github.com/binkybear/flash.git ${basedir}/flash 
+fi
+
 mkdir -p ${basedir}/flash/data/local/
 mkdir -p ${basedir}/flash/system/lib/modules
 
@@ -475,8 +488,12 @@ f_nexus10_kernel(){
 f_kernel_build_init
 
 echo "Downloading Kernel"
-git clone https://github.com/craigacgomez/kernel_samsung_manta.git -b thunderkat ${basedir}/kernel
-#git clone --depth=1 https://android.googlesource.com/kernel/exynos.git -b android-exynos-manta-3.4-kitkat-mr2 ${basedir}/kernel
+if [ $LOCALGIT == 1 ]; then
+        cp -rf ${basepwd}/build/kernel_samsung_manta ${basedir}/kernel
+else
+	git clone https://github.com/craigacgomez/kernel_samsung_manta.git -b thunderkat ${basedir}/kernel
+	#git clone --depth=1 https://android.googlesource.com/kernel/exynos.git -b android-exynos-manta-3.4-kitkat-mr2 ${basedir}/kernel
+fi
 cd ${basedir}/kernel
 
 echo "Applying Patches"
@@ -535,7 +552,13 @@ f_kernel_build_init
 
 echo "Downloading Kernel"
 # Kangaroo Kernel has y-cable support and kexec patch built in
-git clone https://github.com/lostdeveloper/kangaroo.git -b kangaroo ${basedir}/kernel
+
+if [ $LOCALGIT == 1 ]; then
+        cp -rf ${basepwd}/build/kangaroo ${basedir}/kernel
+else
+	git clone https://github.com/lostdeveloper/kangaroo.git -b kangaroo ${basedir}/kernel
+fi
+
 cd ${basedir}/kernel
 
 echo "Applying Patches"
@@ -624,8 +647,13 @@ esac
 f_deb_stock_kernel(){
 echo "Downloading Kernel"
 cd ${basedir}
-#git clone https://android.googlesource.com/kernel/msm.git -b android-msm-flo-3.4-kitkat-mr2
-git clone https://github.com/flar2/flo.git -b ElementalX ${basedir}/kernel
+if [ $LOCALGIT == 1 ]; then
+        cp -rf ${basepwd}/build/ElementalX ${basedir}/kernel
+else
+	#git clone https://android.googlesource.com/kernel/msm.git -b android-msm-flo-3.4-kitkat-mr2
+	git clone https://github.com/flar2/flo.git -b ElementalX ${basedir}/kernel
+fi
+
 
 cd ${basedir}/kernel
 echo "Applying Patches"
@@ -683,7 +711,11 @@ f_deb_cm_kernel(){
 echo "Downloading Kernel"
 cd ${basedir}
 # Using ElementalX kernel but feel free to change to Android source
-git clone https://github.com/flar2/flo.git -b Cyanogenmod ${basedir}/kernel
+if [ $LOCALGIT == 1 ]; then
+        cp -rf ${basepwd}/build/Cyanogenmod ${basedir}/kernel
+else
+	git clone https://github.com/flar2/flo.git -b Cyanogenmod ${basedir}/kernel
+fi
 
 cd ${basedir}/kernel
 
@@ -778,8 +810,12 @@ esac
 f_hammerhead_stock_kernel(){
 cd ${basedir}
 echo "Downloading Kernel"
-#git clone https://github.com/savoca/furnace_kernel_lge_hammerhead.git -b android-4.4 ${basedir}/kernel
-git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2 ${basedir}/kernel
+if [ $LOCALGIT == 1 ]; then
+        cp -rf ${basepwd}/build/msm.git ${basedir}/kernel
+else
+	#git clone https://github.com/savoca/furnace_kernel_lge_hammerhead.git -b android-4.4 ${basedir}/kernel
+	git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2 ${basedir}/kernel
+fi
 
 cd ${basedir}/kernel
 echo "Applying Patches"
@@ -836,7 +872,12 @@ f_kernel_build
 f_hammerhead_cm_kernel(){
 echo "Downloading Kernel"
 cd ${basedir}
-git clone https://github.com/savoca/furnace_kernel_caf_hammerhead.git -b cm-11.0 ${basedir}/kernel
+if [ $LOCALGIT == 1 ]; then
+        cp -rf ${basepwd}/build/furnace_kernel_caf_hammerhead ${basedir}/kernel
+else
+	git clone https://github.com/savoca/furnace_kernel_caf_hammerhead.git -b cm-11.0 ${basedir}/kernel
+fi
+
 cd ${basedir}/kernel
 
 echo "Applying Patches"
@@ -966,13 +1007,22 @@ clear
 
 # Create seperate kernel flashable zip in case the kernel just needs to be flashed again
 echo "Creating kernel directory structure"
-git clone https://github.com/binkybear/flash.git ${basedir}/flashkernel
+if [ $LOCALGIT == 1 ]; then
+        cp -rf ${basepwd}/build/flash ${basedir}/flashkernel
+else
+	git clone https://github.com/binkybear/flash.git ${basedir}/flashkernel
+fi
+
 mkdir -p ${basedir}/flashkernel/system/lib/modules
 rm -rf ${basedir}/flashkernel/data
 rm -rf ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 
 echo "Downloading Android Toolchian"
-git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8 ${basedir}/toolchain
+if [ $LOCALGIT == 1 ]; then
+        cp -rf ${basepwd}/build/arm-eabi-4.8 ${basedir}/toolchain
+else
+	git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8 ${basedir}/toolchain
+fi
 
 echo "Setting export paths"
 # Set path for Kernel building
