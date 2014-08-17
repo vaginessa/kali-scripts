@@ -267,8 +267,10 @@ EOF
 
 if [ $LOCALGIT == 1 ]; then
 	cp /etc/hosts kali-$architecture/etc/
-	cp -rf ${basepwd}/../utils/* kali-$architecture/usr/bin/
 fi
+
+# Copy over helper files to chroot /usr/bin
+cp -rf ${basepwd}/../utils/{k-*,s,mana} kali-$architecture/usr/bin/
 
 cat << EOF > kali-$architecture/etc/network/interfaces
 auto lo
@@ -371,6 +373,10 @@ cp -rf ${basedir}/kali-$architecture/opt/mana/apache/etc/apache2/sites-available
 cp -rf ${basedir}/kali-$architecture/opt/mana/apache/etc/apache2/sites-enabled/* ${basedir}/kali-$architecture/etc/apache2/sites-enabled
 cp -rf ${basedir}/kali-$architecture/opt/mana/apache/var/www/* ${basedir}/kali-$architecture/var/www
 cp ${basedir}/kali-$architecture/opt/mana/hostapd-manna/hostapd/defconfig ${basedir}/kali-$architecture/opt/mana/hostapd-manna/hostapd/.config
+
+cp -rf ${basepwd}/../utils/start-nat-full-mod.sh ${basedir}/kali-$architecture/opt/mana/run-mana/
+chmod 755 ${basedir}/kali-$architecture/opt/mana/run-mana/
+
 # Make Hostapd Binary
 LANG=C chroot kali-$architecture make -C /opt/mana/hostapd-manna/hostapd/
 LANG=C chroot kali-$architecture make install -C /opt/mana/hostapd-manna/hostapd/
