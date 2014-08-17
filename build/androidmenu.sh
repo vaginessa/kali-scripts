@@ -815,18 +815,16 @@ mount("ext4", "EMMC", "/dev/block/platform/msm_sdcc.1/by-name/system", "/system"
 package_extract_dir("system", "/system");
 set_perm_recursive(0, 0, 0644, 0644, "/system/lib/modules");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
-set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");
 set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
 set_perm(0, 0, 0777, "/tmp/mkbootimg");
 set_perm(0, 0, 0777, "/tmp/unpackbootimg");
 set_perm(0, 0, 0777, "/tmp/busybox");
-set_perm(0, 0, 0777, "/tmp/unpack_add_init.sh");
-run_program("/sbin/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
+run_program("/sbin/busybox", "dd", "if=/dev/block/platform/msm_sdcc.1/by-name/boot", "of=/tmp/boot.img");
 run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
 run_program("/tmp/mkbootimg.sh");
-run_program("/sbin/busybox", "dd", "if=/tmp/newboot.img", "/dev/block/mmcblk0p14");
+run_program("/sbin/busybox", "dd", "if=/tmp/newboot.img", "of=/dev/block/platform/msm_sdcc.1/by-name/boot");
 ui_print("Done, please reboot.");
 EOF
 
@@ -869,19 +867,16 @@ mount("ext4", "EMMC", "/dev/block/platform/msm_sdcc.1/by-name/system", "/system"
 package_extract_dir("system", "/system");
 set_perm_recursive(0, 0, 0644, 0644, "/system/lib/modules");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
-set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");
 set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
 set_perm(0, 0, 0777, "/tmp/mkbootimg");
 set_perm(0, 0, 0777, "/tmp/unpackbootimg");
 set_perm(0, 0, 0777, "/tmp/busybox");
-set_perm(0, 0, 0777, "/tmp/unpack_add_init.sh");
-run_program("/sbin/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
+run_program("/sbin/busybox", "dd", "if=/dev/block/platform/msm_sdcc.1/by-name/boot", "of=/tmp/boot.img");
 run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
 run_program("/tmp/mkbootimg.sh");
-run_program("/sbin/busybox", "dd", "if=/tmp/newboot.img", "/dev/block/mmcblk0p14");
-ui_print("");
+run_program("/sbin/busybox", "dd", "if=/tmp/newboot.img", "of=/dev/block/platform/msm_sdcc.1/by-name/boot");
 ui_print("Done, please reboot.");
 EOF
 
