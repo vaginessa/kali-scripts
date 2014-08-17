@@ -1012,8 +1012,17 @@ if [ -d "${basedir}/flash/" ]; then
   rsync -HPavm --include='*.ko' -f 'hide,! */' ${basedir}/kali-armhf/kernel/modules/lib/modules ${basedir}/kali-armhf/lib/
 fi
 
-# Copy kernel to flashable package
-cp ${basedir}/kernel/arch/arm/boot/zImage ${basedir}/flashkernel/kernel/kernel
+# Copy kernel to flashable package, prefer zImage-dtb
+if [ -f "${basedir}/kernel/arch/arm/boot/zImage-dtb" ]; then
+  cp ${basedir}/kernel/arch/arm/boot/zImage-dtb ${basedir}/flashkernel/kernel/kernel
+  echo "zImage-dtb found at ${basedir}/kernel/arch/arm/boot/zImage-dtb"
+else
+  if [ -f "${basedir}/kernel/arch/arm/boot/zImage" ]; then
+    cp ${basedir}/kernel/arch/arm/boot/zImage ${basedir}/flashkernel/kernel/kernel
+    echo "zImage found at ${basedir}/kernel/arch/arm/boot/zImage"
+  fi
+fi
+
 cd ${basedir}
 
 #Adding Kernel build
