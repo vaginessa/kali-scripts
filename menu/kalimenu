@@ -325,6 +325,7 @@ f_urlsnarf(){
 	f_pick_interface
 	echo "ctrl-c to quit and return to sniffing menu"
 	urlsnarf -i $pickinterface > /captures/urlsnarf/urlsnarf-$now.log
+	f_sniffing
 }
 f_dsniff(){
 	f_pick_interface
@@ -346,9 +347,9 @@ echo "[0]	Exit to main menu"
 read -p "Choice: " webchoice
 
 case $webchoice in
-1) clear; f_tcpdump ;;
-2) clear; f_tshark ;;
-3) clear; xsser ;;
+1) clear; f_sqlmap ;;
+2) clear; f_sqlninja ;;
+3) clear; f_xsser ;;
 0) clear; f_interface ;;
 *) echo "Incorrect choice..." ;
 esac
@@ -356,8 +357,25 @@ esac
 ########################## INFO GATHER MENU ##############################
 
 f_information_gathering(){
-	echo "Insert"
+clear
+echo "				INFORMATION GATHERING MAIN MENU"
+echo ""
+echo "[1]	Spiderfoot"
+echo ""
+echo "[0]	Exit to main menu"
+
+read -p "Choice: " webchoice
+
+case $webchoice in
+1) clear; trap 'f_information_gathering' 2; f_spiderfoot;;
+*) echo "Incorrect choice..." ;
+esac
 }
+
+f_spiderfoot(){
+python /opt/spiderfoot/sf.py
+}
+
 ########################## VULNERABILITY MENU ###########################
 
 f_vulnerability(){
@@ -366,7 +384,60 @@ f_vulnerability(){
 ########################## EXPLOITATION MENU ############################
 
 f_exploitation(){
-	echo "Insert"
+clear
+echo "				EXPLOITATION MAIN MENU"
+echo ""
+echo "[1]	Metasploit"
+echo "[2]	Beef-XSS"
+echo ""
+echo "[0]	Exit to main menu"
+
+read -p "Choice: " webchoice
+
+case $webchoice in
+1) clear; service metasploit start; msfconsole ;;
+2) clear; trap 'f_exploitation' 2; f_beefxss ;;
+*) echo "Incorrect choice..." ;
+esac
+}
+
+f_metasploit(){
+msf4
+}
+
+f_beefxss(){
+echo ""
+echo "BeEF uses port 3000 as a default with login/password: beef"
+echo "PLEASE SELECT AN OPTION TO CONTINUE"
+echo ""
+echo "1 = Use Default [3000]"
+echo "2 = Select a different port"
+echo ""
+echo "OPTION NUMBER: \c"
+read option
+
+if [ $option = "1" ]; then
+	echo "STARTING BEEF SERVER"
+	cd /usr/share/beef-xss/
+  ./beef
+exit
+else
+  if [ $option = "2" ]; then
+
+    sleep 1
+    echo ""
+    echo "WHAT PORT WOULD YOU LIKE TO USE? \c"
+    read port
+    sleep 1
+    echo ""
+    echo "STARTING BEEF SERVER"
+    cd /usr/share/beef-xss/
+    ./beef -p $port
+    exit
+  fi
+fi
+}
+
 }
 ########################## REVERSE MENU ################################
 f_reverse(){
@@ -679,7 +750,7 @@ echo "[1] Change Start Up Settings"
 echo "[2] Configure Timezone"
 echo "[3] Change VNC Password"
 echo "[4] Create Metasploit User and Database"
-echo "[5] Macchanger (wlan1)"
+echo "[5] Macchanger"
 echo "[0] Exit to main menu"
 echo ""
 read -p "Choice:" settingschoice
