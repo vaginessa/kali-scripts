@@ -9,9 +9,28 @@
 # cd ~
 # git clone https://github.com/offensive-security/gcc-arm-linux-gnueabihf-4.7.git
 # export PATH=${PATH}:/root/gcc-arm-linux-gnueabihf-4.7/bin
-######### Build script #######
+######### Local git repos  #######
+# When testing multiple images, it is often faster to first checkout git repos and use them locally.
+# To do this, you can :
+
+# cd build
+# git clone https://github.com/sensepost/mana.git 
+# git clone https://github.com/binkybear/flash.git 
+# git clone https://github.com/craigacgomez/kernel_samsung_manta.git -b thunderkat 
+# git clone https://github.com/lostdeveloper/kangaroo.git -b kangaroo 
+# git clone https://github.com/flar2/flo.git -b ElementalX
+# git clone https://github.com/flar2/flo.git -b Cyanogenmod
+# git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2
+# git clone https://github.com/savoca/furnace_kernel_caf_hammerhead.git -b cm-11.0
+# git clone https://github.com/binkybear/flash.git
+# git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8
+# 0 = use remote git clone | 1 = local copies
+
 LOCALGIT=0
-basepwd=`pwd`/build
+
+######### Build script  #######
+
+basepwd=`pwd`
 basedir=`pwd`/android-$VERSION
 
 f_check_version(){
@@ -20,7 +39,6 @@ f_check_version(){
 	echo ""
         read -p "Create working folder. Enter version number: " VERSION
         export basedir=`pwd`/android-$VERSION
-	export basepwd=`pwd`/build
         if [ -d "${basedir}" ]; then
         	echo ""
                 echo "Working folder / version already exsists, use a different version number?"
@@ -173,7 +191,7 @@ if [ $(compgen -c $CROSS_COMPILE | wc -l) -eq 0 ] ; then
         echo "Missing cross compiler for Android root filesystem." 
         echo "Set up PATH according to the README"
         echo ""
-        read -p "Enter export path (probable path): " -e -i "export PATH=${PATH}:/root/arm-stuff/gcc-arm-linux-gnueabihf-4.7/bin" EXPORT_PATH
+        read -p "Enter export path (probable path): " -e -i "export PATH=${PATH}:/root/gcc-arm-linux-gnueabihf-4.7/bin" EXPORT_PATH
         $EXPORT_PATH
         unset CROSS_COMPILE
 else
@@ -249,7 +267,7 @@ EOF
 
 if [ $LOCALGIT == 1 ]; then
 	cp /etc/hosts kali-$architecture/etc/
-	cp -rf ${basepwd}/utils kali-$architecture/usr/bin/
+	cp -rf ${basepwd}/../utils/* kali-$architecture/usr/bin/
 fi
 
 cat << EOF > kali-$architecture/etc/network/interfaces
@@ -343,7 +361,8 @@ LANG=C chroot kali-$architecture chown -R www-data:www-data /var/www
 
 # MANA Toolkit requires Apache2
 if [ $LOCALGIT == 1 ]; then
-        cp -rf ${basepwd}/build/mana ${basedir}/kali-$architecture/opt/
+	echo "Copying Mana to rootfs"
+        cp -rf ${basepwd}/mana ${basedir}/kali-$architecture/opt/
 else
         git clone https://github.com/sensepost/mana.git ${basedir}/kali-$architecture/opt/mana
 fi
@@ -464,7 +483,8 @@ f_flashzip(){
 
 # Create base flashable zip
 if [ $LOCALGIT == 1 ]; then
-        cp -rf ${basepwd}/build/flash ${basedir}/flash
+	echo "Copying flash to rootfs"
+        cp -rf ${basepwd}/flash ${basedir}/flash
 else
 	git clone https://github.com/binkybear/flash.git ${basedir}/flash 
 fi
@@ -491,7 +511,8 @@ f_kernel_build_init
 
 echo "Downloading Kernel"
 if [ $LOCALGIT == 1 ]; then
-        cp -rf ${basepwd}/build/kernel_samsung_manta ${basedir}/kernel
+	echo "Copying kernel to rootfs"
+        cp -rf ${basepwd}/kernel_samsung_manta ${basedir}/kernel
 else
 	git clone https://github.com/craigacgomez/kernel_samsung_manta.git -b thunderkat ${basedir}/kernel
 	#git clone --depth=1 https://android.googlesource.com/kernel/exynos.git -b android-exynos-manta-3.4-kitkat-mr2 ${basedir}/kernel
@@ -556,7 +577,8 @@ echo "Downloading Kernel"
 # Kangaroo Kernel has y-cable support and kexec patch built in
 
 if [ $LOCALGIT == 1 ]; then
-        cp -rf ${basepwd}/build/kangaroo ${basedir}/kernel
+	echo "Copying kernel to rootfs"
+        cp -rf ${basepwd}/kangaroo ${basedir}/kernel
 else
 	git clone https://github.com/lostdeveloper/kangaroo.git -b kangaroo ${basedir}/kernel
 fi
@@ -650,7 +672,8 @@ f_deb_stock_kernel(){
 echo "Downloading Kernel"
 cd ${basedir}
 if [ $LOCALGIT == 1 ]; then
-        cp -rf ${basepwd}/build/ElementalX ${basedir}/kernel
+	echo "Copying kernel to rootfs"
+        cp -rf ${basepwd}/ElementalX ${basedir}/kernel
 else
 	#git clone https://android.googlesource.com/kernel/msm.git -b android-msm-flo-3.4-kitkat-mr2
 	git clone https://github.com/flar2/flo.git -b ElementalX ${basedir}/kernel
@@ -714,7 +737,8 @@ echo "Downloading Kernel"
 cd ${basedir}
 # Using ElementalX kernel but feel free to change to Android source
 if [ $LOCALGIT == 1 ]; then
-        cp -rf ${basepwd}/build/Cyanogenmod ${basedir}/kernel
+	echo "Copying kernel to rootfs"
+        cp -rf ${basepwd}/Cyanogenmod ${basedir}/kernel
 else
 	git clone https://github.com/flar2/flo.git -b Cyanogenmod ${basedir}/kernel
 fi
@@ -813,7 +837,8 @@ f_hammerhead_stock_kernel(){
 cd ${basedir}
 echo "Downloading Kernel"
 if [ $LOCALGIT == 1 ]; then
-        cp -rf ${basepwd}/build/msm.git ${basedir}/kernel
+	echo "Copying kernel to rootfs"
+        cp -rf ${basepwd}/msm.git ${basedir}/kernel
 else
 	#git clone https://github.com/savoca/furnace_kernel_lge_hammerhead.git -b android-4.4 ${basedir}/kernel
 	git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2 ${basedir}/kernel
@@ -875,7 +900,8 @@ f_hammerhead_cm_kernel(){
 echo "Downloading Kernel"
 cd ${basedir}
 if [ $LOCALGIT == 1 ]; then
-        cp -rf ${basepwd}/build/furnace_kernel_caf_hammerhead ${basedir}/kernel
+	echo "Copying kernel to rootfs"
+        cp -rf ${basepwd}/furnace_kernel_caf_hammerhead ${basedir}/kernel
 else
 	git clone https://github.com/savoca/furnace_kernel_caf_hammerhead.git -b cm-11.0 ${basedir}/kernel
 fi
@@ -1010,7 +1036,8 @@ clear
 # Create seperate kernel flashable zip in case the kernel just needs to be flashed again
 echo "Creating kernel directory structure"
 if [ $LOCALGIT == 1 ]; then
-        cp -rf ${basepwd}/build/flash ${basedir}/flashkernel
+	echo "Copying flash to rootfs"
+        cp -rf ${basepwd}/flash ${basedir}/flashkernel
 else
 	git clone https://github.com/binkybear/flash.git ${basedir}/flashkernel
 fi
@@ -1021,7 +1048,8 @@ rm -rf ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 
 echo "Downloading Android Toolchian"
 if [ $LOCALGIT == 1 ]; then
-        cp -rf ${basepwd}/build/arm-eabi-4.8 ${basedir}/toolchain
+	echo "Copying toolchain to rootfs"
+        cp -rf ${basepwd}/arm-eabi-4.8 ${basedir}/toolchain
 else
 	git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8 ${basedir}/toolchain
 fi
