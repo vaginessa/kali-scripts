@@ -532,6 +532,7 @@ patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 # Keyboard patch currently not working, need to check config file when I have more free time
 wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/not-tested/kernel-3.4-nexus10-2012.patch -O ../patches/nexus10-keyboard.patch
 patch -p1 --no-backup-if-mismatch < ../patches/nexus10-keyboard.patch
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/n10_hid_3_4/android.c -O drivers/usb/gadget/android.c
 
 # Fastcharge and y-cable support
 # This is working but its a nasty hack from taking the y-cable support in FLO/DEB and putting it into Nexus 10
