@@ -871,8 +871,7 @@ patch -p1 --no-backup-if-mismatch < ../patches/kexec.patch
 
 make clean
 sleep 10
-make hammerhead_defconfig
-#wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus5-hammerhead/kali_hammerhead_stock_defconfig -O .config
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus5-hammerhead/kali_hammerhead_stock_defconfig -O .config
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
