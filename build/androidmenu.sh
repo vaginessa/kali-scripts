@@ -441,6 +441,7 @@ cap=kali-$architecture/captures
 mkdir -p kali-$architecture/root/.ssh/
 mkdir -p kali-$architecture/sdcard kali-$architecture/system
 mkdir -p $cap/evilap $cap/ettercap $cap/kismet/db $cap/nmap $cap/sslstrip $cap/tshark $cap/wifite $cap/tcpdump $cap/urlsnarf $cap/dsniff $cap/honeyproxy
+mkdir -p /opt/mana/run-mana/sslsplit
 
 # Add postgresql user to inet so it can access network
 echo "inet:x:3004:postgres,root" >> kali-$architecture/etc/group
