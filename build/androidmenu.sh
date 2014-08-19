@@ -217,6 +217,7 @@ services="autossh openssh-server tightvncserver lighttpd apache2 postgresql open
 extras="wpasupplicant zip macchanger dbd florence libffi-dev python-setuptools python-pip"
 mana="python-twisted python-dnspython libnl1 libnl-dev libssl-dev sslsplit"
 spiderfoot="python-lxml python-m2crypto python-netaddr python-mako"
+#sdr="sox librtlsdr"
 
 export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras} ${mana} ${spiderfoot}"
 export architecture="armhf"
@@ -713,6 +714,15 @@ sleep 10
 #make elementalx_defconfig
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig -O .config
 
+cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
+pagesize = 0x800
+kerneladdr = 0x80208000
+ramdiskaddr = 0x82200000
+secondaddr = 0x81100000
+tagsaddr = 0x80200100
+name = 
+EOF
+
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
@@ -727,14 +737,15 @@ set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");
-set_perm(0, 0, 0777, "/tmp/mkbootimg-flodeb.sh");
-set_perm(0, 0, 0777, "/tmp/mkbootimg");
-set_perm(0, 0, 0777, "/tmp/unpackbootimg");
-set_perm(0, 0, 0777, "/tmp/busybox");
-run_program("/tmp/busybox", "dd", "if=/dev/block/platform/msm_sdcc.1/by-name/boot", "of=/tmp/boot.img");
-run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
-run_program("/tmp/mkbootimg-flodeb.sh");
-run_program("/tmp/busybox", "dd", "if=/tmp/newboot.img", "of=/dev/block/platform/msm_sdcc.1/by-name/boot");
+set_perm(0, 0, 0777, "/tmp/max_oc.sh");
+set_perm(0, 0, 0777, "/tmp/edit_ramdisk_flo.sh");
+set_perm(0, 0, 0777, "/tmp/abootimg");
+run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
+run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
+run_program("/tmp/max_oc.sh");
+run_program("/tmp/edit_ramdisk.sh");
+run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-f", "/tmp/cmdline.cfg", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
+set_progress(0.8);
 ui_print("");
 ui_print("Done, please reboot.");
 EOF
@@ -777,6 +788,15 @@ make clean
 sleep 10
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elxcm_kali_defconfig -O .config
 
+cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
+pagesize = 0x800
+kerneladdr = 0x80208000
+ramdiskaddr = 0x82200000
+secondaddr = 0x81100000
+tagsaddr = 0x80200100
+name = 
+EOF
+
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
@@ -791,14 +811,15 @@ set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");
-set_perm(0, 0, 0777, "/tmp/mkbootimg-flodeb.sh");
-set_perm(0, 0, 0777, "/tmp/mkbootimg");
-set_perm(0, 0, 0777, "/tmp/unpackbootimg");
-set_perm(0, 0, 0777, "/tmp/busybox");
-run_program("/tmp/busybox", "dd", "if=/dev/block/platform/msm_sdcc.1/by-name/boot", "of=/tmp/boot.img");
-run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
-run_program("/tmp/mkbootimg-flodeb.sh");
-run_program("/tmp/busybox", "dd", "if=/tmp/newboot.img", "of=/dev/block/platform/msm_sdcc.1/by-name/boot");
+set_perm(0, 0, 0777, "/tmp/max_oc.sh");
+set_perm(0, 0, 0777, "/tmp/edit_ramdisk_flo.sh");
+set_perm(0, 0, 0777, "/tmp/abootimg");
+run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
+run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
+run_program("/tmp/max_oc.sh");
+run_program("/tmp/edit_ramdisk.sh");
+run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-f", "/tmp/cmdline.cfg", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
+set_progress(0.8);
 ui_print("");
 ui_print("Done, please reboot.");
 EOF
@@ -877,6 +898,14 @@ make clean
 sleep 10
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus5-hammerhead/kali_hammerhead_stock_defconfig -O .config
 
+cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
+pagesize = 0x800
+kerneladdr = 0x80208000
+ramdiskaddr = 0x82200000
+secondaddr = 0x81100000
+tagsaddr = 0x80200100
+name = 
+
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
@@ -891,14 +920,13 @@ set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");
-set_perm(0, 0, 0777, "/tmp/mkbootimg-hammerhead.sh");
-set_perm(0, 0, 0777, "/tmp/mkbootimg");
-set_perm(0, 0, 0777, "/tmp/unpackbootimg");
-set_perm(0, 0, 0777, "/tmp/busybox");
-run_program("/tmp/busybox", "dd", "if=/dev/block/platform/msm_sdcc.1/by-name/boot", "of=/tmp/boot.img");
-run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
-run_program("/tmp/mkbootimg-hammerhead.sh");
-run_program("/tmp/busybox", "dd", "if=/tmp/newboot.img", "of=/dev/block/platform/msm_sdcc.1/by-name/boot");
+set_perm(0, 0, 0777, "/tmp/abootimg");
+run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
+run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
+run_program("/tmp/max_oc.sh");
+run_program("/tmp/edit_ramdisk.sh");
+run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-f", "/tmp/cmdline.cfg", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
+set_progress(0.8);
 ui_print("");
 ui_print("Done, please reboot.");
 EOF
@@ -937,6 +965,14 @@ make clean
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus5-hammerhead/kali_hammerhead_cm_defconfig -O .config
 sleep 10
 
+cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
+pagesize = 0x800
+kerneladdr = 0x80208000
+ramdiskaddr = 0x82200000
+secondaddr = 0x81100000
+tagsaddr = 0x80200100
+name = 
+
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
@@ -951,14 +987,13 @@ set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");
-set_perm(0, 0, 0777, "/tmp/mkbootimg-hammerhead.sh");
-set_perm(0, 0, 0777, "/tmp/mkbootimg");
-set_perm(0, 0, 0777, "/tmp/unpackbootimg");
-set_perm(0, 0, 0777, "/tmp/busybox");
-run_program("/tmp/busybox", "dd", "if=/dev/block/platform/msm_sdcc.1/by-name/boot", "of=/tmp/boot.img");
-run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
-run_program("/tmp/mkbootimg-hammerhead.sh");
-run_program("/tmp/busybox", "dd", "if=/tmp/newboot.img", "of=/dev/block/platform/msm_sdcc.1/by-name/boot");
+set_perm(0, 0, 0777, "/tmp/abootimg");
+run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
+run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
+run_program("/tmp/max_oc.sh");
+run_program("/tmp/edit_ramdisk.sh");
+run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-f", "/tmp/cmdline.cfg", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
+set_progress(0.8);
 ui_print("");
 ui_print("Done, please reboot.");
 EOF
