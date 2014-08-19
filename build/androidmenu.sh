@@ -706,7 +706,9 @@ sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mo
 
 make clean
 sleep 10
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig -O .config
+#Set default for testing
+make elementalx_defconfig
+#wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig -O .config
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
