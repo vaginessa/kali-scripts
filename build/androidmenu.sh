@@ -144,29 +144,10 @@ esac
 f_deb(){
 echo -e "\e[31m	------------------------- NEXUS 7 (2013) -----------------------\e[0m"
 echo ""
-echo "	[1] Build All - Kali rootfs and Kernel (Android 4.4+)"
-echo "	[2] Build Kernel Only"
-echo "	[0] Exit to Main Menu"
-echo ""
-echo ""
-# wait for character input
-
-read -p "Choice: " deb_menuchoice
-
-case $deb_menuchoice in
-
-1) clear; f_rootfs ; f_flashzip ; f_nexus7_deb_kernel ; f_zip_save ; f_zip_kernel_save ;;
-2) clear; f_nexus7_deb_kernel ; f_zip_kernel_save ;;
-0) clear; f_interface ;;
-*) echo "Incorrect choice... " ;
-esac
-}
-
-f_hammerhead(){
-echo -e "\e[31m ------------------------- NEXUS 7 (2013) -----------------------\e[0m"
-echo ""
-echo "  [1] Build All - Kali rootfs and Kernel (Android 4.4+)"
-echo "  [2] Build Kernel Only"
+echo "  [1] Build All - Kali rootfs and Kernel (AOSP/STOCK) (Android 4.4+)"
+echo "  [2] Build All - Kali rootfs and Kernel (CAF/CYANOGENMOD) (Android 4.4+)"
+echo "  [3] Build Kernel (AOSP/STOCK) Only"
+echo "  [4] Build Kernel (CAF/Cyanogenmod) Only"
 echo "  [0] Exit to Main Menu"
 echo ""
 echo ""
@@ -176,8 +157,35 @@ read -p "Choice: " deb_menuchoice
 
 case $deb_menuchoice in
 
-1) clear; f_rootfs ; f_flashzip ; f_hammerhead_kernel ; f_zip_save ; f_zip_kernel_save ;;
-2) clear; f_hammerhead_kernel ; f_zip_kernel_save ;;
+1) clear; f_rootfs ; f_flashzip ; f_deb_stock_kernel ; f_zip_save ; f_zip_kernel_save ;;
+2) clear; f_rootfs ; f_flashzip ; f_deb_cm_kernel ; f_zip_save ; f_zip_kernel_save ;;
+3) clear; f_deb_stock_kernel ; f_zip_kernel_save ;;
+4) clear; f_deb_cm_kernel ; f_zip_kernel_save ;;
+0) clear; f_interface ;;
+*) echo "Incorrect choice... " ;
+esac
+}
+
+f_hammerhead(){
+echo -e "\e[31m -------------------------      NEXUS 5    -----------------------\e[0m"
+echo ""
+echo "  [1] Build All - Kali rootfs and Kernel (AOSP/STOCK) (Android 4.4+)"
+echo "  [2] Build All - Kali rootfs and Kernel (CAF/CYANOGENMOD) (Android 4.4+)"
+echo "  [3] Build Kernel (AOSP/STOCK) Only"
+echo "  [4] Build Kernel (CAF/Cyanogenmod) Only"
+echo "  [0] Exit to Main Menu"
+echo ""
+echo ""
+# wait for character input
+
+read -p "Choice: " deb_menuchoice
+
+case $deb_menuchoice in
+
+1) clear; f_rootfs ; f_flashzip ; f_hammerhead_stock_kernel ; f_zip_save ; f_zip_kernel_save ;;
+2) clear; f_rootfs ; f_flashzip ; f_hammerhead_cm_kernel ; f_zip_save ; f_zip_kernel_save ;;
+3) clear; f_hammerhead_stock_kernel ; f_zip_kernel_save ;;
+4) clear; f_hammerhead_cm_kernel ; f_zip_kernel_save ;;
 0) clear; f_interface ;;
 *) echo "Incorrect choice... " ;
 esac
@@ -217,9 +225,9 @@ services="autossh openssh-server tightvncserver lighttpd apache2 postgresql open
 extras="wpasupplicant zip macchanger dbd florence libffi-dev python-setuptools python-pip"
 mana="python-twisted python-dnspython libnl1 libnl-dev libssl-dev sslsplit"
 spiderfoot="python-lxml python-m2crypto python-netaddr python-mako"
-#sdr="sox librtlsdr"
+sdr="sox librtlsdr"
 
-export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras} ${mana} ${spiderfoot}"
+export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras} ${mana} ${spiderfoot} ${sdr}"
 export architecture="armhf"
 
 # create the rootfs - not much to modify here, except maybe the hostname.
@@ -645,41 +653,10 @@ f_kernel_build
 #####################################################
 # Create Nexus 7 (2013) FLO/DEB Kernel (4.4+)
 #####################################################
-f_nexus7_deb_kernel(){
-if [ ! -e "/usr/bin/lz4c" ]; then
-  echo "Missing lz4c which is needed to build the ROMs.  Downloading and making for system:"
-  cd ${basedir}
-  wget http://lz4.googlecode.com/files/lz4-r112.tar.gz
-  tar -xf lz4-r112.tar.gz
-  cd lz4-r112
-  make
-  make install
-  echo "lz4c now installed.  Removing leftovers"
-  cd ..
-  rm -rf lz4-r112.tar.gz lz4-r112
-fi
+f_deb_stock_kernel(){
 
 f_kernel_build_init
-clear
-echo ""
-echo "  Depending on which ROM, there are two types of kernels"
-echo "  a user may use.  Choose which kernel your ROM uses."
-echo ""
-echo "  [1] Create Stock/AOSP Kernel"
-echo ""
-echo "  [2] Create Cyanogenmod/CAF Kernel"
-echo ""
-# wait for character input
-read -p "Choice: " deb_kernel_menuchoice
-case $deb_kernel_menuchoice in
 
-1) clear; f_deb_stock_kernel ;;
-2) clear; f_deb_cm_kernel ;;
-*) echo "Incorrect choice..." ;
-esac
-}
-
-f_deb_stock_kernel(){
 echo "Downloading Kernel"
 cd ${basedir}
 if [ $LOCALGIT == 1 ]; then
@@ -756,6 +733,9 @@ f_kernel_build
 }
 
 f_deb_cm_kernel(){
+
+f_kernel_build_init
+
 echo "Downloading Kernel"
 cd ${basedir}
 # Using ElementalX kernel but feel free to change to Android source
@@ -831,41 +811,10 @@ f_kernel_build
 #####################################################
 # Create Nexus 5 Kernel (4.4+)
 #####################################################
-f_hammerhead_kernel(){
-if [ ! -e "/usr/bin/lz4c" ]; then
-  echo "Missing lz4c which is needed to build the ROMs.  Downloading and making for system:"
-  cd ${basedir}
-  wget http://lz4.googlecode.com/files/lz4-r112.tar.gz
-  tar -xf lz4-r112.tar.gz
-  cd lz4-r112
-  make
-  make install
-  echo "lz4c now installed.  Removing leftovers"
-  cd ..
-  rm -rf lz4-r112.tar.gz lz4-r112
-fi
+f_hammerhead_stock_kernel(){
 
 f_kernel_build_init
-clear
-echo ""
-echo "  Depending on which ROM, there are two types of kernels"
-echo "  a user may use.  Choose which kernel your ROM uses."
-echo ""
-echo "  [1] Create Stock/AOSP Kernel"
-echo ""
-echo "  [2] Create Cyanogenmod/CAF Kernel"
-# wait for character input
-echo ""
-read -p "Choice: " deb_kernel_menuchoice
-case $deb_kernel_menuchoice in
 
-1) clear; f_hammerhead_stock_kernel ;;
-2) clear; f_hammerhead_cm_kernel ;;
-*) echo "Incorrect choice..." ;
-esac
-}
-
-f_hammerhead_stock_kernel(){
 cd ${basedir}
 echo "Downloading Kernel"
 if [ $LOCALGIT == 1 ]; then
@@ -940,6 +889,9 @@ f_kernel_build
 }
 
 f_hammerhead_cm_kernel(){
+
+f_kernel_build_init
+
 echo "Downloading Kernel"
 cd ${basedir}
 if [ $LOCALGIT == 1 ]; then
@@ -1126,6 +1078,18 @@ wget http://patches.aircrack-ng.org/mac80211.compat08082009.wl_frag+ack_v1.patch
 # Kernel build so we don't repeat for every different kernel
 ##############################################################
 f_kernel_build(){
+if [ ! -e "/usr/bin/lz4c" ]; then
+  echo "Missing lz4c which is needed to build certain kernels.  Downloading and making for system:"
+  cd ${basedir}
+  wget http://lz4.googlecode.com/files/lz4-r112.tar.gz
+  tar -xf lz4-r112.tar.gz
+  cd lz4-r112
+  make
+  make install
+  echo "lz4c now installed.  Removing leftovers"
+  cd ..
+  rm -rf lz4-r112.tar.gz lz4-r112
+fi
 echo "Building Kernel"
 make -j $(grep -c processor /proc/cpuinfo)
 echo "Building modules"
@@ -1158,7 +1122,7 @@ cd ${basedir}
 
 #Adding Kernel build
 # 1. Will check if kernel was added to main flashable zip (one with rootfs).  If yes it will skip.
-# 2. If it detects #KERNEL_SCRIPT_START it will not add it to flashable zip (rootfs)
+# 2. If it detects KERNEL_SCRIPT_START it will not add it to flashable zip (rootfs)
 # 3. If the updater-script is not found it will assume this is a kernel only build so it will not try to add it
 
 if grep -Fxq "#KERNEL_SCRIPT_START" "${basedir}/flash/META-INF/com/google/android/updater-script"; then
