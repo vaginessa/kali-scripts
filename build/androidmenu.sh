@@ -745,7 +745,7 @@ run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img"
 run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
 run_program("/tmp/max_oc.sh");
 run_program("/tmp/edit_ramdisk.sh");
-run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-f", "/tmp/cmdline.cfg", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
+run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
 set_progress(0.8);
 ui_print("");
 ui_print("Done, please reboot.");
@@ -819,7 +819,7 @@ run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img"
 run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
 run_program("/tmp/max_oc.sh");
 run_program("/tmp/edit_ramdisk.sh");
-run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-f", "/tmp/cmdline.cfg", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
+run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
 set_progress(0.8);
 ui_print("");
 ui_print("Done, please reboot.");
@@ -906,6 +906,7 @@ ramdiskaddr = 0x82200000
 secondaddr = 0x81100000
 tagsaddr = 0x80200100
 name = 
+EOF
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
@@ -926,7 +927,7 @@ run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img"
 run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
 run_program("/tmp/max_oc.sh");
 run_program("/tmp/edit_ramdisk.sh");
-run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-f", "/tmp/cmdline.cfg", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
+run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
 set_progress(0.8);
 ui_print("");
 ui_print("Done, please reboot.");
@@ -973,6 +974,7 @@ ramdiskaddr = 0x82200000
 secondaddr = 0x81100000
 tagsaddr = 0x80200100
 name = 
+EOF
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
