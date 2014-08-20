@@ -718,7 +718,7 @@ wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/
 cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
 pagesize = 0x800
 kerneladdr = 0x80208000
-ramdiskaddr = 0x82200000
+ramdiskaddr = 0x82300000
 secondaddr = 0x81100000
 tagsaddr = 0x80200100
 name = 
@@ -738,8 +738,7 @@ set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");
-set_perm(0, 0, 0777, "/tmp/max_oc.sh");
-set_perm(0, 0, 0777, "/tmp/edit_ramdisk_flo.sh");
+set_perm(0, 0, 0777, "/tmp/edit_ramdisk.sh");
 set_perm(0, 0, 0777, "/tmp/abootimg");
 run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
 run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
@@ -792,7 +791,7 @@ wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/
 cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
 pagesize = 0x800
 kerneladdr = 0x80208000
-ramdiskaddr = 0x82200000
+ramdiskaddr = 0x82300000
 secondaddr = 0x81100000
 tagsaddr = 0x80200100
 name = 
@@ -812,12 +811,10 @@ set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");
-set_perm(0, 0, 0777, "/tmp/max_oc.sh");
-set_perm(0, 0, 0777, "/tmp/edit_ramdisk_flo.sh");
+set_perm(0, 0, 0777, "/tmp/edit_ramdisk.sh");
 set_perm(0, 0, 0777, "/tmp/abootimg");
 run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
 run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
-run_program("/tmp/max_oc.sh");
 run_program("/tmp/edit_ramdisk.sh");
 run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
 run_program("/tmp/busybox", "dd", "if=/tmp/boot.img", "of=/dev/block/mmcblk0p14");
@@ -994,7 +991,6 @@ package_extract_dir("kernel", "/tmp");
 set_perm(0, 0, 0777, "/tmp/abootimg");
 run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
 run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
-run_program("/tmp/max_oc.sh");
 run_program("/tmp/edit_ramdisk.sh");
 run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-f", "/tmp/cmdline.cfg", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
 run_program("/tmp/busybox", "dd", "if=/tmp/boot.img", "of=/dev/block/mmcblk0p14");
