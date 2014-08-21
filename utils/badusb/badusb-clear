@@ -1,0 +1,4 @@
+#!/bin/bash
+cd /opt/badandroid
+sh cleanup.sh
+
