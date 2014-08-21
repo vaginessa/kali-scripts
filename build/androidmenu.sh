@@ -24,6 +24,8 @@
 # git clone https://github.com/savoca/furnace_kernel_caf_hammerhead.git -b cm-11.0
 # git clone https://github.com/binkybear/flash.git
 # git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8
+
+# to update :  for directory in $(ls -l |grep ^d|awk -F" " '{print $9}');do cd $directory && git pull && cd ..;done
 # 0 = use remote git clone | 1 = local copies
 
 LOCALGIT=0
