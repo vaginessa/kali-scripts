@@ -38,8 +38,8 @@ echo "Bringing rndis0 up and setting iptables"
 
 ifconfig rndis0 inet 10.0.0.1 netmask 255.255.255.0 up
 
-#iptables -t nat -F
-#iptables -F
+iptables -t nat -F
+iptables -F
 
 iptables -I FORWARD -i rndis0 -j ACCEPT
 iptables -t nat -A POSTROUTING -j MASQUERADE

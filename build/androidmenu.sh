@@ -14,10 +14,10 @@
 # To do this, you can :
 
 # cd build
-# git clone https://github.com/sensepost/mana.git 
-# git clone https://github.com/binkybear/flash.git 
-# git clone https://github.com/craigacgomez/kernel_samsung_manta.git -b thunderkat 
-# git clone https://github.com/lostdeveloper/kangaroo.git -b kangaroo 
+# git clone https://github.com/sensepost/mana.git
+# git clone https://github.com/binkybear/flash.git
+# git clone https://github.com/craigacgomez/kernel_samsung_manta.git -b thunderkat
+# git clone https://github.com/lostdeveloper/kangaroo.git -b kangaroo
 # git clone https://github.com/flar2/flo.git -b ElementalX
 # git clone https://github.com/flar2/flo.git -b Cyanogenmod
 # git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2
