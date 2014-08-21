@@ -684,7 +684,7 @@ wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm
 
 # Turn off y-cable support for testing
 # Ask for user input later
-#sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
+sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
 
 make clean
 sleep 10
