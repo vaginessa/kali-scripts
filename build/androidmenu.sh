@@ -925,13 +925,13 @@ make clean
 sleep 10
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus5-hammerhead/kali_hammerhead_stock_defconfig -O .config
 
-cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
-pagesize = 0x800
-kerneladdr = 0x80208000
-ramdiskaddr = 0x82200000
-secondaddr = 0x81100000
-tagsaddr = 0x80200100
-name = 
+cat << EOF > ${basedir}/flashkernel/kernel/mkbootimg.sh
+#!/sbin/sh
+echo \#!/sbin/sh > /tmp/createnewboot.sh
+echo /tmp/mkbootimg --kernel /tmp/kernel --ramdisk /tmp/boot.img-ramdisk.gz --cmdline "console=ttyHSL0,115200,n8 androidboot.hardware=hammerhead user_debug=31 maxcpus=4 msm_watchdog_v2.enable=1" --base 0x$(cat /tmp/boot.img-base) --pagesize 2048 --ramdisk_offset 0x02900000 --tags_offset 0x02700000 --output /tmp/newboot.img >> /tmp/createnewboot.sh
+chmod 777 /tmp/createnewboot.sh
+/tmp/createnewboot.sh
+return $?
 EOF
 
 # Attach kernel builder to updater-script
@@ -948,14 +948,14 @@ set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");
-set_perm(0, 0, 0777, "/tmp/abootimg");
-set_perm(0, 0, 0777, "/tmp/busybox");
-set_perm(0, 0, 0777, "/tmp/edit_ramdisk.sh");
-run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
-run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
-run_program("/tmp/edit_ramdisk.sh");
-run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
-run_program("/tmp/busybox", "dd", "if=/tmp/boot.img", "of=/dev/block/mmcblk0p14");
+set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
+set_perm(0, 0, 0777, "/tmp/mkbootimg");
+set_perm(0, 0, 0777, "/tmp/unpackbootimg");
+run_program("/tmp/busybox", "dd", "if=/dev/block/platform/msm_sdcc.1/by-name/boot", "of=/tmp/boot.img");
+run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
+run_program("/tmp/mkbootimg.sh");
+ui_print("Installing Kernel");
+run_program("/tmp/busybox", "dd", "if=/tmp/newboot.img", "of=/dev/block/platform/msm_sdcc.1/by-name/boot");
 set_progress(0.8);
 ui_print("");
 ui_print("Done, please reboot.");
@@ -998,13 +998,13 @@ make clean
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus5-hammerhead/kali_hammerhead_cm_defconfig -O .config
 sleep 10
 
-cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
-pagesize = 0x800
-kerneladdr = 0x80208000
-ramdiskaddr = 0x82200000
-secondaddr = 0x81100000
-tagsaddr = 0x80200100
-name = 
+cat << EOF > ${basedir}/flashkernel/kernel/mkbootimg.sh
+#!/sbin/sh
+echo \#!/sbin/sh > /tmp/createnewboot.sh
+echo /tmp/mkbootimg --kernel /tmp/kernel --ramdisk /tmp/boot.img-ramdisk.gz --cmdline "console=ttyHSL0,115200,n8 androidboot.hardware=hammerhead user_debug=31 maxcpus=4 msm_watchdog_v2.enable=1" --base 0x$(cat /tmp/boot.img-base) --pagesize 2048 --ramdisk_offset 0x02900000 --tags_offset 0x02700000 --output /tmp/newboot.img >> /tmp/createnewboot.sh
+chmod 777 /tmp/createnewboot.sh
+/tmp/createnewboot.sh
+return $?
 EOF
 
 # Attach kernel builder to updater-script
@@ -1021,14 +1021,14 @@ set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");
-set_perm(0, 0, 0777, "/tmp/abootimg");
-set_perm(0, 0, 0777, "/tmp/busybox");
-set_perm(0, 0, 0777, "/tmp/edit_ramdisk.sh");
-run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
-run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
-run_program("/tmp/edit_ramdisk.sh");
-run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-f", "/tmp/cmdline.cfg", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
-run_program("/tmp/busybox", "dd", "if=/tmp/boot.img", "of=/dev/block/mmcblk0p14");
+set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
+set_perm(0, 0, 0777, "/tmp/mkbootimg");
+set_perm(0, 0, 0777, "/tmp/unpackbootimg");
+run_program("/tmp/busybox", "dd", "if=/dev/block/platform/msm_sdcc.1/by-name/boot", "of=/tmp/boot.img");
+run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
+run_program("/tmp/mkbootimg.sh");
+ui_print("Installing Kernel");
+run_program("/tmp/busybox", "dd", "if=/tmp/newboot.img", "of=/dev/block/platform/msm_sdcc.1/by-name/boot");
 set_progress(0.8);
 ui_print("");
 ui_print("Done, please reboot.");
