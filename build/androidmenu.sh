@@ -284,10 +284,10 @@ fi
 
 # Install Local files
 mkdir -p kali-$architecture/opt/badandroid/tmp
+cp -rf ${basepwd}/../utils/badusb/{*.sh,hosts} kali-$architecture/opt/badandroid/
 
 cp -rf ${basepwd}/../utils/s kali-$architecture/usr/bin/
 cp -rf ${basepwd}/../utils/hid/* kali-$architecture/usr/bin/
-cp -rf ${basepwd}/../utils/badusb/{*.sh,hosts} kali-$architecture/opt/badandroid/tmp/
 cp -rf ${basepwd}/../utils/badusb/badusb* kali-$architecture/usr/bin/
 
 cat << EOF > kali-$architecture/etc/network/interfaces
