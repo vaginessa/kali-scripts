@@ -682,9 +682,9 @@ wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kern
 patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_hid_3_4/android.c -O drivers/usb/gadget/android.c
 
-# Turn on y-cable support
+# Turn off y-cable support for testing
 # Ask for user input later
-sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
+#sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
 
 make clean
 sleep 10
@@ -761,9 +761,9 @@ wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kern
 patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_hid_3_4/android.c -O drivers/usb/gadget/android.c
 
-# Turn on y-cable support
+# Turn off y-cable support for testing
 # Ask for user input later
-sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
+# sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
 
 make clean
 sleep 10
