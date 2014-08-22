@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# This is a simple test of the keysources file
+
+### Import keysources to set keyboard keys variables
+source keysources
+
+# Terminal open
+
+$altf2
+
+# Type: iceweasel www.kali.org > enter
+
+$i$c$e$w$e$a$s$e$l
+$space
+$w$w$w$period$k$a$l$i$period$o$r$g
+$enter

@@ -679,25 +679,15 @@ else
 	git clone https://github.com/flar2/flo.git -b ElementalX ${basedir}/kernel
 fi
 
-
 cd ${basedir}/kernel
 echo "Applying Patches"
 # Compat 80211 patch
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 
-# Kexec not needed
-#wget https://gist.githubusercontent.com/Tasssadar/6687647/raw/e10ba59c25cc185864920ec93d552ccd51875202/flo-aosp-Implement-kexec-hardboot-2.patch -O ../patches/nexus7-flodeb-kexec.patch
-#patch -p1 --no-backup-if-mismatch < ../patches/nexus7-flodeb-kexec.patch
-
 # Patch enables the Android device to act as a keyboard and mouse through usb (send keyboard commands to computer)
 wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
 patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_hid_3_4/android.c -O drivers/usb/gadget/android.c
-
-# TESTING NEW PATCH FOR ADDITIONAL WIFI #
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_unbind_otg/usb_unbind_msm.patch -O ../patches/usb_unbind_msm.patch
-patch -p1 --no-backup-if-mismatch < ../patches/usb_unbind_msm.patch
-echo '#pragma GCC diagnostic warning "-Wuninitialized"' > drivers/net/wireless/rtlwifi/rtl8192c/dm_common.c
 
 # Turn off y-cable support for testing
 # Ask for user input later
@@ -706,9 +696,10 @@ echo '#pragma GCC diagnostic warning "-Wuninitialized"' > drivers/net/wireless/r
 make clean
 sleep 10
 # TESTING NEW CONFIG FILE #
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig-test -O .config
-#wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig -O .config
+#wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig-test -O .config
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig -O .config
 
+# This is only required if -f is set in abootimg below.  Does not appear to have any effect as far as I can tell if not enabled.
 cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
 pagesize = 0x800
 kerneladdr = 0x80208000
@@ -733,12 +724,13 @@ set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");
 set_perm(0, 0, 0777, "/tmp/edit_ramdisk.sh");
+set_perm(0, 0, 0777, "/tmp/cmdline.cfg");
 set_perm(0, 0, 0777, "/tmp/abootimg");
 set_perm(0, 0, 0777, "/tmp/busybox");
 run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
 run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
 run_program("/tmp/edit_ramdisk.sh");
-run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
+run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-f", "/tmp/cmdline.cfg", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
 run_program("/tmp/busybox", "dd", "if=/tmp/boot.img", "of=/dev/block/mmcblk0p14");
 set_progress(0.8);
 ui_print("");
@@ -786,6 +778,7 @@ make clean
 sleep 10
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elxcm_kali_defconfig -O .config
 
+# This is only required if -f is set in abootimg below.  Does not appear to have any effect as far as I can tell if not enabled.
 cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
 pagesize = 0x800
 kerneladdr = 0x80208000
@@ -810,12 +803,13 @@ set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");
 set_perm(0, 0, 0777, "/tmp/edit_ramdisk.sh");
+set_perm(0, 0, 0777, "/tmp/cmdline.cfg");
 set_perm(0, 0, 0777, "/tmp/abootimg");
 set_perm(0, 0, 0777, "/tmp/busybox");
 run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
 run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
 run_program("/tmp/edit_ramdisk.sh");
-run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
+run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-f", "/tmp/cmdline.cfg", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
 run_program("/tmp/busybox", "dd", "if=/tmp/boot.img", "of=/dev/block/mmcblk0p14");
 set_progress(0.8);
 ui_print("");
@@ -865,18 +859,20 @@ make clean
 sleep 10
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus5-hammerhead/kali_hammerhead_stock_defconfig -O .config
 
-cat << EOF > ${basedir}/flashkernel/kernel/mkbootimg.sh
-#!/sbin/sh
-echo \#!/sbin/sh > /tmp/createnewboot.sh
-echo /tmp/mkbootimg --kernel /tmp/kernel --ramdisk /tmp/boot.img-ramdisk.gz --cmdline "console=ttyHSL0,115200,n8 androidboot.hardware=hammerhead user_debug=31 maxcpus=4 msm_watchdog_v2.enable=1" --base 0x$(cat /tmp/boot.img-base) --pagesize 2048 --ramdisk_offset 0x02900000 --tags_offset 0x02700000 --output /tmp/newboot.img >> /tmp/createnewboot.sh
-chmod 777 /tmp/createnewboot.sh
-/tmp/createnewboot.sh
-return $?
+cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
+pagesize = 0x800
+kerneladdr = 0x00008000
+ramdiskaddr = 0x2900000
+secondaddr = 0xf00000
+tagsaddr = 0x02700000
+name = 
+cmdline = console=ttyHSL0,115200,n8 androidboot.hardware=hammerhead user_debug=31 maxcpus=2 msm_watchdog_v2.enable=1
 EOF
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+getprop("ro.product.device") == "hammerhead" || abort("This package is for \"hammerhead\" devices; this is a \"" + getprop("ro.product.device") + "\".");
 ui_print("MODIFIED FOR KALI LINUX");
 set_progress(1.000000);
 ui_print("Installing kernel...");
@@ -888,14 +884,13 @@ set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");
-set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
-set_perm(0, 0, 0777, "/tmp/mkbootimg");
-set_perm(0, 0, 0777, "/tmp/unpackbootimg");
-run_program("/tmp/busybox", "dd", "if=/dev/block/platform/msm_sdcc.1/by-name/boot", "of=/tmp/boot.img");
-run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
-run_program("/tmp/mkbootimg.sh");
-ui_print("Installing Kernel");
-run_program("/tmp/busybox", "dd", "if=/tmp/newboot.img", "of=/dev/block/platform/msm_sdcc.1/by-name/boot");
+set_perm(0, 0, 0777, "/tmp/cmdline.cfg");
+set_perm(0, 0, 0777, "/tmp/abootimg");
+set_perm(0, 0, 0777, "/tmp/busybox");
+run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
+run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
+run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-f", "/tmp/cmdline.cfg", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
+run_program("/tmp/busybox", "dd", "if=/tmp/boot.img", "of=/dev/block/mmcblk0p14");
 set_progress(0.8);
 ui_print("");
 ui_print("Done, please reboot.");
@@ -938,18 +933,20 @@ make clean
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus5-hammerhead/kali_hammerhead_cm_defconfig -O .config
 sleep 10
 
-cat << EOF > ${basedir}/flashkernel/kernel/mkbootimg.sh
-#!/sbin/sh
-echo \#!/sbin/sh > /tmp/createnewboot.sh
-echo /tmp/mkbootimg --kernel /tmp/kernel --ramdisk /tmp/boot.img-ramdisk.gz --cmdline "console=ttyHSL0,115200,n8 androidboot.hardware=hammerhead user_debug=31 maxcpus=4 msm_watchdog_v2.enable=1" --base 0x$(cat /tmp/boot.img-base) --pagesize 2048 --ramdisk_offset 0x02900000 --tags_offset 0x02700000 --output /tmp/newboot.img >> /tmp/createnewboot.sh
-chmod 777 /tmp/createnewboot.sh
-/tmp/createnewboot.sh
-return $?
+cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
+pagesize = 0x800
+kerneladdr = 0x00008000
+ramdiskaddr = 0x2900000
+secondaddr = 0xf00000
+tagsaddr = 0x02700000
+name = 
+cmdline = console=ttyHSL0,115200,n8 androidboot.hardware=hammerhead user_debug=31 maxcpus=2 msm_watchdog_v2.enable=1
 EOF
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+getprop("ro.product.device") == "hammerhead" || abort("This package is for \"hammerhead\" devices; this is a \"" + getprop("ro.product.device") + "\".");
 ui_print("MODIFIED FOR KALI LINUX");
 set_progress(1.000000);
 ui_print("Installing kernel...");
@@ -961,14 +958,13 @@ set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");
-set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
-set_perm(0, 0, 0777, "/tmp/mkbootimg");
-set_perm(0, 0, 0777, "/tmp/unpackbootimg");
-run_program("/tmp/busybox", "dd", "if=/dev/block/platform/msm_sdcc.1/by-name/boot", "of=/tmp/boot.img");
-run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
-run_program("/tmp/mkbootimg.sh");
-ui_print("Installing Kernel");
-run_program("/tmp/busybox", "dd", "if=/tmp/newboot.img", "of=/dev/block/platform/msm_sdcc.1/by-name/boot");
+set_perm(0, 0, 0777, "/tmp/cmdline.cfg");
+set_perm(0, 0, 0777, "/tmp/abootimg");
+set_perm(0, 0, 0777, "/tmp/busybox");
+run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
+run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
+run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-f", "/tmp/cmdline.cfg", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
+run_program("/tmp/busybox", "dd", "if=/tmp/boot.img", "of=/dev/block/mmcblk0p14");
 set_progress(0.8);
 ui_print("");
 ui_print("Done, please reboot.");
