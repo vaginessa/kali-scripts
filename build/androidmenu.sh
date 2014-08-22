@@ -528,7 +528,7 @@ wget -P ${basedir}/flash/data/app/ https://hackerskeyboard.googlecode.com/files/
 # Suggested: Android VNC Viewer
 wget -P ${basedir}/flash/data/app/ https://f-droid.org/repo/android.androidVNC_13.apk
 # dSploit
-wget -P ${basedir}/flash/data/app/ -O dSploit.apk http://update.dsploit.net/apk
+wget -P ${basedir}/flash/data/app/ http://update.dsploit.net/stable/dSploit-1.0.31b.apk
 }
 
 #####################################################
