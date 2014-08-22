@@ -706,7 +706,7 @@ echo '#pragma GCC diagnostic warning "-Wuninitialized"' > drivers/net/wireless/r
 make clean
 sleep 10
 # TESTING NEW CONFIG FILE #
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig-test .config
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig-test -O .config
 #wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig -O .config
 
 cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
