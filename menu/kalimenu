@@ -437,8 +437,6 @@ else
   fi
 fi
 }
-
-}
 ########################## REVERSE MENU ################################
 f_reverse(){
 echo "				REVERSE SHELLS"
