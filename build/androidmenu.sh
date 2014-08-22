@@ -692,15 +692,20 @@ wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kern
 patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_hid_3_4/android.c -O drivers/usb/gadget/android.c
 
+# TESTING NEW PATCH FOR ADDITIONAL WIFI #
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_unbind_otg/usb_unbind_msm.patch -O ../patches/usb_unbind_msm.patch
+patch -p1 --no-backup-if-mismatch < ../patches/usb_unbind_msm.patch
+echo '#pragma GCC diagnostic warning "-Wuninitialized"' > drivers/net/wireless/rtlwifi/rtl8192c/dm_common.c
+
 # Turn off y-cable support for testing
 # Ask for user input later
 #sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
 
 make clean
 sleep 10
-#Set default for testing
-#make elementalx_defconfig
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig -O .config
+# TESTING NEW CONFIG FILE #
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig-test .config
+#wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig -O .config
 
 cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
 pagesize = 0x800
