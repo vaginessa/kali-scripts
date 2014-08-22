@@ -4,15 +4,14 @@ FOUND=`grep "wlan1" /proc/net/dev`
 
 if  [ -n "$FOUND" ] ; then
 
-
 upstream=wlan0
 phy=wlan1
 conf=conf/hostapd-karma.conf
 hostapd=../hostapd-manna/hostapd/hostapd
 
-hostname WRT54G
-echo hostname WRT54G
-sleep 2
+# hostname WRT54G
+# echo hostname WRT54G
+# sleep 2
 
 ifconfig $phy down
 macchanger -r $phy
@@ -25,8 +24,8 @@ ifconfig $phy 10.0.0.1 netmask 255.255.255.0
 route add -net 10.0.0.0 netmask 255.255.255.0 gw 10.0.0.1
 
 #dhcpd -cf conf/dhcpd.conf $phy
-
-dnsmasq -C /etc/mana-dnsmasq.conf
+# Replicate some more 
+dnsmasq -C /etc/dnsmasq.conf
 #/etc/init.d/dnsmasq restart
 
 #service ferm stop

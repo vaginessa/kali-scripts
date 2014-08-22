@@ -220,12 +220,12 @@ arm="abootimg cgpt fake-hwclock ntpdate vboot-utils vboot-kernel-utils uboot-mki
 base="kali-menu kali-defaults initramfs-tools usbutils openjdk-7-jre"
 desktop="kali-defaults kali-root-login desktop-base xfce4 xfce4-places-plugin xfce4-goodies"
 # Build slimmer images for testing
-tools="nmap"
+tools="nmap tcpdump"
 #tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-ng wipe socat ettercap-text-only beef-xss set"
 wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet dnsmasq wvdial dsniff sslstrip"
 services="autossh openssh-server tightvncserver lighttpd apache2 postgresql openvpn php5-fpm php5"
 extras="wpasupplicant zip macchanger dbd florence libffi-dev python-setuptools python-pip"
-mana="python-twisted python-dnspython libnl1 libnl-dev libssl-dev sslsplit"
+mana="python-twisted python-dnspython libnl1 libnl-dev libssl-dev sslsplit python-pcapy"
 spiderfoot="python-lxml python-m2crypto python-netaddr python-mako"
 sdr="sox librtlsdr"
 
