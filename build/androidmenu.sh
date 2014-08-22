@@ -527,6 +527,8 @@ wget -P ${basedir}/flash/data/app/ http://max.kellermann.name/download/blue-nmea
 wget -P ${basedir}/flash/data/app/ https://hackerskeyboard.googlecode.com/files/hackerskeyboard-v1037.apk
 # Suggested: Android VNC Viewer
 wget -P ${basedir}/flash/data/app/ https://f-droid.org/repo/android.androidVNC_13.apk
+# dSploit
+wget -P ${basedir}/flash/data/app/ -O dSploit.apk http://update.dsploit.net/apk
 }
 
 #####################################################
