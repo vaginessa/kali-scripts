@@ -462,7 +462,7 @@ mkdir -p $cap/evilap $cap/ettercap $cap/kismet/db $cap/nmap $cap/sslstrip $cap/t
 mkdir -p /opt/mana/run-mana/sslsplit
 
 # Add postgresql user to inet so it can access network
-echo "inet:x:3004:postgres,root" >> kali-$architecture/etc/group
+echo "inet:x:3004:postgres,root,beef-xss,daemon" >> kali-$architecture/etc/group
 
 # CLEANUP STAGE
 
@@ -698,16 +698,6 @@ sleep 10
 # TESTING NEW CONFIG FILE #
 #wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig-test -O .config
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig -O .config
-
-# This is only required if -f is set in abootimg below.  Does not appear to have any effect as far as I can tell if not enabled.
-#cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
-#pagesize = 0x800
-#kerneladdr = 0x80208000
-#ramdiskaddr = 0x82300000
-#secondaddr = 0x81100000
-#tagsaddr = 0x80200100
-#name = 
-#EOF
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
