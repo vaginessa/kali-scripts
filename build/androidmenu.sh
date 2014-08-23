@@ -1055,9 +1055,11 @@ rm -rf ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 echo "Downloading Android Toolchian"
 if [ $LOCALGIT == 1 ]; then
 	echo "Copying toolchain to rootfs"
-        cp -rf ${basepwd}/arm-eabi-4.8 ${basedir}/toolchain
+        cp -rf ${basepwd}/arm-eabi-4.7 ${basedir}/toolchain
+        #cp -rf ${basepwd}/arm-eabi-4.8 ${basedir}/toolchain
 else
-	git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8 ${basedir}/toolchain
+  git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7 ${basedir}/toolchain
+	#git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8 ${basedir}/toolchain
 fi
 
 echo "Setting export paths"
