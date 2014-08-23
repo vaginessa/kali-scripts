@@ -461,8 +461,9 @@ mkdir -p kali-$architecture/sdcard kali-$architecture/system
 mkdir -p $cap/evilap $cap/ettercap $cap/kismet/db $cap/nmap $cap/sslstrip $cap/tshark $cap/wifite $cap/tcpdump $cap/urlsnarf $cap/dsniff $cap/honeyproxy
 mkdir -p /opt/mana/run-mana/sslsplit
 
-# Add postgresql user to inet so it can access network
-echo "inet:x:3004:postgres,root,beef-xss,daemon" >> kali-$architecture/etc/group
+# In order for metasploit to work daemon,nginx,postgres must all be added to inet
+# beef-xss creates user beef-xss
+echo "inet:x:3004:postgres,root,beef-xss,daemon,nginx" >> kali-$architecture/etc/group
 
 # CLEANUP STAGE
 
