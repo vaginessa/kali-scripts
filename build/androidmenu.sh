@@ -676,8 +676,8 @@ if [ $LOCALGIT == 1 ]; then
 	echo "Copying kernel to rootfs"
         cp -rf ${basepwd}/ElementalX ${basedir}/kernel
 else
-	#git clone https://android.googlesource.com/kernel/msm.git -b android-msm-flo-3.4-kitkat-mr2
-	git clone https://github.com/flar2/flo.git -b ElementalX ${basedir}/kernel
+	git clone https://android.googlesource.com/kernel/msm.git -b android-msm-flo-3.4-kitkat-mr2 ${basedir}/kernel
+	#git clone https://github.com/flar2/flo.git -b ElementalX ${basedir}/kernel
 fi
 
 cd ${basedir}/kernel
@@ -690,6 +690,10 @@ wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kern
 patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_hid_3_4/android.c -O drivers/usb/gadget/android.c
 
+# Kexec Patch for multirom support
+wget https://gist.githubusercontent.com/Tasssadar/6687647/raw/e10ba59c25cc185864920ec93d552ccd51875202/flo-aosp-Implement-kexec-hardboot-2.patch -O ../patches/nexus7-flodeb-kexec.patch
+patch -p1 --no-backup-if-mismatch < ../patches/nexus7-flodeb-kexec.patch
+
 # Turn off y-cable support for testing
 # Ask for user input later
 #sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
@@ -697,8 +701,9 @@ wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm
 make clean
 sleep 10
 # TESTING NEW CONFIG FILE #
-#wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig-test -O .config
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig -O .config
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_source_kali_defconfig -O .config
+
+#wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig -O .config
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
