@@ -8,15 +8,16 @@ clear
 echo "			KALI ANDROID QUICK MENU"
 echo ""
 echo ""
-echo "[1]	Wireless Attacks		[5]	Information Gathering"
-echo "[2]	Sniffing/Spoofing		[6]	Vulnerability Analysis"
-echo "[3]	Web Applications		[7]	Exploitation Tools"
-echo "[4]	Reverse Shells			[8]	Reverse Engineering" 	
+echo "[1]	Wireless Attacks			[6]	Vulnerability Analysis"
+echo "[2]	Sniffing/Spoofing			[7]	Exploitation Tools"
+echo "[3]	Web Applications			[8]	Reverse Engineering"
+echo "[4]	Reverse Shells				[9]	USB HID Attacks"
+echo "[5]	Information Gathering		[10] SDR"
 echo ""
-echo "[88]	Services"
-echo "[99]	Settings"
+echo "[11]	Settings"
+echo "[12]	Services"
 echo ""
-echo "[0]	Exit To Command Line"
+echo "[q]	Exit To Command Line"
 echo ""
 
 # wait for character input
@@ -32,10 +33,12 @@ case $menuchoice in
 5) clear; f_information_gathering ;;
 6) clear; f_vulnerability ;;
 7) clear; f_exploitation ;;
-8) clear; f_reverse ;;
-88) clear; f_services ;;
-99) clear; f_settings ;;
-0) clear; exit 1 ;;
+8) clear; f_reverse_engineering ;;
+9) clear; f_hid ;;
+10) clear; f_sdr ;;
+11) clear; f_settings ;;
+12) clear; f_services ;;
+q) clear; exit 1 ;;
 *) echo "Incorrect choice..." ;
 esac
 }
@@ -49,7 +52,8 @@ echo ""
 echo ""
 echo "[1]	Wifite"
 echo "[2]	EvilAP"
-echo "[3]	Kismet"
+echo "[3]	Mana"
+echo "[4]	Kismet"
 echo ""
 echo "[0]	Exit"
 echo ""
@@ -59,7 +63,8 @@ case $wirelesschoice in
 
 1) clear; f_wifite ;;
 2) clear; trap 'f_wireless_attacks' 2; f_evilap ;;
-3) clear; f_kismet ;;
+3) clear; mana ;;
+4) clear; f_kismet ;;
 0) clear; f_interface ;;
 *) echo "Incorrect choice..." ;
 esac
@@ -360,6 +365,7 @@ f_information_gathering(){
 clear
 echo "				INFORMATION GATHERING MAIN MENU"
 echo ""
+echo ""
 echo "[1]	Spiderfoot"
 echo ""
 echo "[0]	Exit to main menu"
@@ -387,6 +393,7 @@ f_exploitation(){
 clear
 echo "				EXPLOITATION MAIN MENU"
 echo ""
+echo ""
 echo "[1]	Metasploit"
 echo "[2]	Beef-XSS"
 echo ""
@@ -396,7 +403,7 @@ read -p "Choice: " webchoice
 
 case $webchoice in
 1) clear; service metasploit start; msfconsole ;;
-2) clear; trap 'f_exploitation' 2; f_beefxss ;;
+2) clear; service beef-xss start; echo "Open browser to local ip on port 3000 (beef/beef)"; sleep 8 ;;
 *) echo "Incorrect choice..." ;
 esac
 }
@@ -404,46 +411,15 @@ esac
 f_metasploit(){
 msf4
 }
-
-f_beefxss(){
-echo ""
-echo "BeEF uses port 3000 as a default with login/password: beef"
-echo "PLEASE SELECT AN OPTION TO CONTINUE"
-echo ""
-echo "1 = Use Default [3000]"
-echo "2 = Select a different port"
-echo ""
-echo "OPTION NUMBER: \c"
-read option
-
-if [ $option = "1" ]; then
-	echo "STARTING BEEF SERVER"
-	cd /usr/share/beef-xss/
-  ./beef
-exit
-else
-  if [ $option = "2" ]; then
-
-    sleep 1
-    echo ""
-    echo "WHAT PORT WOULD YOU LIKE TO USE? \c"
-    read port
-    sleep 1
-    echo ""
-    echo "STARTING BEEF SERVER"
-    cd /usr/share/beef-xss/
-    ./beef -p $port
-    exit
-  fi
-fi
-}
 ########################## REVERSE MENU ################################
 f_reverse(){
 echo "				REVERSE SHELLS"
 echo ""
+echo ""
 echo "[1] Setup AutoSSH (if you can ssh out)"
 echo "[2] Setup pTunnel - (if you can ping out)"
-echo "+++++++++++++++++ EXECUTE +++++++++++++++++ "
+echo ""
+echo "+++++++++++++++++ EXECUTE SHELL +++++++++++++++++ "
 echo ""
 echo "[3] Start AutoSSH reverse shell"
 echo "[0] Exit to main menu"
@@ -543,16 +519,37 @@ f_ptunnel(){
 	echo "Set up pTunnel"
 }
 
-########################## SERVICES MENU ###############################
+########################## USB HID MENU ###############################
+f_hid(){
+clear
+echo "				USB HID MENU"
+echo ""
+echo ""
+echo "[1] Start BadAndroid"
+echo "[2] Stop BadAndroid"
+echo "[3] Launch Keyboard Attack"
+echo "[0] Exit to main menu"
+echo ""
+read -p "Choice: " serviceschoice
 
+case $serviceschoice in
+1) clear; badusb ;;
+2) clear; badusb-clear ;;
+3) clear; k-browser ;;
+0) f_interface ;;
+*) echo "Incorrect choice..." ;
+esac
+}
+########################## SERVICES MENU ###############################
 f_services(){
 clear
 echo "				SERVICES"
+echo ""
+echo ""
 echo "[1] Start SSH Server"
 echo "[2] Start VNC Server"
 echo "[3] Kill all VNC instances (remove pid/logs)"
-echo "[4] Start Metasploit"
-echo "[5] Start XServer on localhost (XServer XSDL)"
+echo "[4] Start XServer on localhost (Android Applicaiton XServer XSDL)"
 echo "[0] Exit to main menu"
 echo ""
 read -p "Choice: " serviceschoice
@@ -561,8 +558,7 @@ case $serviceschoice in
 1) clear; f_ssh ;;
 2) clear; f_vncstart ;;
 3) clear; f_vnckill ;;
-4) clear; /opt/metasploit/scripts/start.sh ;;
-5) clear; DISPLAY=127.0.0.1:0.0 startxfce4; echo "Server started on localhost to be used with Xserver XSDL application" ;;
+4) clear; DISPLAY=127.0.0.1:0.0 startxfce4; echo "Server started on localhost to be used with Xserver XSDL application" ;;
 0) f_interface ;;
 *) echo "Incorrect choice..." ;
 esac
@@ -856,12 +852,14 @@ f_settings
 # PICK INTERFACE USED FOR MULTPILE FUNCTIONS
 ##############################################
 f_pick_interface(){
+echo ""
 echo "Choose which interface to use"
 echo ""
 echo "[1]	wlan0"
 echo "[2]	wlan1"
 echo "[3]	rmnet0"
 echo "[4]	eth0"
+echo "[5]	rndis0"
 echo ""
 read -p "Choice: " sniffinterface
 
@@ -871,6 +869,7 @@ case $sniffinterface in
 2) clear; pickinterface=wlan1 ;;
 3) clear; pickinterface=rmnet0 ;;
 4) clear; pickinterface=eth0 ;;
+5) clear; pickinterface=rndis0 ;;
 *) echo "Incorrect choice..." ;
 esac
 }
