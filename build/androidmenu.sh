@@ -700,14 +700,14 @@ sleep 10
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig -O .config
 
 # This is only required if -f is set in abootimg below.  Does not appear to have any effect as far as I can tell if not enabled.
-cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
-pagesize = 0x800
-kerneladdr = 0x80208000
-ramdiskaddr = 0x82300000
-secondaddr = 0x81100000
-tagsaddr = 0x80200100
-name = 
-EOF
+#cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
+#pagesize = 0x800
+#kerneladdr = 0x80208000
+#ramdiskaddr = 0x82300000
+#secondaddr = 0x81100000
+#tagsaddr = 0x80200100
+#name = 
+#EOF
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
@@ -730,7 +730,7 @@ set_perm(0, 0, 0777, "/tmp/busybox");
 run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
 run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
 run_program("/tmp/edit_ramdisk.sh");
-run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-f", "/tmp/cmdline.cfg", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
+run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
 run_program("/tmp/busybox", "dd", "if=/tmp/boot.img", "of=/dev/block/mmcblk0p14");
 set_progress(0.8);
 ui_print("");
@@ -778,16 +778,6 @@ make clean
 sleep 10
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elxcm_kali_defconfig -O .config
 
-# This is only required if -f is set in abootimg below.  Does not appear to have any effect as far as I can tell if not enabled.
-cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
-pagesize = 0x800
-kerneladdr = 0x80208000
-ramdiskaddr = 0x82300000
-secondaddr = 0x81100000
-tagsaddr = 0x80200100
-name = 
-EOF
-
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
@@ -809,7 +799,7 @@ set_perm(0, 0, 0777, "/tmp/busybox");
 run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
 run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
 run_program("/tmp/edit_ramdisk.sh");
-run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-f", "/tmp/cmdline.cfg", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
+run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
 run_program("/tmp/busybox", "dd", "if=/tmp/boot.img", "of=/dev/block/mmcblk0p14");
 set_progress(0.8);
 ui_print("");
