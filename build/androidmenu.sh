@@ -18,8 +18,8 @@
 # git clone https://github.com/binkybear/flash.git
 # git clone https://github.com/craigacgomez/kernel_samsung_manta.git -b thunderkat
 # git clone https://github.com/lostdeveloper/kangaroo.git -b kangaroo
-# git clone https://github.com/flar2/flo.git -b ElementalX
-# git clone https://github.com/flar2/flo.git -b Cyanogenmod
+# git clone https://android.googlesource.com/kernel/msm.git -b android-msm-flo-3.4-kitkat-mr2
+# git clone https://github.com/CyanogenMod/android_kernel_google_msm.git -b cm-11.0 
 # git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2
 # git clone https://github.com/savoca/furnace_kernel_caf_hammerhead.git -b cm-11.0
 # git clone https://github.com/binkybear/flash.git
@@ -720,7 +720,6 @@ set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");
 set_perm(0, 0, 0777, "/tmp/edit_ramdisk.sh");
-set_perm(0, 0, 0777, "/tmp/cmdline.cfg");
 set_perm(0, 0, 0777, "/tmp/abootimg");
 set_perm(0, 0, 0777, "/tmp/busybox");
 run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
@@ -748,7 +747,8 @@ if [ $LOCALGIT == 1 ]; then
 	echo "Copying kernel to rootfs"
         cp -rf ${basepwd}/Cyanogenmod ${basedir}/kernel
 else
-	git clone https://github.com/flar2/flo.git -b Cyanogenmod ${basedir}/kernel
+  git clone https://github.com/CyanogenMod/android_kernel_google_msm.git -b cm-11.0 ${basedir}/kernel
+	#git clone https://github.com/flar2/flo.git -b Cyanogenmod ${basedir}/kernel
 fi
 
 cd ${basedir}/kernel
@@ -758,8 +758,8 @@ echo "Applying Patches"
 patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 
 # Kexec Patch
-#wget https://gist.githubusercontent.com/Tasssadar/6687647/raw/e10ba59c25cc185864920ec93d552ccd51875202/flo-aosp-Implement-kexec-hardboot-2.patch -O ../patches/nexus7-flodeb-kexec.patch
-#patch -p1 --no-backup-if-mismatch < ../patches/nexus7-flodeb-kexec.patch
+wget https://gist.githubusercontent.com/Tasssadar/6687647/raw/e10ba59c25cc185864920ec93d552ccd51875202/flo-aosp-Implement-kexec-hardboot-2.patch -O ../patches/nexus7-flodeb-kexec.patch
+patch -p1 --no-backup-if-mismatch < ../patches/nexus7-flodeb-kexec.patch
 
 # HID
 wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
@@ -789,7 +789,6 @@ set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");
 set_perm(0, 0, 0777, "/tmp/edit_ramdisk.sh");
-set_perm(0, 0, 0777, "/tmp/cmdline.cfg");
 set_perm(0, 0, 0777, "/tmp/abootimg");
 set_perm(0, 0, 0777, "/tmp/busybox");
 run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
