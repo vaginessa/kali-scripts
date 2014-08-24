@@ -285,10 +285,10 @@ fi
 # Install Local files
 mkdir -p kali-$architecture/opt/badandroid/tmp
 cp -rf ${basepwd}/../utils/badusb/{*.sh,hosts} kali-$architecture/opt/badandroid/
+cp -rf ${basepwd}/../utils/badusb/{badusb,badcleanup} kali-$architecture/usr/bin/
 
 cp -rf ${basepwd}/../utils/s kali-$architecture/usr/bin/
-cp -rf ${basepwd}/../utils/hid/* kali-$architecture/usr/bin/
-cp -rf ${basepwd}/../utils/badusb/badusb* kali-$architecture/usr/bin/
+cp -rf ${basepwd}/../utils/hid/k-* kali-$architecture/usr/bin/
 
 cat << EOF > kali-$architecture/etc/network/interfaces
 auto lo
@@ -398,7 +398,7 @@ cp ${basedir}/kali-$architecture/opt/mana/hostapd-manna/hostapd/defconfig ${base
 # Make Hostapd Binary
 LANG=C chroot kali-$architecture make -C /opt/mana/hostapd-manna/hostapd/
 LANG=C chroot kali-$architecture make install -C /opt/mana/hostapd-manna/hostapd/
-rm -rf ${basedir}/kali-$architecture/opt/mana/slides ${basedir}/kali-$architecture/opt/mana/apache
+rm -rf ${basedir}/kali-$architecture/opt/mana/slides ${basedir}/kali-$architecture/opt/mana/apache ${basedir}/kali-$architecture/opt/mana/.git*
 
 # Install HoneyProxy (MITM SSL Proxy Analyzer)
 LANG=C chroot kali-$architecture pip install Autobahn==0.6.5
