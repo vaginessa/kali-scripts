@@ -18,12 +18,13 @@
 # git clone https://github.com/binkybear/flash.git
 # git clone https://github.com/craigacgomez/kernel_samsung_manta.git -b thunderkat
 # git clone https://github.com/lostdeveloper/kangaroo.git -b kangaroo
-# git clone https://android.googlesource.com/kernel/msm.git -b android-msm-flo-3.4-kitkat-mr2
-# git clone https://github.com/CyanogenMod/android_kernel_google_msm.git -b cm-11.0 
-# git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2
+# git clone https://android.googlesource.com/kernel/msm.git -b android-msm-flo-3.4-kitkat-mr2 flodeb
+# git clone https://github.com/CyanogenMod/android_kernel_google_msm.git -b cm-11.0 cyanflodeb
+# git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2 hammerhead
 # git clone https://github.com/savoca/furnace_kernel_caf_hammerhead.git -b cm-11.0
 # git clone https://github.com/binkybear/flash.git
 # git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8
+# git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7
 
 # to update :  for directory in $(ls -l |grep ^d|awk -F" " '{print $9}');do cd $directory && git pull && cd ..;done
 # 0 = use remote git clone | 1 = local copies
@@ -530,6 +531,8 @@ wget -P ${basedir}/flash/data/app/ https://hackerskeyboard.googlecode.com/files/
 wget -P ${basedir}/flash/data/app/ https://f-droid.org/repo/android.androidVNC_13.apk
 # dSploit
 wget -P ${basedir}/flash/data/app/ http://update.dsploit.net/stable/dSploit-1.0.31b.apk
+# linux deploy
+wget -P ${basedir}/fash/data/app/ https://github.com/meefik/linuxdeploy/releases/download/1.4.6/linuxdeploy.apk
 }
 
 #####################################################
@@ -674,7 +677,7 @@ echo "Downloading Kernel"
 cd ${basedir}
 if [ $LOCALGIT == 1 ]; then
 	echo "Copying kernel to rootfs"
-        cp -rf ${basepwd}/ElementalX ${basedir}/kernel
+        cp -rf ${basepwd}/flodeb ${basedir}/kernel
 else
 	git clone https://android.googlesource.com/kernel/msm.git -b android-msm-flo-3.4-kitkat-mr2 ${basedir}/kernel
 	#git clone https://github.com/flar2/flo.git -b ElementalX ${basedir}/kernel
@@ -745,7 +748,7 @@ cd ${basedir}
 # Using ElementalX kernel but feel free to change to Android source
 if [ $LOCALGIT == 1 ]; then
 	echo "Copying kernel to rootfs"
-        cp -rf ${basepwd}/Cyanogenmod ${basedir}/kernel
+        cp -rf ${basepwd}/cyanflodeb ${basedir}/kernel
 else
   git clone https://github.com/CyanogenMod/android_kernel_google_msm.git -b cm-11.0 ${basedir}/kernel
 	#git clone https://github.com/flar2/flo.git -b Cyanogenmod ${basedir}/kernel
@@ -815,7 +818,7 @@ cd ${basedir}
 echo "Downloading Kernel"
 if [ $LOCALGIT == 1 ]; then
 	echo "Copying kernel to rootfs"
-        cp -rf ${basepwd}/msm.git ${basedir}/kernel
+        cp -rf ${basepwd}/hammerhead ${basedir}/kernel
 else
 	#git clone https://github.com/savoca/furnace_kernel_lge_hammerhead.git -b android-4.4 ${basedir}/kernel
 	git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2 ${basedir}/kernel
@@ -835,10 +838,6 @@ patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
 # Not sure if the battery (smb347.c) needs additional modifications either
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_ycable/fastchg.h -O include/linux/fastchg.h
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_ycable/msm_otg.c -O drivers/usb/otg/msm_otg.c
-
-# Kexec Patch
-wget https://github.com/Tasssadar/android_kernel_google_msm/commit/005cf387c1404eac862cc35153d7641d18faef4c.patch -O ../patches/kexec.patch
-patch -p1 --no-backup-if-mismatch < ../patches/kexec.patch
 
 make clean
 sleep 10
