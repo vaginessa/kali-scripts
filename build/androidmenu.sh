@@ -20,7 +20,7 @@
 # git clone https://github.com/lostdeveloper/kangaroo.git -b kangaroo
 # git clone https://android.googlesource.com/kernel/msm.git -b android-msm-flo-3.4-kitkat-mr2 flodeb
 # git clone https://github.com/CyanogenMod/android_kernel_google_msm.git -b cm-11.0 cyanflodeb
-# git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2 hammerhead
+# git clone https://github.com/savoca/furnace_kernel_lge_hammerhead.git -b android-4.4 ${basedir}/kernel
 # git clone https://github.com/savoca/furnace_kernel_caf_hammerhead.git -b cm-11.0
 # git clone https://github.com/binkybear/flash.git
 # git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8
@@ -818,10 +818,10 @@ cd ${basedir}
 echo "Downloading Kernel"
 if [ $LOCALGIT == 1 ]; then
 	echo "Copying kernel to rootfs"
-        cp -rf ${basepwd}/hammerhead ${basedir}/kernel
+        cp -rf ${basepwd}/furnace_kernel_lge_hammerhead ${basedir}/kernel
 else
-	#git clone https://github.com/savoca/furnace_kernel_lge_hammerhead.git -b android-4.4 ${basedir}/kernel
-	git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2 ${basedir}/kernel
+	git clone https://github.com/savoca/furnace_kernel_lge_hammerhead.git -b android-4.4 ${basedir}/kernel
+	#git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2 ${basedir}/kernel
 fi
 
 cd ${basedir}/kernel
