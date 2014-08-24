@@ -22,7 +22,7 @@ if [ "$continue_on" == "n" ]; then
 	clear
 	echo "You can visit the settings in kalimenu to change startup settings."
 	echo "FIRSTRUN=1" >> $configfile
-	exit
+	exit 1
 fi
 # TIME ZONE
 read -p "Would you like to set your timezone? (y/n): " timezone
