@@ -229,8 +229,9 @@ extras="wpasupplicant zip macchanger dbd florence libffi-dev python-setuptools p
 mana="python-twisted python-dnspython libnl1 libnl-dev libssl-dev sslsplit python-pcapy"
 spiderfoot="python-lxml python-m2crypto python-netaddr python-mako"
 sdr="sox librtlsdr"
+linuxdeploy="libapol4 libqpol1 policycoreutils python-ipy python-selinux python-semanage python-sepolgen python-setools"
 
-export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras} ${mana} ${spiderfoot} ${sdr}"
+export packages="${arm} ${base} ${desktop} ${tools} ${wireless} ${services} ${extras} ${mana} ${spiderfoot} ${sdr} ${linuxdeploy}"
 export architecture="armhf"
 
 # create the rootfs - not much to modify here, except maybe the hostname.
