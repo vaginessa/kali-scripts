@@ -698,6 +698,10 @@ wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm
 wget https://gist.githubusercontent.com/Tasssadar/6687647/raw/e10ba59c25cc185864920ec93d552ccd51875202/flo-aosp-Implement-kexec-hardboot-2.patch -O ../patches/nexus7-flodeb-kexec.patch
 patch -p1 --no-backup-if-mismatch < ../patches/nexus7-flodeb-kexec.patch
 
+# Ignore build errors for bluetooth and wireless devices
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_bluewire/msm_error.patch -O ../patches/msm_error.patch
+patch -p1 --no-backup-if-mismatch < ../patches/msm_error.patch
+
 # Turn off y-cable support for testing
 # Ask for user input later
 #sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
