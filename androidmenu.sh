@@ -3,7 +3,8 @@
 # Kernel Development requires Kali 64bit host
 ######### Dependencies #######
 # cd ~
-# wget https://raw.githubusercontent.com/offensive-security/kali-arm-build-scripts/master/build-deps.sh
+# git clone https://github.com/binkybear/kali-scripts.git
+# cd kali-scripts
 # sh build-deps.sh
 ######### Compiler ###########
 # cd ~
@@ -12,8 +13,7 @@
 ######### Local git repos  #######
 # When testing multiple images, it is often faster to first checkout git repos and use them locally.
 # To do this, you can :
-
-# cd build
+# cd ~/kali-scripts
 # git clone https://github.com/binkybear/kali-scripts.git
 # git clone https://github.com/sensepost/mana.git
 # git clone https://github.com/binkybear/flash.git
