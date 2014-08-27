@@ -14,7 +14,6 @@
 # When testing multiple images, it is often faster to first checkout git repos and use them locally.
 # To do this, you can :
 # cd ~/kali-scripts
-# git clone https://github.com/binkybear/kali-scripts.git
 # git clone https://github.com/sensepost/mana.git
 # git clone https://github.com/binkybear/flash.git
 # git clone https://github.com/craigacgomez/kernel_samsung_manta.git -b thunderkat
