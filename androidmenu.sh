@@ -285,11 +285,11 @@ fi
 
 # Install Local files
 mkdir -p kali-$architecture/opt/badandroid/tmp
-cp -rf ${basepwd}/../utils/badusb/{*.sh,hosts} kali-$architecture/opt/badandroid/
-cp -rf ${basepwd}/../utils/badusb/{badusb,badcleanup} kali-$architecture/usr/bin/
+cp -rf ${basepwd}/utils/badusb/{*.sh,hosts} kali-$architecture/opt/badandroid/
+cp -rf ${basepwd}/utils/badusb/{badusb,badcleanup} kali-$architecture/usr/bin/
 
-cp -rf ${basepwd}/../utils/s kali-$architecture/usr/bin/
-cp -rf ${basepwd}/../utils/hid/k-* kali-$architecture/usr/bin/
+cp -rf ${basepwd}/utils/s kali-$architecture/usr/bin/
+cp -rf ${basepwd}/utils/hid/k-* kali-$architecture/usr/bin/
 
 cat << EOF > kali-$architecture/etc/network/interfaces
 auto lo
@@ -388,8 +388,8 @@ else
         git clone https://github.com/sensepost/mana.git ${basedir}/kali-$architecture/opt/mana
 fi
 
-cp -rf ${basepwd}/../utils/manna/mana ${basedir}/kali-$architecture/usr/bin/
-cp -rf ${basepwd}/../utils/manna/start-nat-full-mod.sh ${basedir}/kali-$architecture/opt/mana/run-mana/
+cp -rf ${basepwd}/utils/manna/mana ${basedir}/kali-$architecture/usr/bin/
+cp -rf ${basepwd}/utils/manna/start-nat-full-mod.sh ${basedir}/kali-$architecture/opt/mana/run-mana/
 
 cp -rf ${basedir}/kali-$architecture/opt/mana/apache/etc/apache2/sites-available/* ${basedir}/kali-$architecture/etc/apache2/sites-available
 cp -rf ${basedir}/kali-$architecture/opt/mana/apache/etc/apache2/sites-enabled/* ${basedir}/kali-$architecture/etc/apache2/sites-enabled
