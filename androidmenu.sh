@@ -14,6 +14,7 @@
 # To do this, you can :
 
 # cd build
+# git clone https://github.com/binkybear/kali-scripts.git
 # git clone https://github.com/sensepost/mana.git
 # git clone https://github.com/binkybear/flash.git
 # git clone https://github.com/craigacgomez/kernel_samsung_manta.git -b thunderkat
@@ -22,7 +23,6 @@
 # git clone https://github.com/CyanogenMod/android_kernel_google_msm.git -b cm-11.0 cyanflodeb
 # git clone https://github.com/savoca/furnace_kernel_lge_hammerhead.git -b android-4.4 ${basedir}/kernel
 # git clone https://github.com/savoca/furnace_kernel_caf_hammerhead.git -b cm-11.0
-# git clone https://github.com/binkybear/flash.git
 # git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8
 # git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7
 
@@ -852,16 +852,6 @@ make clean
 sleep 10
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus5-hammerhead/kali_hammerhead_stock_defconfig -O .config
 
-cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
-pagesize = 0x800
-kerneladdr = 0x00008000
-ramdiskaddr = 0x2900000
-secondaddr = 0xf00000
-tagsaddr = 0x02700000
-name = 
-cmdline = console=ttyHSL0,115200,n8 androidboot.hardware=hammerhead user_debug=31 maxcpus=2 msm_watchdog_v2.enable=1
-EOF
-
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
@@ -877,13 +867,9 @@ set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");
-set_perm(0, 0, 0777, "/tmp/cmdline.cfg");
-set_perm(0, 0, 0777, "/tmp/abootimg");
-set_perm(0, 0, 0777, "/tmp/busybox");
-run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
-run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
-run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-f", "/tmp/cmdline.cfg", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
-run_program("/tmp/busybox", "dd", "if=/tmp/boot.img", "of=/dev/block/mmcblk0p14");
+set_perm(0, 0, 0775, "/tmp/installHH.sh");
+set_perm(0, 0, 0775, "/tmp/mkbootimg");
+run_program("/tmp/installHH.sh");
 set_progress(0.8);
 ui_print("");
 ui_print("Done, please reboot.");
@@ -951,17 +937,14 @@ set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 unmount("/system");
 package_extract_dir("kernel", "/tmp");
-set_perm(0, 0, 0777, "/tmp/cmdline.cfg");
-set_perm(0, 0, 0777, "/tmp/abootimg");
-set_perm(0, 0, 0777, "/tmp/busybox");
-run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
-run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
-run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-f", "/tmp/cmdline.cfg", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
-run_program("/tmp/busybox", "dd", "if=/tmp/boot.img", "of=/dev/block/mmcblk0p14");
+set_perm(0, 0, 0775, "/tmp/installHH.sh");
+set_perm(0, 0, 0775, "/tmp/mkbootimg");
+run_program("/tmp/installHH.sh");
 set_progress(0.8);
 ui_print("");
 ui_print("Done, please reboot.");
 EOF
+
 
 f_kernel_build
 }
