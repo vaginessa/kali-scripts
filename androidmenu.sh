@@ -778,6 +778,10 @@ wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm
 # Ask for user input later
 # sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
 
+# Ignore build errors for bluetooth and wireless devices
+wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_bluewire/msm_error.patch -O ../patches/msm_error.patch
+patch -p1 --no-backup-if-mismatch < ../patches/msm_error.patch
+
 make clean
 sleep 10
 wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elxcm_kali_defconfig -O .config
