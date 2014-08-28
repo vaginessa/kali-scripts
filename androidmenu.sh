@@ -15,14 +15,12 @@
 # To do this, you can :
 # cd ~/kali-scripts
 # git clone https://github.com/sensepost/mana.git
-# git clone https://github.com/binkybear/flash.git
 # git clone https://github.com/craigacgomez/kernel_samsung_manta.git -b thunderkat
 # git clone https://github.com/lostdeveloper/kangaroo.git -b kangaroo
 # git clone https://android.googlesource.com/kernel/msm.git -b android-msm-flo-3.4-kitkat-mr2 flodeb
 # git clone https://github.com/CyanogenMod/android_kernel_google_msm.git -b cm-11.0 cyanflodeb
 # git clone https://github.com/savoca/furnace_kernel_lge_hammerhead.git -b android-4.4 ${basedir}/kernel
 # git clone https://github.com/savoca/furnace_kernel_caf_hammerhead.git -b cm-11.0
-# git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8
 # git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7
 
 # to update :  for directory in $(ls -l |grep ^d|awk -F" " '{print $9}');do cd $directory && git pull && cd ..;done
@@ -40,6 +38,8 @@ f_check_version(){
   echo "Checking for git updates in local folder..."
   for directory in $(ls -l |grep ^d|awk -F" " '{print $9}');do cd $directory && git pull && cd ..;done
 	clear
+  # need to exit back to basedir to establish root folder
+  cd ${basepwd}
 	echo ""
         read -p "Create working folder. Enter version number: " VERSION
         export basedir=`pwd`/android-$VERSION
@@ -428,8 +428,8 @@ cd ${basedir}
 sed -i 's/hs/\/captures/g' kali-$architecture/etc/kismet/kismet.conf
 
 # Kali Menu (bash script) to quickly launch common Android Programs
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/menu/kalimenu -O kali-$architecture/usr/bin/kalimenu
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/menu/firstrun -O kali-$architecture/usr/bin/firstrun
+cp -rf ${basepwd}/menu/kalimenu -O kali-$architecture/usr/bin/kalimenu
+cp -rf ${basepwd}/menu/firstrun -O kali-$architecture/usr/bin/firstrun
 sleep 5
 
 # Set permissions to executable on newly added scripts
@@ -562,19 +562,19 @@ patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 # Keyboard patch currently not working, need to check config file when I have more free time
 wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/not-tested/kernel-3.4-nexus10-2012.patch -O ../patches/nexus10-keyboard.patch
 patch -p1 --no-backup-if-mismatch < ../patches/nexus10-keyboard.patch
-cp ${basepwd}/defconfigs/patches/n10_hid_3_4/android.c -O drivers/usb/gadget/android.c
+cp ${basepwd}/defconfigs/patches/n10_hid_3_4/android.c drivers/usb/gadget/android.c
 
 # Fastcharge and y-cable support
 # This is working but its a nasty hack from taking the y-cable support in FLO/DEB and putting it into Nexus 10
 # Not sure if the battery (smb347.c) needs additional modifications either
-cp ${basepwd}/defconfigs/patches/msm_ycable/fastchg.h -O include/linux/fastchg.h
-cp ${basepwd}/defconfigs/patches/msm_ycable/msm_otg.c -O drivers/usb/otg/msm_otg.c
+cp ${basepwd}/defconfigs/patches/msm_ycable/fastchg.h include/linux/fastchg.h
+cp ${basepwd}/defconfigs/patches/msm_ycable/msm_otg.c drivers/usb/otg/msm_otg.c
 
 echo "Downloading/replacing defconfig file"
 # Clean kernel folder, enable default config, overwrite .config with one containing enabled wireless and bluetooth devices
 make clean
 sleep 3
-cp ${basepwd}/defconfigs/nexus10/exynos_kali_defconfig -O .config
+cp ${basepwd}/defconfigs/nexus10/exynos_kali_defconfig .config
 sleep 10
 
 # Attach kernel builder to updater-script
@@ -639,7 +639,7 @@ echo "Downloading/replacing defconfig file"
 # Clean kernel folder, enable default config, overwrite .config with one containing enabled wireless and bluetooth devices
 make clean
 sleep 3
-cp ${basepwd}/defconfigs/nexus7-grouper/kali_grouper_defconfig -O .config
+cp ${basepwd}/defconfigs/nexus7-grouper/kali_grouper_defconfig .config
 sleep 10
 
 # Attach kernel builder to updater-script
@@ -695,14 +695,14 @@ patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 # Patch enables the Android device to act as a keyboard and mouse through usb (send keyboard commands to computer)
 wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
 patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
-cp ${basepwd}/patches/msm_hid_3_4/android.c -O drivers/usb/gadget/android.c
+cp ${basepwd}/patches/msm_hid_3_4/android.c drivers/usb/gadget/android.c
 
 # Kexec Patch for multirom support
 wget https://gist.githubusercontent.com/Tasssadar/6687647/raw/e10ba59c25cc185864920ec93d552ccd51875202/flo-aosp-Implement-kexec-hardboot-2.patch -O ../patches/nexus7-flodeb-kexec.patch
 patch -p1 --no-backup-if-mismatch < ../patches/nexus7-flodeb-kexec.patch
 
 # Ignore build errors for bluetooth and wireless devices
-cp ${basepwd}/patches/msm_bluewire/msm_error.patch -O ../patches/msm_error.patch
+cp ${basepwd}/patches/msm_bluewire/msm_error.patch ../patches/msm_error.patch
 patch -p1 --no-backup-if-mismatch < ../patches/msm_error.patch
 
 # Turn off y-cable support for testing
@@ -712,7 +712,7 @@ patch -p1 --no-backup-if-mismatch < ../patches/msm_error.patch
 make clean
 sleep 10
 # TESTING NEW CONFIG FILE #
-cp ${basepwd}/defconfigs/nexus7-flodeb/flo_source_kali_defconfig -O .config
+cp ${basepwd}/defconfigs/nexus7-flodeb/flo_source_kali_defconfig .config
 
 #wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig -O .config
 
@@ -775,19 +775,19 @@ patch -p1 --no-backup-if-mismatch < ../patches/nexus7-flodeb-kexec.patch
 # HID
 wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
 patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
-cp ${basepwd}/patches/msm_hid_3_4/android.c -O drivers/usb/gadget/android.c
+cp ${basepwd}/patches/msm_hid_3_4/android.c drivers/usb/gadget/android.c
 
 # Turn off y-cable support for testing
 # Ask for user input later
 # sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
 
 # Ignore build errors for bluetooth and wireless devices
-cp ${basepwd}/patches/msm_bluewire/msm_error.patch -O ../patches/msm_error.patch
+cp ${basepwd}/patches/msm_bluewire/msm_error.patch ../patches/msm_error.patch
 patch -p1 --no-backup-if-mismatch < ../patches/msm_error.patch
 
 make clean
 sleep 10
-cp ${basepwd}/defconfigs/nexus7-flodeb/flo_elxcm_kali_defconfig -O .config
+cp ${basepwd}/defconfigs/nexus7-flodeb/flo_elxcm_kali_defconfig .config
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
@@ -848,12 +848,12 @@ patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
 # Fastcharge and y-cable support
 # This is working but its a nasty hack from taking the y-cable support in FLO/DEB and putting it into Nexus 10
 # Not sure if the battery (smb347.c) needs additional modifications either
-cp ${basepwd}/patches/msm_ycable/fastchg.h -O include/linux/fastchg.h
-cp ${basepwd}/patches/msm_ycable/msm_otg.c -O drivers/usb/otg/msm_otg.c
+cp ${basepwd}/patches/msm_ycable/fastchg.h include/linux/fastchg.h
+cp ${basepwd}/patches/msm_ycable/msm_otg.c drivers/usb/otg/msm_otg.c
 
 make clean
 sleep 10
-cp ${basepwd}/defconfigs/nexus5-hammerhead/kali_hammerhead_stock_defconfig -O .config
+cp ${basepwd}/defconfigs/nexus5-hammerhead/kali_hammerhead_stock_defconfig .config
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
@@ -912,7 +912,7 @@ patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
 #patch -p1 --no-backup-if-mismatch < ../patches/kexec.patch
 
 make clean
-cp ${basepwd}/defconfigs/nexus5-hammerhead/kali_hammerhead_cm_defconfig -O .config
+cp ${basepwd}/defconfigs/nexus5-hammerhead/kali_hammerhead_cm_defconfig .config
 sleep 10
 
 # Attach kernel builder to updater-script
@@ -937,8 +937,6 @@ set_progress(0.8);
 ui_print("");
 ui_print("Done, please reboot.");
 EOF
-
-
 f_kernel_build
 }
 #####################################################
