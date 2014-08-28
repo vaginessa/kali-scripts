@@ -428,8 +428,8 @@ cd ${basedir}
 sed -i 's/hs/\/captures/g' kali-$architecture/etc/kismet/kismet.conf
 
 # Kali Menu (bash script) to quickly launch common Android Programs
-cp -rf ${basepwd}/menu/kalimenu -O kali-$architecture/usr/bin/kalimenu
-cp -rf ${basepwd}/menu/firstrun -O kali-$architecture/usr/bin/firstrun
+cp -rf ${basepwd}/menu/kalimenu kali-$architecture/usr/bin/kalimenu
+cp -rf ${basepwd}/menu/firstrun kali-$architecture/usr/bin/firstrun
 sleep 5
 
 # Set permissions to executable on newly added scripts
