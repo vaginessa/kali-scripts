@@ -96,7 +96,7 @@ case $menuchoice in
 4) clear; f_hammerhead ;;
 88) clear; f_rootfs ; f_flashzip; f_zip_save ;;
 99) f_cleanup ;;
-q) clear; f_cleanup ;; exit 1 ;;
+q) clear; f_cleanup ; exit 1 ;;
 *) echo "Incorrect choice..." ;
 esac
 }
