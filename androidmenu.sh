@@ -37,6 +37,8 @@ basedir=`pwd`/android-$VERSION
 
 f_check_version(){
 	# Allow user input of version number/folder creation to make set up easier
+  echo "Checking for git updates in local folder..."
+  for directory in $(ls -l |grep ^d|awk -F" " '{print $9}');do cd $directory && git pull && cd ..;done
 	clear
 	echo ""
         read -p "Create working folder. Enter version number: " VERSION
@@ -94,7 +96,7 @@ case $menuchoice in
 4) clear; f_hammerhead ;;
 88) clear; f_rootfs ; f_flashzip; f_zip_save ;;
 99) f_cleanup ;;
-q) clear; exit 1 ;;
+q) clear; f_cleanup ;; exit 1 ;;
 *) echo "Incorrect choice..." ;
 esac
 }
@@ -496,27 +498,29 @@ f_flashzip(){
 #  folders/scripts/files.
 #  Flashable zip will need follow structure:
 #
-#  /busybox/busybox - for mounting data folders
+#  /busybox/busybox - for mounting data folders for kernel install
 #  /data/app/kalilauncher.apk - Launches into root or menu
 #  /data/local/kalifs.tar.bz2 - The filesystem
 #  /data/local/tmp_kali - shell scripts to unzip filesystem/boot chroot
-#  /kernel/kernel - kernel (zImage)
+#  /kernel/kernel - kernel (zImage or zImage-dtb)
 #  /META-INF/com/google/android/updater-binary - Binary file for edify script
 #  /META-INF/com/google/android/updater-script - Edify script to install Kali 
 #  /system/bin/bootkali - Launches the Kali chroot
 #  /system/bin/killkali - Shutsdown Kali chroot (unmounts and stops services)
 #  /system/etc/ - Contains firmware for wireless devices and nano for text editing
 #  /system/xbin/nano - Nano binary
+#  /system/xbin/busybox - Busybox binary
 #####################################################
 
 # Create base flashable zip
-if [ $LOCALGIT == 1 ]; then
-	echo "Copying flash to rootfs"
-        cp -rf ${basepwd}/flash ${basedir}/flash
-else
-	git clone https://github.com/binkybear/flash.git ${basedir}/flash 
-fi
+#if [ $LOCALGIT == 1 ]; then
+#	echo "Copying flash to rootfs"
+#        cp -rf ${basepwd}/flash ${basedir}/flash
+#else
+#	git clone https://github.com/binkybear/flash.git ${basedir}/flash 
+#fi
 
+cp -rf ${basepwd}/flash ${basedir}/flash
 mkdir -p ${basedir}/flash/data/local/
 mkdir -p ${basedir}/flash/system/lib/modules
 
@@ -558,19 +562,19 @@ patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 # Keyboard patch currently not working, need to check config file when I have more free time
 wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/not-tested/kernel-3.4-nexus10-2012.patch -O ../patches/nexus10-keyboard.patch
 patch -p1 --no-backup-if-mismatch < ../patches/nexus10-keyboard.patch
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/n10_hid_3_4/android.c -O drivers/usb/gadget/android.c
+cp ${basepwd}/defconfigs/patches/n10_hid_3_4/android.c -O drivers/usb/gadget/android.c
 
 # Fastcharge and y-cable support
 # This is working but its a nasty hack from taking the y-cable support in FLO/DEB and putting it into Nexus 10
 # Not sure if the battery (smb347.c) needs additional modifications either
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_ycable/fastchg.h -O include/linux/fastchg.h
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_ycable/msm_otg.c -O drivers/usb/otg/msm_otg.c
+cp ${basepwd}/defconfigs/patches/msm_ycable/fastchg.h -O include/linux/fastchg.h
+cp ${basepwd}/defconfigs/patches/msm_ycable/msm_otg.c -O drivers/usb/otg/msm_otg.c
 
 echo "Downloading/replacing defconfig file"
 # Clean kernel folder, enable default config, overwrite .config with one containing enabled wireless and bluetooth devices
 make clean
 sleep 3
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus10/exynos_kali_defconfig -O .config
+cp ${basepwd}/defconfigs/nexus10/exynos_kali_defconfig -O .config
 sleep 10
 
 # Attach kernel builder to updater-script
@@ -635,7 +639,7 @@ echo "Downloading/replacing defconfig file"
 # Clean kernel folder, enable default config, overwrite .config with one containing enabled wireless and bluetooth devices
 make clean
 sleep 3
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-grouper/kali_grouper_defconfig -O .config
+cp ${basepwd}/defconfigs/nexus7-grouper/kali_grouper_defconfig -O .config
 sleep 10
 
 # Attach kernel builder to updater-script
@@ -691,14 +695,14 @@ patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 # Patch enables the Android device to act as a keyboard and mouse through usb (send keyboard commands to computer)
 wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
 patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_hid_3_4/android.c -O drivers/usb/gadget/android.c
+cp ${basepwd}/patches/msm_hid_3_4/android.c -O drivers/usb/gadget/android.c
 
 # Kexec Patch for multirom support
 wget https://gist.githubusercontent.com/Tasssadar/6687647/raw/e10ba59c25cc185864920ec93d552ccd51875202/flo-aosp-Implement-kexec-hardboot-2.patch -O ../patches/nexus7-flodeb-kexec.patch
 patch -p1 --no-backup-if-mismatch < ../patches/nexus7-flodeb-kexec.patch
 
 # Ignore build errors for bluetooth and wireless devices
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_bluewire/msm_error.patch -O ../patches/msm_error.patch
+cp ${basepwd}/patches/msm_bluewire/msm_error.patch -O ../patches/msm_error.patch
 patch -p1 --no-backup-if-mismatch < ../patches/msm_error.patch
 
 # Turn off y-cable support for testing
@@ -708,7 +712,7 @@ patch -p1 --no-backup-if-mismatch < ../patches/msm_error.patch
 make clean
 sleep 10
 # TESTING NEW CONFIG FILE #
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_source_kali_defconfig -O .config
+cp ${basepwd}/defconfigs/nexus7-flodeb/flo_source_kali_defconfig -O .config
 
 #wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig -O .config
 
@@ -771,19 +775,19 @@ patch -p1 --no-backup-if-mismatch < ../patches/nexus7-flodeb-kexec.patch
 # HID
 wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
 patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_hid_3_4/android.c -O drivers/usb/gadget/android.c
+cp ${basepwd}/patches/msm_hid_3_4/android.c -O drivers/usb/gadget/android.c
 
 # Turn off y-cable support for testing
 # Ask for user input later
 # sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
 
 # Ignore build errors for bluetooth and wireless devices
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_bluewire/msm_error.patch -O ../patches/msm_error.patch
+cp ${basepwd}/patches/msm_bluewire/msm_error.patch -O ../patches/msm_error.patch
 patch -p1 --no-backup-if-mismatch < ../patches/msm_error.patch
 
 make clean
 sleep 10
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elxcm_kali_defconfig -O .config
+cp ${basepwd}/defconfigs/nexus7-flodeb/flo_elxcm_kali_defconfig -O .config
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
@@ -844,12 +848,12 @@ patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
 # Fastcharge and y-cable support
 # This is working but its a nasty hack from taking the y-cable support in FLO/DEB and putting it into Nexus 10
 # Not sure if the battery (smb347.c) needs additional modifications either
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_ycable/fastchg.h -O include/linux/fastchg.h
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/patches/msm_ycable/msm_otg.c -O drivers/usb/otg/msm_otg.c
+cp ${basepwd}/patches/msm_ycable/fastchg.h -O include/linux/fastchg.h
+cp ${basepwd}/patches/msm_ycable/msm_otg.c -O drivers/usb/otg/msm_otg.c
 
 make clean
 sleep 10
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus5-hammerhead/kali_hammerhead_stock_defconfig -O .config
+cp ${basepwd}/defconfigs/nexus5-hammerhead/kali_hammerhead_stock_defconfig -O .config
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
@@ -908,18 +912,8 @@ patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
 #patch -p1 --no-backup-if-mismatch < ../patches/kexec.patch
 
 make clean
-wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus5-hammerhead/kali_hammerhead_cm_defconfig -O .config
+cp ${basepwd}/defconfigs/nexus5-hammerhead/kali_hammerhead_cm_defconfig -O .config
 sleep 10
-
-cat << EOF > ${basedir}/flashkernel/kernel/cmdline.cfg
-pagesize = 0x800
-kerneladdr = 0x00008000
-ramdiskaddr = 0x2900000
-secondaddr = 0xf00000
-tagsaddr = 0x02700000
-name = 
-cmdline = console=ttyHSL0,115200,n8 androidboot.hardware=hammerhead user_debug=31 maxcpus=2 msm_watchdog_v2.enable=1
-EOF
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
@@ -998,7 +992,8 @@ umount ${basedir}/kali-$architecture/proc/sys/fs/binfmt_misc
 umount ${basedir}/kali-$architecture/dev/pts
 umount ${basedir}/kali-$architecture/dev/
 umount ${basedir}/kali-$architecture/proc
-
+sleep 3
+clear
 #echo "Removing temporary build files"
 #rm -rf ${basedir}/patches ${basedir}/kernel ${basedir}/flash ${basedir}/kali-$architecture ${basedir}/flashkernel
 }
@@ -1029,13 +1024,15 @@ clear
 #fi
 
 # Create seperate kernel flashable zip in case the kernel just needs to be flashed again
-echo "Creating kernel directory structure"
-if [ $LOCALGIT == 1 ]; then
-	echo "Copying flash to rootfs"
-        cp -rf ${basepwd}/flash ${basedir}/flashkernel
-else
-	git clone https://github.com/binkybear/flash.git ${basedir}/flashkernel
-fi
+#echo "Creating kernel directory structure"
+#if [ $LOCALGIT == 1 ]; then
+#	echo "Copying flash to rootfs"
+#        cp -rf ${basepwd}/flash ${basedir}/flashkernel
+#else
+#	git clone https://github.com/binkybear/flash.git ${basedir}/flashkernel
+#fi
+
+cp ${basepwd}/flash/ ${basedir}/flashkernel
 
 mkdir -p ${basedir}/flashkernel/system/lib/modules
 rm -rf ${basedir}/flashkernel/data
