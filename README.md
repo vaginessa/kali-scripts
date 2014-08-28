@@ -1,8 +1,9 @@
-Kali on Android Installer
+# Kali on Android Installer
 ============
 
-Instructions:
+## Installation Instructions:
 
+```
 mkdir ~/arm-stuff
 cd ~/arm-stuff
 git clone https://github.com/offensive-security/gcc-arm-linux-gnueabihf-4.7
@@ -11,3 +12,4 @@ git clone https://github.com/binkybear/kali-scripts
 cd ~/arm-stuff/kali-scripts
 ./build-deps.sh
 ./androidmenu.sh
+```
