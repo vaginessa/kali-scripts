@@ -1021,17 +1021,7 @@ clear
 #  read -p "Toolchain folder already exsists, would you like to redownload? (y/n)" toolchain answer
 #fi
 
-# Create seperate kernel flashable zip in case the kernel just needs to be flashed again
-#echo "Creating kernel directory structure"
-#if [ $LOCALGIT == 1 ]; then
-#	echo "Copying flash to rootfs"
-#        cp -rf ${basepwd}/flash ${basedir}/flashkernel
-#else
-#	git clone https://github.com/binkybear/flash.git ${basedir}/flashkernel
-#fi
-
-cp ${basepwd}/flash/ ${basedir}/flashkernel
-
+cp -rf ${basepwd}/flash/ ${basedir}/flashkernel
 mkdir -p ${basedir}/flashkernel/system/lib/modules
 rm -rf ${basedir}/flashkernel/data
 rm -rf ${basedir}/flashkernel/META-INF/com/google/android/updater-script
