@@ -907,10 +907,6 @@ patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
 
 # Y-cable not work working with CM
 
-# Kexec Patch not needed
-#wget https://github.com/Tasssadar/android_kernel_google_msm/commit/005cf387c1404eac862cc35153d7641d18faef4c.patch -O ../patches/kexec.patch
-#patch -p1 --no-backup-if-mismatch < ../patches/kexec.patch
-
 make clean
 cp ${basepwd}/defconfigs/nexus5-hammerhead/kali_hammerhead_cm_defconfig .config
 sleep 10
@@ -1053,18 +1049,6 @@ wget http://patches.aircrack-ng.org/mac80211.compat08082009.wl_frag+ack_v1.patch
 # Kernel build so we don't repeat for every different kernel
 ##############################################################
 f_kernel_build(){
-if [ ! -e "/usr/bin/lz4c" ]; then
-  echo "Missing lz4c which is needed to build certain kernels.  Downloading and making for system:"
-  cd ${basedir}
-  wget http://lz4.googlecode.com/files/lz4-r112.tar.gz
-  tar -xf lz4-r112.tar.gz
-  cd lz4-r112
-  make
-  make install
-  echo "lz4c now installed.  Removing leftovers"
-  cd ..
-  rm -rf lz4-r112.tar.gz lz4-r112
-fi
 echo "Building Kernel"
 make -j $(grep -c processor /proc/cpuinfo)
 echo "Building modules"

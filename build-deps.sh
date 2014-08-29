@@ -14,3 +14,15 @@ if [ ${MACHINE_TYPE} == 'x86_64' ]; then
 else
     apt-get install -y libncurses5
 fi
+if [ ! -e "/usr/bin/lz4c" ]; then
+  echo "Missing lz4c which is needed to build certain kernels.  Downloading and making for system:"
+  cd ${basedir}
+  wget http://lz4.googlecode.com/files/lz4-r112.tar.gz
+  tar -xf lz4-r112.tar.gz
+  cd lz4-r112
+  make
+  make install
+  echo "lz4c now installed.  Removing leftover files"
+  cd ..
+  rm -rf lz4-r112.tar.gz lz4-r112
+fi
