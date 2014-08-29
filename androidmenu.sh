@@ -222,7 +222,7 @@ arm="abootimg cgpt fake-hwclock ntpdate vboot-utils vboot-kernel-utils uboot-mki
 base="kali-menu kali-defaults initramfs-tools usbutils openjdk-7-jre"
 desktop="kali-defaults kali-root-login desktop-base xfce4 xfce4-places-plugin xfce4-goodies"
 # Build slimmer images for testing
-tools="nmap tcpdump"
+tools="nmap tcpdump ptunnel"
 #tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-ng wipe socat ettercap-text-only beef-xss set"
 wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet dnsmasq wvdial dsniff sslstrip"
 services="autossh openssh-server tightvncserver lighttpd apache2 postgresql openvpn php5-fpm php5"
@@ -398,6 +398,8 @@ cp -rf ${basedir}/kali-$architecture/opt/mana/apache/etc/apache2/sites-enabled/*
 cp -rf ${basedir}/kali-$architecture/opt/mana/apache/var/www/* ${basedir}/kali-$architecture/var/www
 cp ${basedir}/kali-$architecture/opt/mana/hostapd-manna/hostapd/defconfig ${basedir}/kali-$architecture/opt/mana/hostapd-manna/hostapd/.config
 
+sed -i 's/\.\/lamb_braai\//\/captures\/mana\//g' ${basedir}/kali-$architecture/opt/mana/firelamb/firelamb.py
+
 # Make Hostapd Binary
 LANG=C chroot kali-$architecture make -C /opt/mana/hostapd-manna/hostapd/
 LANG=C chroot kali-$architecture make install -C /opt/mana/hostapd-manna/hostapd/
@@ -461,7 +463,7 @@ EOF
 cap=kali-$architecture/captures
 mkdir -p kali-$architecture/root/.ssh/
 mkdir -p kali-$architecture/sdcard kali-$architecture/system
-mkdir -p $cap/evilap $cap/ettercap $cap/kismet/db $cap/nmap $cap/sslstrip $cap/tshark $cap/wifite $cap/tcpdump $cap/urlsnarf $cap/dsniff $cap/honeyproxy
+mkdir -p $cap/evilap $cap/ettercap $cap/kismet/db $cap/nmap $cap/sslstrip $cap/tshark $cap/wifite $cap/tcpdump $cap/urlsnarf $cap/dsniff $cap/honeyproxy $cap/mana
 mkdir -p /opt/mana/run-mana/sslsplit
 
 # In order for metasploit to work daemon,nginx,postgres must all be added to inet
