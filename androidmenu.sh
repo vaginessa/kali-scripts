@@ -562,13 +562,13 @@ patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
 # Keyboard patch currently not working, need to check config file when I have more free time
 wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/not-tested/kernel-3.4-nexus10-2012.patch -O ../patches/nexus10-keyboard.patch
 patch -p1 --no-backup-if-mismatch < ../patches/nexus10-keyboard.patch
-cp ${basepwd}/defconfigs/patches/n10_hid_3_4/android.c drivers/usb/gadget/android.c
+cp ${basepwd}/patches/n10_hid_3_4/android.c drivers/usb/gadget/android.c
 
 # Fastcharge and y-cable support
 # This is working but its a nasty hack from taking the y-cable support in FLO/DEB and putting it into Nexus 10
 # Not sure if the battery (smb347.c) needs additional modifications either
-cp ${basepwd}/defconfigs/patches/msm_ycable/fastchg.h include/linux/fastchg.h
-cp ${basepwd}/defconfigs/patches/msm_ycable/msm_otg.c drivers/usb/otg/msm_otg.c
+cp ${basepwd}/patches/msm_ycable/fastchg.h include/linux/fastchg.h
+cp ${basepwd}/patches/msm_ycable/msm_otg.c drivers/usb/otg/msm_otg.c
 
 echo "Downloading/replacing defconfig file"
 # Clean kernel folder, enable default config, overwrite .config with one containing enabled wireless and bluetooth devices
