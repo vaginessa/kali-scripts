@@ -9,31 +9,119 @@ ui_print("***||  |*\  \/ /  /******\  \*||  |____\||  |***");
 ui_print("***\|__|**\__\/__/********\_ \||_______|\|__|***");
 ui_print("************************************************");
 ui_print("************************************************");
-ui_print("Extracting System Files...");
+ui_print("* Extracting System Files...                   *");
 show_progress(1.34, 700);
 package_extract_dir("kernel", "/tmp");
 set_perm(0, 0, 0755, "/tmp/busybox");
-ui_print("* Installing Kali chroot...                     *");
-ui_print("* Be aware, this will take ~30 minutes..        *");
-ui_print("* Mounting system and rootfs...                 *");
+ui_print("* Installing Kali chroot...                    *");
+ui_print("* Be aware, this will take ~30 minutes..       *");
+ui_print("* Mounting system and rootfs...                *");
 run_program("/tmp/busybox", "mount", "/system");
 run_program("/tmp/busybox", "mount", "-o", "rw,remount", "/system", "/system");
 run_program("/tmp/busybox", "mount", "/data");
 run_program("/tmp/busybox", "mount", "-o", "rw,remount", "/", "/");
 
-ui_print("* Removing any old terminal applications... *");
+ui_print("* Removing any old terminal applications...    *");
 delete("/system/app/Term.apk", "/system/app/com.android.term1.apk", "/system/app/com.android.term2.apk", 
 "/system/app/com.android.term3.apk", "/system/app/com.android.term4.apk", "/system/app/com.android.term5.apk", "/system/app/jackpal.androidterm.apk", 
 "/system/app/jackpal.androidterm-1.apk", "/system/app/jackpal.androidterm-2.apk", "/system/app/AndroidTerm.apk", 
 "/system/app/AndroidTerm-1.apk", "/system/app/AndroidTerm-2.apk", "/data/app/Term.apk", "/data/app/jackpal.androidterm.apk", 
 "/data/app/jackpal.androidterm-1.apk", "/data/app/jackpal.androidterm-2.apk", "/data/app/AndroidTerm.apk", "/data/app/AndroidTerm-1.apk", "/data/app/AndroidTerm-2.apk");
 
-ui_print("*Extracting system files and applications...   *");
+ui_print("* Removing old Superuser Files                 *");
+delete("/system/bin/su");
+delete("/system/xbin/su");
+delete("/system/xbin/daemonsu");
+delete("/system/bin/sugote");
+delete("/system/bin/.ext/.su");
+delete("/system/etc/install-recovery");
+delete("/system/etc/init.d/99SuperSUDaemon");
+delete("/system/etc/.installed_su_daemon");
+delete("/system/app/Superuser.apk");
+delete("/system/app/Superuser.odex");
+delete("/system/app/SuperUser.apk");
+delete("/system/app/SuperUser.odex");
+delete("/system/app/superuser.apk");
+delete("/system/app/superuser.odex");
+delete("/system/app/Supersu.apk");
+delete("/system/app/Supersu.odex");
+delete("/system/app/SuperSU.apk");
+delete("/system/app/SuperSU.odex");
+delete("/system/app/supersu.apk");
+delete("/system/app/supersu.odex");
+delete("/data/dalvik-cache/*com.noshufou.android.su*");
+delete("/data/dalvik-cache/*com.koushikdutta.superuser*");
+delete("/data/dalvik-cache/*com.mgyun.shua.su*");
+delete("/data/dalvik-cache/*Superuser.apk*");
+delete("/data/dalvik-cache/*SuperUser.apk*");
+delete("/data/dalvik-cache/*superuser.apk*");
+delete("/data/dalvik-cache/*eu.chainfire.supersu*");
+delete("/data/dalvik-cache/*Supersu.apk*");
+delete("/data/dalvik-cache/*SuperSU.apk*");
+delete("/data/dalvik-cache/*supersu.apk*");
+delete("/data/dalvik-cache/*.oat");
+delete("/data/app/com.noshufou.android.su-*");
+delete("/data/app/com.koushikdutta.superuser-*");
+delete("/data/app/com.mgyun.shua.su-*");
+delete("/data/app/eu.chainfire.supersu-*");
+delete("/system/xbin/sugote-mksh");
+
+ui_print("* Creating space                               *");
+run_program("/tmp/busybox", "cp", "/system/app/Maps.apk", "/Maps.apk");
+run_program("/tmp/busybox", "cp", "/system/app/GMS_Maps.apk", "/GMS_Maps.apk");
+run_program("/tmp/busybox", "cp", "/system/app/YouTube.apk", "/YouTube.apk");
+delete("/system/app/Maps.apk");
+delete("/system/app/GMS_Maps.apk");
+delete("/system/app/YouTube.apk");
+
+ui_print("* Extracting system files and applications...  *");
 package_extract_dir("system", "/system");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/xbin");
+run_program("/tmp/busybox", "cp", "/system/bin/sh", "/system/xbin/sugote-mksh");
 
-ui_print("*Symlinking Busybox...     *");
+ui_print("* Disabling OTA survival...                    *");
+package_extract_file("system/xbin/chattr", "/tmp/chattr");
+package_extract_file("system/xbin/chattr.pie", "/tmp/chattr.pie");
+set_perm(0, 0, 0755, "/tmp/chattr");
+set_perm(0, 0, 0755, "/tmp/chattr.pie");
+run_program("/tmp/chattr", "-i", "/system/xbin/su");
+run_program("/tmp/chattr.pie", "-i", "/system/xbin/su");
+run_program("/tmp/chattr", "-i", "/system/bin/.ext/.su");
+run_program("/tmp/chattr.pie", "-i", "/system/bin/.ext/.su");
+run_program("/tmp/chattr", "-i", "/system/xbin/daemonsu");
+run_program("/tmp/chattr.pie", "-i", "/system/xbin/daemonsu");
+run_program("/tmp/chattr", "-i", "/system/etc/install-recovery.sh");
+run_program("/tmp/chattr.pie", "-i", "/system/etc/install-recovery.sh");
+delete("/system/xbin/chattr");
+delete("/system/xbin/chattr.pie");
+
+ui_print("* Restoring Files                              *");
+run_program("/tmp/busybox", "cp", "/Maps.apk", "/system/app/Maps.apk");
+run_program("/tmp/busybox", "cp", "/GMS_Maps.apk", "/system/app/GMS_Maps.apk");
+run_program("/tmp/busybox", "cp", "/YouTube.apk", "/system/app/YouTube.apk");
+delete("/Maps.apk");
+delete("/GMS_Maps.apk");
+delete("/YouTube.apk");
+
+ui_print("* Setting SuperSU permissions                  *");
+set_perm(0, 0, 06755, "/system/bin/.ext/.su");
+set_perm(0, 0, 06755, "/system/xbin/su");
+set_perm(0, 0, 0755, "/system/xbin/sugote");
+set_perm(0, 0, 0755, "/system/xbin/sugote-mksh");
+set_perm(0, 0, 0755, "/system/xbin/daemonsu");
+set_perm(0, 0, 0755, "/system/etc/install-recovery.sh");
+set_perm(0, 0, 0755, "/system/etc/init.d/99SuperSUDaemon");
+set_perm(0, 0, 0644, "/system/etc/.installed_su_daemon");
+set_perm(0, 0, 0644, "/system/app/Superuser.apk");
+set_perm(0, 0, 0644, "/system/app/Maps.apk");
+set_perm(0, 0, 0644, "/system/app/GMS_Maps.apk");
+set_perm(0, 0, 0644, "/system/app/YouTube.apk");
+set_perm(0, 0, 04755, "/system/xbin/busybox");
+ui_print("- Post-installation script");
+run_program("/system/xbin/su", "--install");
+
+ui_print("* Symlinking Busybox...                        *");
 symlink("busybox", "/system/xbin/[", "/system/xbin/[[",
         "/system/xbin/adjtimex", "/system/xbin/arp", "/system/xbin/ash",
         "/system/xbin/awk", "/system/xbin/base64", "/system/xbin/basename",
@@ -117,130 +205,33 @@ symlink("busybox", "/system/xbin/[", "/system/xbin/[[",
         "/system/xbin/xz", "/system/xbin/xzcat", "/system/xbin/yes",
         "/system/xbin/zcat");
 
-ui_print("* Copying compressed Kali 1GB filesystem...     *");
-ui_print("* Along with temporary files...                 *");
+ui_print("* Copying compressed Kali 1GB filesystem...    *");
+ui_print("* Along with temporary files...                *");
 package_extract_file("data/system/users/0/wallpaper", "/data/system/users/0/wallpaper");
 package_extract_dir("data/local", "/data/local");
 package_extract_dir("data/app", "/data/app");
 package_extract_dir("data/tmp_kali", "/tmp");
 
-ui_print("* Setting permissions...                        *");
+ui_print("* Setting permissions...                       *");
 set_perm(0, 0, 0777, "/data/local/kalifs.tar.bz2");
-set_perm(0, 0, 0755, "/system/etc/init.d/91kaliboot");
+set_perm(0, 0, 0755, "/system/etc/init.d/91kaliboot.sh");
 set_perm(0, 0, 0655, "/data/local/tmp/hosts");
-set_perm(0, 0, 0755, "/data/local/tmp/badandroid/bad.sh");
-set_perm(0, 0, 0755, "/data/local/tmp/badandroid/cleanup.sh");
 set_perm(0, 0, 0755, "/tmp/extractkali.sh");
 
-ui_print("* Extracting Kali chroot...                     *");
-ui_print("* This takes around 30 minutes...               *");
+ui_print("* Extracting Kali chroot...                    *");
+ui_print("* This takes around 30 minutes...              *");
 run_program("/tmp/extractkali.sh");
 
-ui_print("* Extracting wallpapers to /sdcard.    *");
+ui_print("* Extracting wallpapers to /sdcard.            *");
 run_program("/tmp/busybox", "mount", "/sdcard");
 package_extract_dir("wallpaper", "/sdcard/");
 
-ui_print("*********************");
-ui_print("SuperSU installer ZIP");
-ui_print("*********************");
-ui_print("- Extracting files");
-ui_print("- Removing old files");
-delete("/system/bin/su");
-delete("/system/xbin/su");
-delete("/system/xbin/daemonsu");
-delete("/system/bin/sugote");
-delete("/system/bin/.ext/.su");
-delete("/system/etc/install-recovery");
-delete("/system/etc/init.d/99SuperSUDaemon");
-delete("/system/etc/.installed_su_daemon");
-delete("/system/app/Superuser.apk");
-delete("/system/app/Superuser.odex");
-delete("/system/app/SuperUser.apk");
-delete("/system/app/SuperUser.odex");
-delete("/system/app/superuser.apk");
-delete("/system/app/superuser.odex");
-delete("/system/app/Supersu.apk");
-delete("/system/app/Supersu.odex");
-delete("/system/app/SuperSU.apk");
-delete("/system/app/SuperSU.odex");
-delete("/system/app/supersu.apk");
-delete("/system/app/supersu.odex");
-delete("/data/dalvik-cache/*com.noshufou.android.su*");
-delete("/data/dalvik-cache/*com.koushikdutta.superuser*");
-delete("/data/dalvik-cache/*com.mgyun.shua.su*");
-delete("/data/dalvik-cache/*Superuser.apk*");
-delete("/data/dalvik-cache/*SuperUser.apk*");
-delete("/data/dalvik-cache/*superuser.apk*");
-delete("/data/dalvik-cache/*eu.chainfire.supersu*");
-delete("/data/dalvik-cache/*Supersu.apk*");
-delete("/data/dalvik-cache/*SuperSU.apk*");
-delete("/data/dalvik-cache/*supersu.apk*");
-delete("/data/dalvik-cache/*.oat");
-delete("/data/app/com.noshufou.android.su-*");
-delete("/data/app/com.koushikdutta.superuser-*");
-delete("/data/app/com.mgyun.shua.su-*");
-delete("/data/app/eu.chainfire.supersu-*");
-delete("/system/xbin/sugote-mksh");
-ui_print("- Creating space");
-run_program("/tmp/busybox", "cp", "/system/app/Maps.apk", "/Maps.apk");
-run_program("/tmp/busybox", "cp", "/system/app/GMS_Maps.apk", "/GMS_Maps.apk");
-run_program("/tmp/busybox", "cp", "/system/app/YouTube.apk", "/YouTube.apk");
-delete("/system/app/Maps.apk");
-delete("/system/app/GMS_Maps.apk");
-delete("/system/app/YouTube.apk");
-
-ui_print("- Placing files");
-run_program("/tmp/busybox", "cp", "/system/bin/sh", "/system/xbin/sugote-mksh");
-
-ui_print("- Disabling OTA survival");
-package_extract_file("system/xbin/chattr", "/tmp/chattr");
-package_extract_file("system/xbin/chattr.pie", "/tmp/chattr.pie");
-set_perm(0, 0, 0755, "/tmp/chattr");
-set_perm(0, 0, 0755, "/tmp/chattr.pie");
-run_program("/tmp/chattr", "-i", "/system/xbin/su");
-run_program("/tmp/chattr.pie", "-i", "/system/xbin/su");
-run_program("/tmp/chattr", "-i", "/system/bin/.ext/.su");
-run_program("/tmp/chattr.pie", "-i", "/system/bin/.ext/.su");
-run_program("/tmp/chattr", "-i", "/system/xbin/daemonsu");
-run_program("/tmp/chattr.pie", "-i", "/system/xbin/daemonsu");
-run_program("/tmp/chattr", "-i", "/system/etc/install-recovery.sh");
-run_program("/tmp/chattr.pie", "-i", "/system/etc/install-recovery.sh");
-delete("/system/xbin/chattr");
-delete("/system/xbin/chattr.pie");
-
-ui_print("- Restoring files");
-run_program("/tmp/busybox", "cp", "/Maps.apk", "/system/app/Maps.apk");
-run_program("/tmp/busybox", "cp", "/GMS_Maps.apk", "/system/app/GMS_Maps.apk");
-run_program("/tmp/busybox", "cp", "/YouTube.apk", "/system/app/YouTube.apk");
-delete("/Maps.apk");
-delete("/GMS_Maps.apk");
-delete("/YouTube.apk");
-
-ui_print("- Setting permissions");
-set_perm(0, 0, 06755, "/system/bin/.ext/.su");
-set_perm(0, 0, 06755, "/system/xbin/su");
-set_perm(0, 0, 0755, "/system/xbin/sugote");
-set_perm(0, 0, 0755, "/system/xbin/sugote-mksh")
-set_perm(0, 0, 0755, "/system/xbin/daemonsu");
-set_perm(0, 0, 0755, "/system/etc/install-recovery.sh");
-set_perm(0, 0, 0755, "/system/etc/init.d/99SuperSUDaemon");
-set_perm(0, 0, 0644, "/system/etc/.installed_su_daemon");
-set_perm(0, 0, 0644, "/system/app/Superuser.apk");
-set_perm(0, 0, 0644, "/system/app/Maps.apk");
-set_perm(0, 0, 0644, "/system/app/GMS_Maps.apk");
-set_perm(0, 0, 0644, "/system/app/YouTube.apk");
-set_perm(0, 0, 04755, "/system/xbin/busybox");
-ui_print("- Installing Busybox");
-run_program("/system/xbin/busybox", "--install", "-s", "/system/xbin");
-ui_print("- Post-installation script");
-run_program("/system/xbin/su", "--install");
-
-ui_print("* Kali chroot is now successfully installed.    *");
+ui_print("* Kali chroot is now successfully installed.   *");
 delete_recursive("/tmp");
-ui_print("* Unmounting system..                           *");
+ui_print("* Unmounting system..                          *");
 unmount("/system");
-ui_print("* Unmounting data...                            *");
+ui_print("* Unmounting data...                           *");
 unmount("/data");
-ui_print("* Unmounting sdcard...                          *");
+ui_print("* Unmounting sdcard...                         *");
 unmount("/sdcard");
-ui_print("*End of Kali Extract...                         *");
+ui_print("*End of Kali Extract...                        *");

@@ -10,12 +10,12 @@ echo ""
 echo ""
 echo "[1]	Wireless Attacks			[6]	Vulnerability Analysis"
 echo "[2]	Sniffing/Spoofing			[7]	Exploitation Tools"
-echo "[3]	Web Applications			[8]	Reverse Engineering"
+echo "[3]	SDR							[8]	Reverse Engineering"
 echo "[4]	Reverse Shells				[9]	USB HID Attacks"
-echo "[5]	Information Gathering		[10] SDR"
+echo "[5]	Information Gathering		"
 echo ""
-echo "[11]	Settings"
-echo "[12]	Services"
+echo "[10]	Settings"
+echo "[11]	Services"
 echo ""
 echo "[q]	Exit To Command Line"
 echo ""
@@ -28,16 +28,15 @@ case $menuchoice in
 
 1) clear; f_wireless_attacks ;;
 2) clear; f_sniffing ;;
-3) clear; f_web_applications ;;
+3) clear; f_sdr ;;
 4) clear; f_reverse ;;
 5) clear; f_information_gathering ;;
 6) clear; f_vulnerability ;;
 7) clear; f_exploitation ;;
 8) clear; f_reverse_engineering ;;
 9) clear; f_hid ;;
-10) clear; f_sdr ;;
-11) clear; f_settings ;;
-12) clear; f_services ;;
+10) clear; f_settings ;;
+11) clear; f_services ;;
 q) clear; exit 1 ;;
 *) echo "Incorrect choice..." ;
 esac
@@ -338,27 +337,6 @@ f_dsniff(){
 	dsniff -i $pickinterface  -w /captures/dsniff/urlsnarf-$now.cap;
 	f_sniffing
 }
-##########################   WEB APP MENU    ###############################
-f_web_applications(){
-clear
-echo "				WEB APPLICATION MAIN MENU"
-echo ""
-echo "[1]	sqlmap"
-echo "[2]	sqlninja"
-echo "[3]	xsser"
-echo ""
-echo "[0]	Exit to main menu"
-
-read -p "Choice: " webchoice
-
-case $webchoice in
-1) clear; f_sqlmap ;;
-2) clear; f_sqlninja ;;
-3) clear; f_xsser ;;
-0) clear; f_interface ;;
-*) echo "Incorrect choice..." ;
-esac
-}
 ########################## INFO GATHER MENU ##############################
 
 f_information_gathering(){
@@ -383,9 +361,49 @@ python /opt/spiderfoot/sf.py
 }
 
 ########################## VULNERABILITY MENU ###########################
-
 f_vulnerability(){
-	echo "Insert"
+if [ ! -d "/var/lib/openvas/" ]; then
+	clear
+	echo "Openvas is not currently installed."
+	read -p "Would you like to install OpenVas (1GB+ space needed)? (y/n): " $installopenvas
+		if [ "$installopenvas" == "y" ]; then
+			apt-get update && apt-get install openvas
+			openvas-mkcert -q
+			openvas-nvt-sync
+			openvas-mkcert-client -n om -i
+			service openvas-manager stop
+			service openvas-scanner stop
+			openvassd
+			openvasmd --migrate
+			openvasmd --rebuild
+			openvas-scapdata-sync
+			openvas-certdata-sync
+			openvasad -c adduser -n admin -r Admin
+			killall openvassd
+			sleep 15
+			service openvas-scanner start
+			service openvas-manager start
+			service openvas-administrator restart
+			service greenbone-security-assistant restart
+			openvas-check-setup
+		fi
+fi
+clear
+echo "				VULNERABILITY MENU"
+echo ""
+echo ""
+echo "[1] Start Openvas (https://127.0.0.1:9392)"
+echo "[2] Update OpenVas Feeds"
+echo "[0] Exit to main menu"
+echo ""
+read -p "Choice: " vulnchoice
+
+case $vulnchoice in
+1) clear; service greenbone-security-assistant start; service openvas-scanner start; service openvas-administrator start; service openvas-manager start ;;
+2) clear; openvas-nvt-sync; openvas-scapdata-sync; openvas-certdata-sync ;;
+0) f_interface ;;
+*) echo "Incorrect choice..." ;
+esac
 }
 ########################## EXPLOITATION MENU ############################
 
@@ -527,7 +545,6 @@ echo ""
 echo ""
 echo "[1] Start BadAndroid"
 echo "[2] Stop BadAndroid"
-echo "[3] Launch Keyboard Attack"
 echo "[0] Exit to main menu"
 echo ""
 read -p "Choice: " serviceschoice
@@ -535,7 +552,6 @@ read -p "Choice: " serviceschoice
 case $serviceschoice in
 1) clear; badusb ;;
 2) clear; badusb-clear ;;
-3) clear; k-browser ;;
 0) f_interface ;;
 *) echo "Incorrect choice..." ;
 esac
