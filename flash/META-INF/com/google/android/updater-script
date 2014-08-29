@@ -125,10 +125,9 @@ package_extract_dir("data/tmp_kali", "/tmp");
 
 ui_print("* Setting permissions...                       *");
 set_perm(0, 0, 0777, "/data/local/kalifs.tar.bz2");
-set_perm(0, 0, 0755, "/system/etc/init.d/91kaliboot.sh");
+set_perm(0, 0, 0755, "/system/etc/init.d/91kaliboot");
 set_perm(0, 0, 0655, "/data/local/tmp/hosts");
 set_perm(0, 0, 0755, "/tmp/extractkali.sh");
-set_perm(0, 0, 0755, "/tmp/installsu.sh");
 
 ui_print("* Extracting Kali chroot...                    *");
 ui_print("* This takes around 30 minutes...              *");
@@ -137,9 +136,6 @@ run_program("/tmp/extractkali.sh");
 ui_print("* Extracting wallpapers to /sdcard.            *");
 run_program("/tmp/busybox", "mount", "/sdcard");
 package_extract_dir("wallpaper", "/sdcard/");
-
-ui_print("* Installing SuperSU...                        *");
-run_program("/tmp/installsu.sh");
 
 ui_print("* Kali chroot is now successfully installed.   *");
 delete_recursive("/tmp");
