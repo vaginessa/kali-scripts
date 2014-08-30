@@ -140,7 +140,7 @@ run_program("/tmp/extractkali.sh");
 
 ui_print("* Extracting wallpapers to /sdcard.            *");
 run_program("/tmp/busybox", "mount", "/sdcard");
-package_extract_dir("wallpaper", "/sdcard/");
+package_extract_dir("sdcard", "/sdcard/");
 
 ui_print("* Kali chroot is now successfully installed.   *");
 delete_recursive("/tmp");
