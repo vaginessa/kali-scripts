@@ -29,6 +29,7 @@ delete("/system/app/Term.apk", "/system/app/com.android.term1.apk", "/system/app
 "/data/app/jackpal.androidterm-1.apk", "/data/app/jackpal.androidterm-2.apk", "/data/app/AndroidTerm.apk", "/data/app/AndroidTerm-1.apk", "/data/app/AndroidTerm-2.apk");
 
 ui_print("* Removing any old SuperUser applications...   *");
+delete("/system/xbin/busybox");
 delete("/system/bin/su");
 delete("/system/xbin/su");
 delete("/system/xbin/daemonsu");

