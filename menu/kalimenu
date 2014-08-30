@@ -580,7 +580,7 @@ echo "[1] Start SSH Server"
 echo "[2] Start VNC Server"
 echo "[3] Kill all VNC instances (remove pid/logs)"
 echo "[4] Start XServer on localhost (Android Applicaiton XServer XSDL)"
-echo "[5] VPN Server menu" #VPN Server runs and allows connections but there is no outside connect.
+echo "[5] Create/Start VPN Server"
 echo ""
 echo "[0] Exit to main menu"
 echo ""
@@ -655,7 +655,9 @@ echo "[1] Build VPN Server Keys (will remove previous old keys)"
 echo "[2] Use custom domain or dynamic DNS"
 echo "[3] Export Client Keys to sdcard"
 echo "[4] Start VPN Server"
-echo "[5] Exit to Main Menu"
+echo "[5] Stop VPN Server"
+echo ""
+echo "[0] Exit to Settings Menu"
 echo -n "Enter your menu choice [1-6]: "
 read -p "Choice: " vpnkeychoice
 
@@ -664,7 +666,8 @@ case $vpnkeychoice in
 2) f_domain_clientkey ;;
 3) f_exportkeys ;;
 4) f_startvpn ;;
-5) f_settings ;;
+5) service openvpn stop ; iptables -F ; iptables -X ; echo "Stopping Openvpn" ;;
+0) f_settings ;;
 *) echo "Incorrect choice..." ;
 esac
 }
