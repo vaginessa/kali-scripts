@@ -1,0 +1,119 @@
+#####################################################
+# Create Nexus 5 Stock Kernel (4.4+)
+#####################################################
+f_hammerhead_stock_kernel(){
+
+f_kernel_build_init
+
+cd ${basedir}
+echo "Downloading Kernel"
+if [ $LOCALGIT == 1 ]; then
+	echo "Copying kernel to rootfs"
+        cp -rf ${basepwd}/furnace_kernel_lge_hammerhead ${basedir}/kernel
+else
+	git clone https://github.com/savoca/furnace_kernel_lge_hammerhead.git -b android-4.4 ${basedir}/kernel
+	#git clone https://android.googlesource.com/kernel/msm.git -b android-msm-hammerhead-3.4-kitkat-mr2 ${basedir}/kernel
+fi
+
+cd ${basedir}/kernel
+echo "Applying Patches"
+# Compat 80211 patch
+patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
+
+# Patch enables the Android device to act as a keyboard and mouse through usb (send keyboard commands to computer)
+wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
+patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
+
+# Fastcharge and y-cable support
+# This is working but its a nasty hack from taking the y-cable support in FLO/DEB and putting it into Nexus 10
+# Not sure if the battery (smb347.c) needs additional modifications either
+cp ${basepwd}/patches/msm_ycable/fastchg.h include/linux/fastchg.h
+cp ${basepwd}/patches/msm_ycable/msm_otg.c drivers/usb/otg/msm_otg.c
+
+make clean
+sleep 10
+cp ${basepwd}/defconfigs/nexus5-hammerhead/kali_hammerhead_stock_defconfig .config
+
+# Attach kernel builder to updater-script
+echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+getprop("ro.product.device") == "hammerhead" || abort("This package is for \"hammerhead\" devices; this is a \"" + getprop("ro.product.device") + "\".");
+ui_print("MODIFIED FOR KALI LINUX");
+set_progress(1.000000);
+ui_print("Installing kernel...");
+ui_print("Mounting /system");
+mount("ext4", "EMMC", "/dev/block/platform/msm_sdcc.1/by-name/system", "/system");
+package_extract_dir("system", "/system");
+set_perm_recursive(0, 0, 0644, 0644, "/system/lib/modules");
+set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
+set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
+unmount("/system");
+package_extract_dir("kernel", "/tmp");
+set_perm(0, 0, 0775, "/tmp/installHH.sh");
+set_perm(0, 0, 0775, "/tmp/mkbootimg");
+run_program("/tmp/installHH.sh");
+set_progress(0.8);
+ui_print("");
+ui_print("Done, please reboot.");
+EOF
+
+# Start kernel build
+f_kernel_build
+}
+
+#####################################################
+# Create Nexus 5 CM Kernel (4.4+)
+#####################################################
+f_hammerhead_cm_kernel(){
+
+f_kernel_build_init
+
+echo "Downloading Kernel"
+cd ${basedir}
+if [ $LOCALGIT == 1 ]; then
+	echo "Copying kernel to rootfs"
+        cp -rf ${basepwd}/furnace_kernel_caf_hammerhead ${basedir}/kernel
+else
+	git clone https://github.com/savoca/furnace_kernel_caf_hammerhead.git -b cm-11.0 ${basedir}/kernel
+fi
+
+cd ${basedir}/kernel
+
+echo "Applying Patches"
+# Compat 80211 patch
+patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
+
+# Patch enables the Android device to act as a keyboard and mouse through usb (send keyboard commands to computer)
+wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
+patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
+
+# Y-cable not work working with CM
+
+make clean
+cp ${basepwd}/defconfigs/nexus5-hammerhead/kali_hammerhead_cm_defconfig .config
+sleep 10
+
+# Attach kernel builder to updater-script
+echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+getprop("ro.product.device") == "hammerhead" || abort("This package is for \"hammerhead\" devices; this is a \"" + getprop("ro.product.device") + "\".");
+ui_print("MODIFIED FOR KALI LINUX");
+set_progress(1.000000);
+ui_print("Installing kernel...");
+ui_print("Mounting /system");
+mount("ext4", "EMMC", "/dev/block/platform/msm_sdcc.1/by-name/system", "/system");
+package_extract_dir("system", "/system");
+set_perm_recursive(0, 0, 0644, 0644, "/system/lib/modules");
+set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
+set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
+unmount("/system");
+package_extract_dir("kernel", "/tmp");
+set_perm(0, 0, 0775, "/tmp/installHH.sh");
+set_perm(0, 0, 0775, "/tmp/mkbootimg");
+run_program("/tmp/installHH.sh");
+set_progress(0.8);
+ui_print("");
+ui_print("Done, please reboot.");
+EOF
+f_kernel_build
+}

@@ -1,0 +1,152 @@
+#####################################################
+# Create Nexus 7 (2013) FLO/DEB Stock Kernel (4.4+)
+#####################################################
+f_deb_stock_kernel(){
+
+f_kernel_build_init
+
+echo "Downloading Kernel"
+cd ${basedir}
+if [ $LOCALGIT == 1 ]; then
+	echo "Copying kernel to rootfs"
+        cp -rf ${basepwd}/flodeb ${basedir}/kernel
+else
+	git clone https://android.googlesource.com/kernel/msm.git -b android-msm-flo-3.4-kitkat-mr2 ${basedir}/kernel
+	#git clone https://github.com/flar2/flo.git -b ElementalX ${basedir}/kernel
+fi
+
+cd ${basedir}/kernel
+echo "Applying Patches"
+# Compat 80211 patch
+patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
+
+# Patch enables the Android device to act as a keyboard and mouse through usb (send keyboard commands to computer)
+wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
+patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
+cp ${basepwd}/patches/msm_hid_3_4/android.c drivers/usb/gadget/android.c
+
+# Kexec Patch for multirom support
+wget https://gist.githubusercontent.com/Tasssadar/6687647/raw/e10ba59c25cc185864920ec93d552ccd51875202/flo-aosp-Implement-kexec-hardboot-2.patch -O ../patches/nexus7-flodeb-kexec.patch
+patch -p1 --no-backup-if-mismatch < ../patches/nexus7-flodeb-kexec.patch
+
+# Ignore build errors for bluetooth and wireless devices
+cp ${basepwd}/patches/msm_bluewire/msm_error.patch ../patches/msm_error.patch
+patch -p1 --no-backup-if-mismatch < ../patches/msm_error.patch
+
+# Turn off y-cable support for testing
+# Ask for user input later
+#sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
+
+make clean
+sleep 10
+# TESTING NEW CONFIG FILE #
+cp ${basepwd}/defconfigs/nexus7-flodeb/flo_source_kali_defconfig .config
+
+#wget https://raw.githubusercontent.com/binkybear/kali-scripts/master/defconfigs/nexus7-flodeb/flo_elx-kali_defconfig -O .config
+
+# Attach kernel builder to updater-script
+echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+ui_print("MODIFIED FOR KALI LINUX");
+set_progress(1.000000);
+ui_print("Installing kernel...");
+ui_print("Mounting /system");
+mount("ext4", "EMMC", "/dev/block/platform/msm_sdcc.1/by-name/system", "/system");
+package_extract_dir("system", "/system");
+set_perm_recursive(0, 0, 0644, 0644, "/system/lib/modules");
+set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
+set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
+unmount("/system");
+package_extract_dir("kernel", "/tmp");
+set_perm(0, 0, 0777, "/tmp/edit_ramdisk.sh");
+set_perm(0, 0, 0777, "/tmp/abootimg");
+set_perm(0, 0, 0777, "/tmp/busybox");
+run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
+run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
+run_program("/tmp/edit_ramdisk.sh");
+run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
+run_program("/tmp/busybox", "dd", "if=/tmp/boot.img", "of=/dev/block/mmcblk0p14");
+set_progress(0.8);
+ui_print("");
+ui_print("Done, please reboot.");
+EOF
+
+# Start kernel build
+f_kernel_build
+}
+
+#####################################################
+# Create Nexus 7 (2013) FLO/DEB CM Kernel (4.4+)
+#####################################################
+
+f_deb_cm_kernel(){
+
+f_kernel_build_init
+
+echo "Downloading Kernel"
+cd ${basedir}
+# Using ElementalX kernel but feel free to change to Android source
+if [ $LOCALGIT == 1 ]; then
+	echo "Copying kernel to rootfs"
+        cp -rf ${basepwd}/cyanflodeb ${basedir}/kernel
+else
+  git clone https://github.com/CyanogenMod/android_kernel_google_msm.git -b cm-11.0 ${basedir}/kernel
+	#git clone https://github.com/flar2/flo.git -b Cyanogenmod ${basedir}/kernel
+fi
+
+cd ${basedir}/kernel
+
+echo "Applying Patches"
+# Compat 80211 patch
+patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
+
+# Kexec Patch
+wget https://gist.githubusercontent.com/Tasssadar/6687647/raw/e10ba59c25cc185864920ec93d552ccd51875202/flo-aosp-Implement-kexec-hardboot-2.patch -O ../patches/nexus7-flodeb-kexec.patch
+patch -p1 --no-backup-if-mismatch < ../patches/nexus7-flodeb-kexec.patch
+
+# HID
+wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.4.patch -O ../patches/keyboard_mouse_hid.patch
+patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
+cp ${basepwd}/patches/msm_hid_3_4/android.c drivers/usb/gadget/android.c
+
+# Turn off y-cable support for testing
+# Ask for user input later
+# sed -i 's/static bool usbhost_charge_mode = false;/static bool usbhost_charge_mode = true;/g' drivers/usb/otg/msm_otg.c
+
+# Ignore build errors for bluetooth and wireless devices
+cp ${basepwd}/patches/msm_bluewire/msm_error.patch ../patches/msm_error.patch
+patch -p1 --no-backup-if-mismatch < ../patches/msm_error.patch
+
+make clean
+sleep 10
+cp ${basepwd}/defconfigs/nexus7-flodeb/flo_elxcm_kali_defconfig .config
+
+# Attach kernel builder to updater-script
+echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
+ui_print("MODIFIED FOR KALI LINUX");
+set_progress(1.000000);
+ui_print("Installing kernel...");
+ui_print("Mounting /system");
+mount("ext4", "EMMC", "/dev/block/platform/msm_sdcc.1/by-name/system", "/system");
+package_extract_dir("system", "/system");
+set_perm_recursive(0, 0, 0644, 0644, "/system/lib/modules");
+set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
+set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
+unmount("/system");
+package_extract_dir("kernel", "/tmp");
+set_perm(0, 0, 0777, "/tmp/edit_ramdisk.sh");
+set_perm(0, 0, 0777, "/tmp/abootimg");
+set_perm(0, 0, 0777, "/tmp/busybox");
+run_program("/tmp/busybox", "dd", "if=/dev/block/mmcblk0p14", "of=/tmp/boot.img");
+run_program("/tmp/abootimg", "-x", "/tmp/boot.img", "/tmp/bootimg.cfg", "/tmp/zImage", "/tmp/initrd.img");
+run_program("/tmp/edit_ramdisk.sh");
+run_program("/tmp/abootimg", "-u", "/tmp/boot.img", "-k", "/tmp/kernel", "-r", "/tmp/initrd.img");
+run_program("/tmp/busybox", "dd", "if=/tmp/boot.img", "of=/dev/block/mmcblk0p14");
+set_progress(0.8);
+ui_print("");
+ui_print("Done, please reboot.");
+EOF
+
+f_kernel_build
+}
