@@ -474,8 +474,9 @@ mkdir -p $cap/evilap $cap/ettercap $cap/kismet/db $cap/nmap $cap/sslstrip $cap/t
 mkdir -p /opt/mana/run-mana/sslsplit
 
 # In order for metasploit to work daemon,nginx,postgres must all be added to inet
-# beef-xss creates user beef-xss
+# beef-xss creates user beef-xss. Openvpn server requires nobdy:nobody in order to work
 echo "inet:x:3004:postgres,root,beef-xss,daemon,nginx" >> kali-$architecture/etc/group
+echo "nobody:x:3004:nobody" >> kali-$architecture/etc/group 
 
 # CLEANUP STAGE
 

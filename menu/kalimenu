@@ -367,7 +367,7 @@ if [ ! -d "/var/lib/openvas/" ]; then
 	echo "Openvas is not currently installed."
 	read -p "Would you like to install OpenVas (1GB+ space needed)? (y/n): " installopenvas
 		if [ "$installopenvas" == "y" ]; then
-			apt-get update && apt-get install openvas
+			apt-get update && apt-get install -y openvas
 			openvas-mkcert -q
 			openvas-nvt-sync
 			openvas-mkcert-client -n om -i
@@ -704,7 +704,10 @@ key /etc/openvpn/easy-rsa/keys/server.key
 dh /etc/openvpn/easy-rsa/keys/dh1024.pem
 user nobody
 group nobody
-server 10.8.0.0 255.255.255.0
+
+server 10.8.0.0 255.255.255.0 
+# server and remote endpoints 
+ifconfig 10.8.0.1 10.8.0.2 
 keepalive 10 60
 persist-key
 persist-tun
@@ -714,7 +717,7 @@ log-append /var/log/openvpn
 verb 5
 client-to-client
 
-push "redirect-gateway def1 bypass-dhcp"
+push "redirect-gateway def1"
 push "dhcp-option DNS 8.8.8.8"
 push "dhcp-option DNS 8.8.4.4"
 
@@ -730,7 +733,7 @@ clear
 #PUBLIC_IP=$(curl www.icanhazip.com)
 #echo "Your current ip is: $PUBLIC_IP"
 #echo ""
-read -p "Enter custom domain/IP/dynamic IP (e.g. your public ip): " DOMAIN_IP
+read -p "Enter custom domain/IP/dynamic IP (e.g. your Android devices public/local ip): " DOMAIN_IP
 cat << EOF > /etc/openvpn/easy-rsa/keys/kaliserver.ovpn
 dev tun
 client
@@ -766,6 +769,17 @@ f_vpnmenu
 f_startvpn(){
 echo "Starting OpenVPN"
 sleep 3
+# Flush iptables
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -P OUTPUT ACCEPT
+# Start iptables
 iptables -A INPUT -i tun+ -j ACCEPT
 iptables -A FORWARD -i tun+ -j ACCEPT
 iptables -A FORWARD -s 10.8.0.0/24 -j ACCEPT
