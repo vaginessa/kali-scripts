@@ -633,7 +633,7 @@ clear
 cp -rf ${basepwd}/flash/ ${basedir}/flashkernel
 mkdir -p ${basedir}/flashkernel/system/lib/modules
 rm -rf ${basedir}/flashkernel/data
-rm -rf ${basedir}/flashkernel/wallpaper
+rm -rf ${basedir}/flashkernel/sdcard
 rm -rf ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 
 echo "Downloading Android Toolchian"
