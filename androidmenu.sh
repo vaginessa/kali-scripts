@@ -298,7 +298,7 @@ cp -rf ${basepwd}/utils/badusb/{*.sh,hosts} kali-$architecture/opt/badandroid/
 cp -rf ${basepwd}/utils/badusb/{badusb,badcleanup} kali-$architecture/usr/bin/
 
 cp -rf ${basepwd}/utils/s kali-$architecture/usr/bin/
-cp -rf ${basepwd}/utils/hid/k-* kali-$architecture/usr/bin/
+cp -rf ${basepwd}/utils/hid/{k-*,rev-*.py} kali-$architecture/usr/bin/
 
 cat << EOF > kali-$architecture/etc/network/interfaces
 auto lo
