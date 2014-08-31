@@ -2,14 +2,16 @@
 #
 # extract web interface
 #
-tar -zxvf /tmp/htdocs.tar.gz -C /sdcard/htdocs
-rm /tmp/htdocs.tar.gz
+busybox=/tmp/busybox
+
+$busybox tar -zxf /tmp/htdocs.tar.gz -C /sdcard/
+$busybox chmod -R 0777 /sdcard/htdocs
 
 # Add mana configuration to webserver
 
 cd /data/local/kali-armhf/opt/mana/run-mana/conf/
 rm hostapd-karma.conf
-ln -s /sdcard/htdocs/files/hostapd-karma.conf hostapd-karma.conf
+$busybox ln -s /sdcard/htdocs/files/hostapd-karma.conf hostapd-karma.conf
  
 # Add hid scripts to webserver
 
@@ -22,7 +24,7 @@ ln -s /sdcard/htdocs/files/hostapd-karma.conf hostapd-karma.conf
  
 cd /data/local/kali-armhf/opt/badandroid
 rm hosts
-ln -s /sdcard/htdocs/files/hosts hosts
+$busybox ln -s /sdcard/htdocs/files/hosts hosts
 
-ln -s /sdcard/htdocs/files/rev-tcp rev-tcp
-ln -s /sdcard/htdocs/files/rev-met rev-met
+$busybox ln -s /sdcard/htdocs/files/rev-tcp rev-tcp
+$busybox ln -s /sdcard/htdocs/files/rev-met rev-met
