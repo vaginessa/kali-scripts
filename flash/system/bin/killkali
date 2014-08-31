@@ -1,3 +1,5 @@
+busybox=/data/local/bin/busybox
+
 export bin=/system/bin
 export mnt=/data/local/kali-armhf
 PRESERVED_PATH=$PATH
@@ -8,24 +10,26 @@ export LOGNAME=root
 
 # set shmmax to 128mb to free memory#
 
-sysctl -w kernel.shmmax=134217728
+$busybox sysctl -w kernel.shmmax=134217728
 
 echo "Shutting down SSH Server"
-chmod 666 /dev/null
-chroot $mnt /etc/init.d/ssh stop
+$busybox chmod 666 /dev/null
+
+$busybox chroot $mnt /etc/init.d/ssh stop
 
 echo "Shutting down Postgresql"
-chroot $mnt /etc/init.d/postgresql stop
+$busybox chroot $mnt /etc/init.d/postgresql stop
 
 #unmount everything
 
 echo "Removing all Kali mounts"
-umount $mnt/dev/pts
+$busybox umount $mnt/dev/pts
 echo "unmounted pts"
-umount $mnt/dev
+$busybox umount $mnt/dev
 echo "unmounted dev"
-umount $mnt/proc
+$busybox umount $mnt/proc
 echo "unmounted proc"
-umount $mnt/sys 
+$busybox umount $mnt/sys 
 echo "unmounted sys"
+
 export PATH=$PRESERVED_PATH
