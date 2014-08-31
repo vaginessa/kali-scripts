@@ -13,10 +13,10 @@ ln -s /sdcard/htdocs/files/hostapd-karma.conf hostapd-karma.conf
  
 # Add hid scripts to webserver
 
-cd /sdcard/htdocs/files
-mv bad-usb hosts  
-mv keyboard rev-tcp
-mv test2.ps1 rev-met
+#cd /sdcard/htdocs/files
+#mv bad-usb hosts  
+#mv keyboard rev-tcp
+#mv test2.ps1 rev-met
 
 # Link badandroid host files to webserver 
  
