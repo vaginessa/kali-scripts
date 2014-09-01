@@ -680,7 +680,15 @@ find modules -name "*.ko" -exec cp -t ../flashkernel/system/lib/modules {} +
 # If this is not just a kernel build by itself it will copy modules and kernel to main flash (rootfs+kernel)
 if [ -d "${basedir}/flash/" ]; then
   echo "Detected exsisting /flash folder, copying kernel and modules"
-  cp ${basedir}/kernel/arch/arm/boot/zImage ${basedir}/flash/kernel/kernel
+  if [ -f "${basedir}/kernel/arch/arm/boot/zImage-dtb" ]; then
+      cp ${basedir}/kernel/arch/arm/boot/zImage-dtb ${basedir}/flash/kernel/kernel
+      echo "zImage-dtb found at ${basedir}/kernel/arch/arm/boot/zImage-dtb"
+  else
+    if [ -f "${basedir}/kernel/arch/arm/boot/zImage" ]; then
+        cp ${basedir}/kernel/arch/arm/boot/zImage ${basedir}/flash/kernel/kernel
+        echo "zImage found at ${basedir}/kernel/arch/arm/boot/zImage"
+    fi
+  fi
   cp ${basedir}/flashkernel/system/lib/modules/* ${basedir}/flash/system/lib/modules
   # Kali rootfs (chroot) looks for modules in a different folder then Android (/system/lib) when using modprobe
   rsync -HPavm --include='*.ko' -f 'hide,! */' ${basedir}/kernel/modules/lib/modules ${basedir}/kali-armhf/lib/
