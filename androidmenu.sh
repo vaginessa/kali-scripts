@@ -405,7 +405,8 @@ cp -rf ${basedir}/kali-$architecture/opt/mana/apache/etc/apache2/sites-enabled/*
 cp -rf ${basedir}/kali-$architecture/opt/mana/apache/var/www/* ${basedir}/kali-$architecture/var/www
 cp ${basedir}/kali-$architecture/opt/mana/hostapd-manna/hostapd/defconfig ${basedir}/kali-$architecture/opt/mana/hostapd-manna/hostapd/.config
 
-sed -i 's/\.\/lamb_braai\//\/captures\/mana\//g' ${basedir}/kali-$architecture/opt/mana/firelamb/firelamb.py
+# Change captures folder for firelamb
+sed -i 's/\.\.\/loot\/lamb_braai\//\/captures\/mana\//g' ${basedir}/kali-$architecture/opt/mana/firelamb/firelamb.py
 
 # Make Hostapd Binary
 LANG=C chroot kali-$architecture make -C /opt/mana/hostapd-manna/hostapd/
