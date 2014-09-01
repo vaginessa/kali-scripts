@@ -12,7 +12,7 @@ hostapd=../hostapd-manna/hostapd/hostapd
 # hostname WRT54G
 # echo hostname WRT54G
 # sleep 2
-
+rfkill unblock wlan
 ifconfig $phy down
 macchanger -r $phy
 ifconfig $phy up

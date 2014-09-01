@@ -234,7 +234,7 @@ tools="nmap tcpdump ptunnel"
 wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet dnsmasq wvdial dsniff sslstrip"
 services="autossh openssh-server tightvncserver lighttpd apache2 postgresql openvpn php5-fpm php5"
 extras="wpasupplicant zip macchanger dbd florence libffi-dev python-setuptools python-pip"
-mana="python-twisted python-dnspython libnl1 libnl-dev libssl-dev sslsplit python-pcapy"
+mana="python-twisted python-dnspython libnl1 libnl-dev libssl-dev sslsplit python-pcapy tinyproxy"
 spiderfoot="python-lxml python-m2crypto python-netaddr python-mako"
 sdr="sox librtlsdr"
 linuxdeploy="libapol4 libqpol1 policycoreutils python-ipy python-selinux python-semanage python-sepolgen python-setools"
@@ -411,6 +411,7 @@ sed -i 's/\.\/lamb_braai\//\/captures\/mana\//g' ${basedir}/kali-$architecture/o
 LANG=C chroot kali-$architecture make -C /opt/mana/hostapd-manna/hostapd/
 LANG=C chroot kali-$architecture make install -C /opt/mana/hostapd-manna/hostapd/
 rm -rf ${basedir}/kali-$architecture/opt/mana/slides ${basedir}/kali-$architecture/opt/mana/apache ${basedir}/kali-$architecture/opt/mana/.git*
+LANG=C chroot kali-$architecture a2enmod rewrite
 
 # Install HoneyProxy (MITM SSL Proxy Analyzer)
 LANG=C chroot kali-$architecture pip install Autobahn==0.6.5
