@@ -48,7 +48,7 @@ python dns2proxy.py $phy&
 cd -
 
 #SSLSplit
-sslsplit -D -P -Z -S sslsplit -c cert/rogue-ca.pem -k cert/rogue-ca.key -O -l /captures/mana/sslsplit-connect.log \
+sslsplit -D -P -Z -S /captures/mana/sslsplit -c cert/rogue-ca.pem -k cert/rogue-ca.key -O -l /captures/mana/sslsplit-connect.log \
  https 0.0.0.0 10443 \
  http 0.0.0.0 10080 \
  ssl 0.0.0.0 10993 \
