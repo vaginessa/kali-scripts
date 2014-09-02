@@ -25,8 +25,8 @@ ui_print("* Starting Kernel install for Nexus 10...    *");
 ui_print("* Mounting System...						   *");
 mount("ext4", "EMMC", "/dev/block/platform/dw_mmc.0/by-name/system", "/system");
 package_extract_dir("system", "/system");
-symlink("/system/bin/lighttpd", "/system/xbin/lighttpd-static");
-symlink("/system/bin/php", "/system/xbin/php-cgi");
+symlink("/system/xbin/lighttpd-static", "/system/bin/lighttpd");
+symlink("/system/xbin/php-cgi", "/system/bin/php");
 set_perm_recursive(0, 0, 0644, 0644, "/system/lib/modules");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/xbin");
@@ -43,7 +43,6 @@ run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
 run_program("/tmp/mkbootimg.sh");
 run_program("/tmp/busybox", "dd", "if=/tmp/newboot.img", "of=/dev/block/platform/dw_mmc.0/by-name/boot");
 unmount("/system");
-ui_print("");
 ui_print("* Kernel installation completed...	 	   *");
 EOF
 f_kernel_build

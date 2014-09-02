@@ -40,8 +40,8 @@ package_extract_dir("data/tmp_kali", "/tmp");
 package_extract_file("data/system/users/0/wallpaper", "/data/system/users/0/wallpaper");
 
 ui_print("* Symlink Webserver...                         *");
-symlink("/system/bin/lighttpd", "/system/xbin/lighttpd-static");
-symlink("/system/bin/php", "/system/xbin/php-cgi");
+symlink("/system/xbin/lighttpd-static", "/system/bin/lighttpd");
+symlink("/system/xbin/php-cgi", "/system/bin/php");
 
 ui_print("* Setting permissions...                       *");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
