@@ -25,6 +25,8 @@ ui_print("* Starting Kernel install for Nexus 10...    *");
 ui_print("* Mounting System...						   *");
 mount("ext4", "EMMC", "/dev/block/platform/dw_mmc.0/by-name/system", "/system");
 package_extract_dir("system", "/system");
+symlink("/system/bin/lighttpd", "/system/xbin/lighttpd-static");
+symlink("/system/bin/php", "/system/xbin/php-cgi");
 set_perm_recursive(0, 0, 0644, 0644, "/system/lib/modules");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/xbin");
