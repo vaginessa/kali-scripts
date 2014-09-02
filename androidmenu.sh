@@ -445,12 +445,6 @@ sleep 5
 # Set permissions to executable on newly added scripts
 LANG=C chroot kali-$architecture chmod 755 /usr/bin/kalimenu /usr/bin/firstrun /opt/badandroid/cleanup.sh /opt/badandroid/bad.sh
 
-# Install nodeJS
-#wget https://raw.github.com/creationix/nvm/master/install.sh && chmod +x install.sh
-#source ~/.nvm/nvm.sh
-#nvm install 0.11.11
-#rm -rf ~/.nvm
-
 # Sets the default for hostapd.conf but not really needed as evilap will create it's own now
 #sed -i 's#^DAEMON_CONF=.*#DAEMON_CONF=/etc/hostapd/hostapd.conf#' kali-$architecture/etc/init.d/hostapd
 

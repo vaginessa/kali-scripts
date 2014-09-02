@@ -803,6 +803,7 @@ echo "[2] Configure Timezone"
 echo "[3] Change VNC Password"
 echo "[4] Create Metasploit User and Database"
 echo "[5] Macchanger"
+echo "[6] Install NodeJS"
 echo "[0] Exit to main menu"
 echo ""
 read -p "Choice:" settingschoice
@@ -813,9 +814,23 @@ case $settingschoice in
 3) clear; echo "Change your VNC password:"; vncpasswd ;;
 4) clear; f_msuser ;;
 5) clear; f_macchanger ;;
+6) clear; f_nodejs ;;
 0) f_interface ;;
 *) echo "Incorrect choice..." ;
 esac
+}
+
+f_nodejs(){
+cd /tmp
+echo "Downloading install script"
+wget https://raw.github.com/creationix/nvm/master/install.sh && chmod +x install.sh
+source ~/.nvm/nvm.sh
+echo "Starting NodeJS install.  This will take a while..."
+sleep 5
+nvm install 0.11.11
+rm -rf ~/.nvm
+rm -rf /tmp/install.sh
+f_settings
 }
 
 f_startup(){
