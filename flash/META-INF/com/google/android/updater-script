@@ -42,6 +42,8 @@ package_extract_file("data/system/users/0/wallpaper", "/data/system/users/0/wall
 ui_print("* Setting permissions...                       *");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/bin");
 set_perm_recursive(0, 2000, 0755, 0755, "/system/xbin");
+set_perm_recursive(0, 2000, 0755, 0777, "/system/var/www");
+set_perm_recursive(0, 2000, 0755, 0777, "/system/var/log");
 set_perm(0, 0, 0755, "/system/xbin/nano");
 set_perm(0, 0, 0777, "/data/local/kalifs.tar.bz2");
 set_perm(0, 0, 0755, "/data/local/bin/busybox");

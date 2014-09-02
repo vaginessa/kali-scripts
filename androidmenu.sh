@@ -15,12 +15,12 @@
 # To do this, you can :
 # cd ~/kali-scripts
 # git clone https://github.com/sensepost/mana.git
-# git clone https://github.com/craigacgomez/kernel_samsung_manta.git -b thunderkat
-# git clone https://github.com/lostdeveloper/kangaroo.git -b kangaroo
-# git clone https://android.googlesource.com/kernel/msm.git -b android-msm-flo-3.4-kitkat-mr2 flodeb
-# git clone https://github.com/CyanogenMod/android_kernel_google_msm.git -b cm-11.0 cyanflodeb
-# git clone https://github.com/savoca/furnace_kernel_lge_hammerhead.git -b android-4.4 ${basedir}/kernel
-# git clone https://github.com/savoca/furnace_kernel_caf_hammerhead.git -b cm-11.0
+# git clone https://github.com/binkybear/kernel_samsung_manta.git -b thunderkat
+# git clone https://github.com/binkybear/kangaroo.git -b kangaroo
+# git clone https://github.com/binkybear/kernel_msm.git -b android-msm-flo-3.4-kitkat-mr2 flodeb
+# git clone https://github.com/binkybear/flo.git -b Cyanogenmod cyanflodeb
+# git clone https://github.com/binkybear/furnace_kernel_lge_hammerhead.git -b android-4.4
+# git clone https://github.com/binkybear/furnace_kernel_caf_hammerhead.git -b cm-11.0
 # git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7
 ######## Local Repo ##########
 # to update :  for directory in $(ls -l |grep ^d|awk -F" " '{print $9}');do cd $directory && git pull && cd ..;done
