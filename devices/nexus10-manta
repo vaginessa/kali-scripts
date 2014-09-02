@@ -9,32 +9,13 @@ if [ $LOCALGIT == 1 ]; then
 	echo "Copying kernel to rootfs"
         cp -rf ${basepwd}/kernel_samsung_manta ${basedir}/kernel
 else
-	git clone https://github.com/craigacgomez/kernel_samsung_manta.git -b thunderkat ${basedir}/kernel
-	#git clone --depth=1 https://android.googlesource.com/kernel/exynos.git -b android-exynos-manta-3.4-kitkat-mr2 ${basedir}/kernel
+	git clone https://github.com/binkybear/kernel_samsung_manta.git -b thunderkat ${basedir}/kernel
 fi
 cd ${basedir}/kernel
 
-echo "Applying Patches"
-# Compat 80211 patch
-patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
-
-# Keyboard patch currently not working, need to check config file when I have more free time
-wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/not-tested/kernel-3.4-nexus10-2012.patch -O ../patches/nexus10-keyboard.patch
-patch -p1 --no-backup-if-mismatch < ../patches/nexus10-keyboard.patch
-cp ${basepwd}/patches/n10_hid_3_4/android.c drivers/usb/gadget/android.c
-
-# Fastcharge and y-cable support
-# This is working but its a nasty hack from taking the y-cable support in FLO/DEB and putting it into Nexus 10
-# Not sure if the battery (smb347.c) needs additional modifications either
-cp ${basepwd}/patches/msm_ycable/fastchg.h include/linux/fastchg.h
-cp ${basepwd}/patches/msm_ycable/msm_otg.c drivers/usb/otg/msm_otg.c
-
-echo "Downloading/replacing defconfig file"
-# Clean kernel folder, enable default config, overwrite .config with one containing enabled wireless and bluetooth devices
 make clean
-sleep 3
-cp ${basepwd}/defconfigs/nexus10/exynos_kali_defconfig .config
 sleep 10
+make kali_defconfig
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script

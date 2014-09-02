@@ -658,12 +658,6 @@ echo "Setting export paths"
 export ARCH=arm
 export SUBARCH=arm
 export CROSS_COMPILE=${basedir}/toolchain/bin/arm-eabi-
-
-# All kernels will have mac80211.patch
-echo "Downloading Patches"
-mkdir -p patches
-wget http://patches.aircrack-ng.org/mac80211.compat08082009.wl_frag+ack_v1.patch -O patches/mac80211.patch
-# Additional patches are configured per device
 }
 
 ##############################################################

@@ -11,29 +11,14 @@ if [ $LOCALGIT == 1 ]; then
 	echo "Copying kernel to rootfs"
         cp -rf ${basepwd}/kangaroo ${basedir}/kernel
 else
-	git clone https://github.com/lostdeveloper/kangaroo.git -b kangaroo ${basedir}/kernel
+	git clone https://github.com/binkybear/kangaroo.git -b kangaroo ${basedir}/kernel
 fi
 
 cd ${basedir}/kernel
 
-echo "Applying Patches"
-# Applying wireless patches
-patch -p1 --no-backup-if-mismatch < ../patches/mac80211.patch
-
-#Kexec patch to allow for multirom support
-#wget https://gist.githubusercontent.com/Tasssadar/4558647/raw/1f267f5e37c59d1d5e78d7dc79af74c8b6b3eaf6/n7_hardboot.diff -O ../patches/n7_kexec.patch
-#patch -p1 --no-backup-if-mismatch < ../patches/n7_kexec.patch
-
-# Patch enables the Android device to act as a keyboard and mouse through usb (send keyboard commands to computer)
-wget https://raw.githubusercontent.com/pelya/android-keyboard-gadget/master/kernel-3.1.patch -O ../patches/keyboard_mouse_hid.patch
-patch -p1 --no-backup-if-mismatch < ../patches/keyboard_mouse_hid.patch
-
-echo "Downloading/replacing defconfig file"
-# Clean kernel folder, enable default config, overwrite .config with one containing enabled wireless and bluetooth devices
 make clean
 sleep 3
-cp ${basepwd}/defconfigs/nexus7-grouper/kali_grouper_defconfig .config
-sleep 10
+make kali_defconfig
 
 # Attach kernel builder to updater-script
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
