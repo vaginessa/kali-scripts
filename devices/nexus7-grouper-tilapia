@@ -25,8 +25,8 @@ echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/androi
 cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 assert(getprop("ro.product.device") == "grouper" || getprop("ro.build.product") == "grouper" ||
        getprop("ro.product.device") == "tilapia" || getprop("ro.build.product") == "tilapia");
-ui_print("* Starting Kernel install for Nexus 7 (2012) *");
-ui_print("* Mounting System...						   *");
+ui_print("* Starting Kernel install for Nexus 7 (2012)  *");
+ui_print("* Mounting System...						    *");
 mount("ext4", "EMMC", "/dev/block/platform/sdhci-tegra.3/by-name/APP", "/system");
 package_extract_dir("system", "/system");
 symlink("/system/xbin/lighttpd-static", "/system/bin/lighttpd");
@@ -42,13 +42,15 @@ set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
 set_perm(0, 0, 0777, "/tmp/mkbootimg");
 set_perm(0, 0, 0777, "/tmp/unpackbootimg");
 set_perm(0, 0, 0777, "/tmp/busybox");
+set_perm(0, 0, 0755, "/tmp/cleansystem.sh");
+ui_print("* Clean /system/apps...                        *");
+run_program("/tmp/cleansystem.sh");
 run_program("/tmp/busybox", "dd", "if=/dev/block/platform/sdhci-tegra.3/by-name/LNX", "of=/tmp/boot.img");
 run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
 run_program("/tmp/mkbootimg.sh");
 run_program("/tmp/busybox", "dd", "if=/tmp/newboot.img", "of=/dev/block/mmcblk0p2");
 unmount("/system");
-ui_print("");
-ui_print("* Kernel installation completed...	 	   *");
+ui_print("* Kernel installation completed...	 	    *");
 EOF
 f_kernel_build
 }
