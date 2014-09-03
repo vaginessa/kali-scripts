@@ -699,11 +699,11 @@ cd ${basedir}
 # 2. If it detects KERNEL_SCRIPT_START it will not add it to flashable zip (rootfs)
 # 3. If the updater-script is not found it will assume this is a kernel only build so it will not try to add it
 
-if grep -Fxq "#KERNEL_SCRIPT_START" "${basepwd}/flash/META-INF/com/google/android/updater-script"; then
+if grep -Fxq "#KERNEL_SCRIPT_START" "${basedir}/flash/META-INF/com/google/android/updater-script"; then
   echo "Kernel already added to main updater-script"
 else
   echo "Adding Kernel install to updater-script in main update.zip"
-  cat ${basedir}/flashkernel/META-INF/com/google/android/updater-script >> ${basepwd}/flash/META-INF/com/google/android/updater-script
+  cat ${basedir}/flashkernel/META-INF/com/google/android/updater-script >> ${basedir}/flash/META-INF/com/google/android/updater-script
 fi
 }
 

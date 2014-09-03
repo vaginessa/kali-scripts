@@ -41,17 +41,3 @@ $busybox chroot $mnt /bin/bash -l
 
 chmod 755 /system/bin/bootkali
 chmod 755 /system/bin/killkali
-
-# check startup options
-
-if [ -e "$mnt/root/.firstrun.option" ]; then
-        source $mnt/root/.firstrun.option
-        if [ $sshonboot == "1" ]; then
-			$busybox chroot $mnt service ssh start 
-        fi
-        if [ $vnconboot == "1" ]; then
-        	# remove old vnc servers so we can always start on display :1
-        	rm -rf $mnt/tmp/.X1* && rm -rf $mnt/root/.vnc/*.pid && rm -rf $mnt/root/.vnc/*.log
-            $busybox chroot $mnt su -c "vncserver -geometry ${RES} -depth 24 ${VNCLISTEN}" root
-        fi
-fi
