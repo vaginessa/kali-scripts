@@ -8,7 +8,8 @@ export bin=/system/bin
 export mnt=/data/local/kali-armhf
 PRESERVED_PATH=$PATH
 export PATH=/usr/bin:/usr/sbin:/bin:/usr/local/bin:/usr/local/sbin:$PATH
-export TERM=xterm-256color
+export TERM=linux
+export TERMINFO=/etc/terminfo
 export HOME=/root
 export LOGNAME=root
 
@@ -40,11 +41,6 @@ $busybox chroot $mnt /bin/bash -l
 
 chmod 755 /system/bin/bootkali
 chmod 755 /system/bin/killkali
-
-# start localhost webserver
-
-/system/xbin/reload_fcgi.sh
-/system/xbin/reload_lighttpd.sh
 
 # check startup options
 
