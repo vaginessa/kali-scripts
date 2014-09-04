@@ -37,7 +37,7 @@ ui_print("* Along with temporary files...                *");
 package_extract_dir("data/local", "/data/local");
 package_extract_dir("data/app", "/data/app");
 package_extract_dir("data/tmp_kali", "/tmp");
-package_extract_file("data/system/users/0/wallpaper", "/data/system/users/0/wallpaper");
+run_program("/data/local/bin/busybox", "--install", "-s", "/data/local/bin");
 
 ui_print("* Symlink Webserver...                         *");
 symlink("/system/xbin/lighttpd-static", "/system/bin/lighttpd");
@@ -56,6 +56,7 @@ set_perm(0, 0, 0777, "/tmp/htdocs.tar.gz");
 set_perm(0, 0, 0755, "/tmp/extractkali.sh");
 set_perm(0, 0, 0755, "/tmp/extractwebint.sh");
 set_perm(0, 0, 0755, "/tmp/cleansystem.sh");
+set_perm(0, 0, 0755, "/tmp/setwallpaper.sh");
 
 ui_print("* Clean /system/apps...                        *");
 run_program("/tmp/cleansystem.sh");
@@ -64,9 +65,10 @@ ui_print("* Extracting Kali chroot...                    *");
 ui_print("* This takes around 30 minutes...              *");
 run_program("/tmp/extractkali.sh");
 
-ui_print("* Extracting wallpapers to /sdcard.            *");
+ui_print("* Extracting wallpapers...                     *");
 run_program("/tmp/busybox", "mount", "/sdcard");
 package_extract_dir("sdcard", "/sdcard/");
+run_program("/tmp/setwallpaper.sh");
 
 ui_print("* Extracting webinterface to /sdcard/htdocs    *");
 run_program("/tmp/extractwebint.sh");

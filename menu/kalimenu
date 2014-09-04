@@ -364,7 +364,7 @@ python /opt/spiderfoot/sf.py
 f_vulnerability(){
 if [ ! -d "/var/lib/openvas/" ]; then
 	clear
-	echo "Openvas is not currently installed."
+	echo "Openvas is not currently installed.  The installation can take a few hours."
 	read -p "Would you like to install OpenVas (1GB+ space needed)? (y/n): " installopenvas
 		if [ "$installopenvas" == "y" ]; then
 			apt-get update && apt-get install -y openvas
