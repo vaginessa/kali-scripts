@@ -398,16 +398,21 @@ fi
 
 # Copy over our kali specific mana config files
 cp -rf ${basepwd}/utils/manna/run-mana/*  ${basedir}/kali-$architecture/root/mana/run-mana/
-cp -rf ${basedir}/kali-$architecture/root/apache/* ${basedir}/kali-$architecture/
-cp ${basedir}/kali-$architecture/root/hostapd-manna/hostapd/defconfig ${basedir}/kali-$architecture/root/hostapd-manna/hostapd/.config
+cp -rf ${basedir}/kali-$architecture/root/mana/apache/* ${basedir}/kali-$architecture/
+
+
+cp ${basedir}/kali-$architecture/root/mana/hostapd-manna/hostapd/defconfig ${basedir}/kali-$architecture/root/mana/hostapd-manna/hostapd/.config
 
 # Change captures folder for firelamb
-# sed -i 's/\.\.\/loot\/lamb_braai\//\/captures\/mana\//g' ${basedir}/kali-$architecture/root/firelamb/firelamb.py
+# sed -i 's/\.\.\/loot\/lamb_braai\//\/captures\/mana\//g' ${basedir}/kali-$architecture/root/mana/firelamb/firelamb.py
 
 # Make Hostapd Binary
-LANG=C chroot kali-$architecture make -C /root/hostapd-manna/hostapd/
-LANG=C chroot kali-$architecture make install -C /root/hostapd-manna/hostapd/
-#rm -rf ${basedir}/kali-$architecture/root/slides ${basedir}/kali-$architecture/root/apache ${basedir}/kali-$architecture/root/.git*
+LANG=C chroot kali-$architecture make -C /root/mana/hostapd-manna/hostapd/
+LANG=C chroot kali-$architecture make install -C /root/mana/hostapd-manna/hostapd/
+rm -rf ${basedir}/kali-$architecture/root/slides 
+rm -rf ${basedir}/kali-$architecture/root/mana/apache 
+# rm -rf ${basedir}/kali-$architecture/root/mana/.git*
+
 LANG=C chroot kali-$architecture a2enmod rewrite
 
 # Install HoneyProxy (MITM SSL Proxy Analyzer)
