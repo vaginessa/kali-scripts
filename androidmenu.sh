@@ -265,7 +265,7 @@ echo "kali" > kali-$architecture/etc/hostname
 cat << EOF > kali-$architecture/root/.bash_profile
 export TERM=xterm-256color
 stty columns 80
-/usr/bin/firstrun # we can remove this with sed at the end of the firstrun script
+# /usr/bin/firstrun # we can remove this with sed at the end of the firstrun script
 cd /root/
 if [ ! -d "/dev/net/" ]; then
   mkdir -p /dev/net
@@ -439,11 +439,12 @@ sed -i 's/hs/\/captures/g' kali-$architecture/etc/kismet/kismet.conf
 
 # Kali Menu (bash script) to quickly launch common Android Programs
 cp -rf ${basepwd}/menu/kalimenu kali-$architecture/usr/bin/kalimenu
-cp -rf ${basepwd}/menu/firstrun kali-$architecture/usr/bin/firstrun
+# cp -rf ${basepwd}/menu/firstrun kali-$architecture/usr/bin/firstrun
 sleep 5
 
 # Set permissions to executable on newly added scripts
-LANG=C chroot kali-$architecture chmod 755 /usr/bin/kalimenu /usr/bin/firstrun /opt/badandroid/cleanup.sh /opt/badandroid/bad.sh
+#LANG=C chroot kali-$architecture chmod 755 /usr/bin/kalimenu /usr/bin/firstrun /opt/badandroid/cleanup.sh /opt/badandroid/bad.sh
+LANG=C chroot kali-$architecture chmod 755 /usr/bin/kalimenu /opt/badandroid/cleanup.sh /opt/badandroid/bad.sh
 
 # Sets the default for hostapd.conf but not really needed as evilap will create it's own now
 #sed -i 's#^DAEMON_CONF=.*#DAEMON_CONF=/etc/hostapd/hostapd.conf#' kali-$architecture/etc/init.d/hostapd
