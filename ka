@@ -1,3 +1,0 @@
-ln -s /sdcard/htdocs/files/hostapd-karma.conf hostapd-karma.conf
-ln -s /sdcard/htdocs/files/dhcpd.conf dhcpd.conf
-ln -s /sdcard/htdocs/files/dnsspoof.conf dnsspoof.conf
