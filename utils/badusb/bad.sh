@@ -45,6 +45,6 @@ iptables -I FORWARD -i rndis0 -j ACCEPT
 iptables -t nat -A POSTROUTING -j MASQUERADE
 echo 1 > /proc/sys/net/ipv4/ip_forward
 
-chmod 644 /opt/badandroid/hosts
+# chmod 644 /opt/badandroid/hosts
 # Start dnsmasq
-dnsmasq -H /opt/badandroid/hosts -i rndis0 -R -S 8.8.8.8 -F 10.0.0.100,10.0.0.200 -x $TMPDIR/dnsmasq.pid
+# dnsmasq -H /opt/badandroid/hosts -i rndis0 -R -S 8.8.8.8 -F 10.0.0.100,10.0.0.200 -x $TMPDIR/dnsmasq.pid

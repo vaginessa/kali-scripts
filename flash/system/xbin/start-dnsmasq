@@ -1,0 +1,1 @@
+LANG=C chroot /data/local/kali-armhf/ /etc/init.d/dnsmasq start
