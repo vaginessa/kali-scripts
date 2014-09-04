@@ -1,4 +1,3 @@
 #!/bin/bash
-cd /opt/mana/run-mana
-./start-nat-full-mod.sh
-
+cd /root/mana/run-mana
+./start-nat-full.sh
