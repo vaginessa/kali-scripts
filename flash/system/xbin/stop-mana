@@ -1,0 +1,2 @@
+cd /root/mana/run-mana/
+./stop-nat-full.sh &

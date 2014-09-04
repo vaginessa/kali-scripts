@@ -1,0 +1,2 @@
+cd /root/mana/run-mana/
+./start-nat-full.sh >/sdcard/htdocs/mana.log 2>&1 &

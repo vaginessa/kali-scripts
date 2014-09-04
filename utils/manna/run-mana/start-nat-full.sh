@@ -81,14 +81,14 @@ iptables -t nat -A PREROUTING -i $phy \
 # Start FireLamb
 ../firelamb/firelamb.py -i $phy &
 
-echo "Hit enter to kill me"
-read
-pkill dhcpd
-pkill sslstrip
-pkill sslsplit
-pkill hostapd
-pkill python
-iptables --policy INPUT ACCEPT
-iptables --policy FORWARD ACCEPT
-iptables --policy OUTPUT ACCEPT
-iptables -t nat -F
+#echo "Hit enter to kill me"
+#read
+#pkill dhcpd
+#pkill sslstrip
+#pkill sslsplit
+#pkill hostapd
+#pkill python
+#iptables --policy INPUT ACCEPT
+#iptables --policy FORWARD ACCEPT
+#iptables --policy OUTPUT ACCEPT
+#iptables -t nat -F
