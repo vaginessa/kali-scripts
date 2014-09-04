@@ -233,7 +233,7 @@ tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-
 wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet dnsmasq wvdial dsniff sslstrip"
 services="autossh openssh-server tightvncserver lighttpd apache2 postgresql openvpn php5-fpm php5"
 extras="wpasupplicant zip macchanger dbd florence libffi-dev python-setuptools python-pip"
-mana="python-twisted python-dnspython libnl1 libnl-dev libssl-dev sslsplit python-pcapy tinyproxy"
+mana="python-twisted python-dnspython libnl1 libnl-dev libssl-dev sslsplit python-pcapy tinyproxy isc-dhcp-server rfkill"
 spiderfoot="python-lxml python-m2crypto python-netaddr python-mako"
 sdr="sox librtlsdr"
 linuxdeploy="libapol4 libqpol1 policycoreutils python-ipy python-selinux python-semanage python-sepolgen python-setools"
@@ -391,26 +391,23 @@ LANG=C chroot kali-$architecture chown -R www-data:www-data /var/www
 # MANA Toolkit requires Apache2
 if [ $LOCALGIT == 1 ]; then
 	echo "Copying Mana to rootfs"
-        cp -rf ${basepwd}/mana ${basedir}/kali-$architecture/opt/
+        cp -rf ${basepwd}/mana ${basedir}/kali-$architecture/root/
 else
-        git clone https://github.com/sensepost/mana.git ${basedir}/kali-$architecture/opt/mana
+        git clone https://github.com/sensepost/mana.git ${basedir}/kali-$architecture/root/mana
 fi
 
 cp -rf ${basepwd}/utils/manna/mana ${basedir}/kali-$architecture/usr/bin/
-cp -rf ${basepwd}/utils/manna/start-nat-full-mod.sh ${basedir}/kali-$architecture/opt/mana/run-mana/
 
-cp -rf ${basedir}/kali-$architecture/opt/mana/apache/etc/apache2/sites-available/* ${basedir}/kali-$architecture/etc/apache2/sites-available
-cp -rf ${basedir}/kali-$architecture/opt/mana/apache/etc/apache2/sites-enabled/* ${basedir}/kali-$architecture/etc/apache2/sites-enabled
-cp -rf ${basedir}/kali-$architecture/opt/mana/apache/var/www/* ${basedir}/kali-$architecture/var/www
-cp ${basedir}/kali-$architecture/opt/mana/hostapd-manna/hostapd/defconfig ${basedir}/kali-$architecture/opt/mana/hostapd-manna/hostapd/.config
+cp -rf ${basedir}/kali-$architecture/root/apache/* ${basedir}/kali-$architecture/
+cp ${basedir}/kali-$architecture/root/hostapd-manna/hostapd/defconfig ${basedir}/kali-$architecture/root/hostapd-manna/hostapd/.config
 
 # Change captures folder for firelamb
-sed -i 's/\.\.\/loot\/lamb_braai\//\/captures\/mana\//g' ${basedir}/kali-$architecture/opt/mana/firelamb/firelamb.py
+# sed -i 's/\.\.\/loot\/lamb_braai\//\/captures\/mana\//g' ${basedir}/kali-$architecture/root/firelamb/firelamb.py
 
 # Make Hostapd Binary
-LANG=C chroot kali-$architecture make -C /opt/mana/hostapd-manna/hostapd/
-LANG=C chroot kali-$architecture make install -C /opt/mana/hostapd-manna/hostapd/
-rm -rf ${basedir}/kali-$architecture/opt/mana/slides ${basedir}/kali-$architecture/opt/mana/apache ${basedir}/kali-$architecture/opt/mana/.git*
+LANG=C chroot kali-$architecture make -C /root/hostapd-manna/hostapd/
+LANG=C chroot kali-$architecture make install -C /root/hostapd-manna/hostapd/
+#rm -rf ${basedir}/kali-$architecture/root/slides ${basedir}/kali-$architecture/root/apache ${basedir}/kali-$architecture/root/.git*
 LANG=C chroot kali-$architecture a2enmod rewrite
 
 # Install HoneyProxy (MITM SSL Proxy Analyzer)
