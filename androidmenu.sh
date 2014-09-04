@@ -396,8 +396,8 @@ else
         git clone https://github.com/sensepost/mana.git ${basedir}/kali-$architecture/root/mana
 fi
 
-cp -rf ${basepwd}/utils/manna/mana ${basedir}/kali-$architecture/usr/bin/
-
+# Copy over our kali specific mana config files
+cp -rf ${basepwd}/utils/manna/run-mana/*  ${basedir}/kali-$architecture/root/mana/run-mana/
 cp -rf ${basedir}/kali-$architecture/root/apache/* ${basedir}/kali-$architecture/
 cp ${basedir}/kali-$architecture/root/hostapd-manna/hostapd/defconfig ${basedir}/kali-$architecture/root/hostapd-manna/hostapd/.config
 
