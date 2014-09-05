@@ -1,3 +1,5 @@
 #!/bin/bash
-cd /root/mana/run-mana
-./stop-nat-full.sh &
+/sbin/iptables --policy INPUT ACCEPT
+/sbin/iptables --policy FORWARD ACCEPT
+/sbin/iptables --policy OUTPUT ACCEPT
+/sbin/iptables -t nat -F
