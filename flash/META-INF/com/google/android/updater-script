@@ -29,7 +29,7 @@ delete("/system/app/Term.apk", "/system/app/com.android.term1.apk", "/system/app
 "/system/app/AndroidTerm-1.apk", "/system/app/AndroidTerm-2.apk", "/data/app/Term.apk", "/data/app/jackpal.androidterm.apk", 
 "/data/app/jackpal.androidterm-1.apk", "/data/app/jackpal.androidterm-2.apk", "/data/app/AndroidTerm.apk", "/data/app/AndroidTerm-1.apk", "/data/app/AndroidTerm-2.apk");
 
-ui_print("* Extracting system files and applications... *");
+ui_print("* Extracting system files and applications. *");
 package_extract_dir("system", "/system");
 package_extract_file("system/xbin/nano", "/system/xbin/nano");
 
