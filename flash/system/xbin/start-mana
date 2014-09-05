@@ -1,2 +1,2 @@
-cd /root/mana/run-mana/
-./start-nat-full.sh >/sdcard/htdocs/mana.log 2>&1 &
+LANG=C PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin chroot /data/local/kali-armhf "/usr/bin/start-mana"
+
