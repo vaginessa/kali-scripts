@@ -1,4 +1,5 @@
 #!/bin/bash
+killall sslsplit; killall python; killall hostapd
 /sbin/iptables --policy INPUT ACCEPT
 /sbin/iptables --policy FORWARD ACCEPT
 /sbin/iptables --policy OUTPUT ACCEPT
