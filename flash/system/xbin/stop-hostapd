@@ -1,2 +1,3 @@
-LANG=C chroot /data/local/kali-armhf/ /etc/init.d/hostapd stop
+chroot /data/local/kali-armhf /bin/bash -c "chmod 777 /dev/null"
+chroot /data/local/kali-armhf /bin/bash -c "/etc/init.d/hostapd stop"
 
