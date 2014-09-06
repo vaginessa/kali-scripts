@@ -15,12 +15,12 @@ rm /data/local/kali-armhf/root/mana/run-mana/conf/dnsspoof.conf
 
 
 cd /data/local/kali-armhf/root/mana/run-mana/conf/
-$busybox ln -s /sdcard/htdocs/files/hostapd-karma.conf hostapd-karma.conf
-$busybox ln -s /sdcard/htdocs/files/dhcpd.conf dhcpd.conf
-$busybox ln -s /sdcard/htdocs/files/dnsspoof.conf dnsspoof.conf
+ln -s /sdcard/htdocs/files/hostapd-karma.conf hostapd-karma.conf
+ln -s /sdcard/htdocs/files/dhcpd.conf dhcpd.conf
+ln -s /sdcard/htdocs/files/dnsspoof.conf dnsspoof.conf
 
 rm /data/local/kali-armhf/etc/dnsmasq.conf
 cd /data/local/kali-armhf/etc/
-$busybox ln -s /sdcard/htdocs/files/dnsmasq.conf dnsmasq.conf
+ln -s /sdcard/htdocs/files/dnsmasq.conf dnsmasq.conf
 
 

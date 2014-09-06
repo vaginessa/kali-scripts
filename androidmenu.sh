@@ -549,8 +549,6 @@ wget -P ${basedir}/flash/data/app/ https://hackerskeyboard.googlecode.com/files/
 wget -P ${basedir}/flash/data/app/ https://f-droid.org/repo/android.androidVNC_13.apk
 # dSploit
 wget -P ${basedir}/flash/data/app/ http://update.dsploit.net/stable/dSploit-1.0.31b.apk
-# linux deploy
-wget -P ${basedir}/flash/data/app/ https://github.com/meefik/linuxdeploy/releases/download/1.4.6/linuxdeploy.apk
 }
 
 #####################################################
