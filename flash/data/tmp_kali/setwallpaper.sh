@@ -12,6 +12,11 @@ if [ $(getprop ro.product.device) == "flo" ]; then
 	chmod 777 /data/system/users/0/wallpaper
 fi
 
+if [ $(getprop ro.product.device) == "deb" ]; then
+	cp /tmp/flowallpaper /data/system/users/0/wallpaper
+	chmod 777 /data/system/users/0/wallpaper
+fi
+
 if [ $(getprop ro.product.device) == "hammerhead" ]; then
 	cp /tmp/hammerheadwallpaper /data/system/users/0/wallpaper
 	chmod 777 /data/system/users/0/wallpaper
