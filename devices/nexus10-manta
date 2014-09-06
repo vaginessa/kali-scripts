@@ -21,8 +21,8 @@ make kali_defconfig
 echo "#KERNEL_SCRIPT_START" >> ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 cat << EOF > ${basedir}/flashkernel/META-INF/com/google/android/updater-script
 assert(getprop("ro.product.device") == "manta" || getprop("ro.build.product") == "manta");
-ui_print("* Starting Kernel install for Nexus 10...    *");
-ui_print("* Mounting System...						   *");
+ui_print("* Starting Kernel install for Nexus 10...   *");
+ui_print("* Mounting System...			      *");
 mount("ext4", "EMMC", "/dev/block/platform/dw_mmc.0/by-name/system", "/system");
 package_extract_dir("system", "/system");
 symlink("/system/xbin/lighttpd-static", "/system/bin/lighttpd");
@@ -35,7 +35,7 @@ set_perm_recursive(0, 2000, 0755, 0777, "/system/var/log");
 set_perm_recursive(0, 0, 0755, 0755, "/system/etc/init.d");
 package_extract_dir("kernel", "/tmp");
 set_perm(0, 0, 0755, "/tmp/cleansystem.sh");
-ui_print("* Clean /system/apps...                        *");
+ui_print("* Clean /system/apps...                     *");
 run_program("/tmp/cleansystem.sh");
 set_perm(0, 0, 0777, "/tmp/mkbootimg.sh");
 set_perm(0, 0, 0777, "/tmp/mkbootimg");
@@ -46,7 +46,7 @@ run_program("/tmp/unpackbootimg", "-i", "/tmp/boot.img", "-o", "/tmp/");
 run_program("/tmp/mkbootimg.sh");
 run_program("/tmp/busybox", "dd", "if=/tmp/newboot.img", "of=/dev/block/platform/dw_mmc.0/by-name/boot");
 unmount("/system");
-ui_print("* Kernel installation completed...	 	   *");
+ui_print("* Kernel installation completed...	      *");
 EOF
 f_kernel_build
 }
