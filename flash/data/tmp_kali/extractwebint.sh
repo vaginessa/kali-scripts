@@ -23,4 +23,6 @@ rm /data/local/kali-armhf/etc/dnsmasq.conf
 cd /data/local/kali-armhf/etc/
 ln -s /sdcard/htdocs/files/dnsmasq.conf dnsmasq.conf
 
-
+rm /data/local/kali-armhf/etc/dhcp/dhcpd.conf
+cd /data/local/kali-armhf/etc/dhcp/
+ln -s /sdcard/htdocs/files/dhcpd.conf dhcpd.conf
