@@ -292,10 +292,6 @@ fi
 # Copy over helper files to chroot /usr/bin
 
 # Install Local files
-mkdir -p kali-$architecture/opt/badandroid/tmp
-cp -rf ${basepwd}/utils/badusb/{*.sh,hosts} kali-$architecture/opt/badandroid/
-cp -rf ${basepwd}/utils/badusb/{badusb,badcleanup} kali-$architecture/usr/bin/
-
 cp -rf ${basepwd}/utils/s kali-$architecture/usr/bin/
 cp -rf ${basepwd}/utils/hid/{k-*,rev-*.py} kali-$architecture/usr/bin/
 
@@ -448,8 +444,8 @@ cp -rf ${basepwd}/menu/kalimenu kali-$architecture/usr/bin/kalimenu
 sleep 5
 
 # Set permissions to executable on newly added scripts
-#LANG=C chroot kali-$architecture chmod 755 /usr/bin/kalimenu /usr/bin/firstrun /opt/badandroid/cleanup.sh /opt/badandroid/bad.sh
-LANG=C chroot kali-$architecture chmod 755 /usr/bin/kalimenu /opt/badandroid/cleanup.sh /opt/badandroid/bad.sh
+#LANG=C chroot kali-$architecture chmod 755 /usr/bin/kalimenu /usr/bin/firstrun 
+LANG=C chroot kali-$architecture chmod 755 /usr/bin/kalimenu 
 
 # Sets the default for hostapd.conf but not really needed as evilap will create it's own now
 #sed -i 's#^DAEMON_CONF=.*#DAEMON_CONF=/etc/hostapd/hostapd.conf#' kali-$architecture/etc/init.d/hostapd
