@@ -13,7 +13,7 @@ fi
 
 if  ! grep -qr init.d /tmp/ramdisk/*; then
    echo "" >> /tmp/ramdisk/init.rc
-   echo "service userinit /system/xbin/busybox run-parts /system/etc/init.d" >> /tmp/ramdisk/init.rc
+   echo "service userinit /data/local/bin/busybox run-parts /system/etc/init.d" >> /tmp/ramdisk/init.rc
    echo "    oneshot" >> /tmp/ramdisk/init.rc
    echo "    class late_start" >> /tmp/ramdisk/init.rc
    echo "    user root" >> /tmp/ramdisk/init.rc
