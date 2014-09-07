@@ -1,16 +1,31 @@
 #!/sbin/sh
-echo "console=ttyHSL0,115200,n8 androidboot.hardware=hammerhead user_debug=31 maxcpus=2 msm_watchdog_v2.enable=1" > /tmp/cmdline.cfg
 
-chmod 775 /tmp/mkbootimg
-/tmp/mkbootimg --kernel /tmp/kernel --ramdisk /tmp/ramdisk.lz4 --cmdline "$(cat /tmp/cmdline.cfg)" --base 0x00000000 --pagesize 2048 --ramdisk_offset 0x02900000 --tags_offset 0x02700000 --output /tmp/boot.img
+mkdir /tmp/ramdisk
+cp /tmp/boot.img-ramdisk.gz /tmp/ramdisk/
+cd /tmp/ramdisk/
+gunzip -c /tmp/ramdisk/boot.img-ramdisk.gz | cpio -i
+rm /tmp/ramdisk/boot.img-ramdisk.gz
+rm /tmp/boot.img-ramdisk.gz
 
-if [ -f /tmp/boot.img ]; then
-	echo "boot.img created" | tee /dev/kmsg
-else
-	echo "boot.img failed to create!" | tee /dev/kmsg
-	exit 0;
+if [ $(grep -c "mount tmpfs tmpfs /storage mode=0050,uid=0,gid=1028" /tmp/ramdisk/init.rc) == 0 ]; then
+   sed -i "/mkdir \/mnt\/asec/i\ \ \ \ mount tmpfs tmpfs /storage mode=0050,uid=0,gid=1028" /tmp/ramdisk/init.rc
 fi
 
-dd if=/tmp/boot.img of=/dev/block/platform/msm_sdcc.1/by-name/boot || exit 1;
-echo "boot.img installed" | tee /dev/kmsg
-rm -rf /tmp/*
+if  ! grep -qr init.d /tmp/ramdisk/*; then
+   echo "" >> /tmp/ramdisk/init.rc
+   echo "service userinit /system/xbin/busybox run-parts /system/etc/init.d" >> /tmp/ramdisk/init.rc
+   echo "    oneshot" >> /tmp/ramdisk/init.rc
+   echo "    class late_start" >> /tmp/ramdisk/init.rc
+   echo "    user root" >> /tmp/ramdisk/init.rc
+   echo "    group root" >> /tmp/ramdisk/init.rc
+fi
+
+find . | cpio -o -H newc | gzip > /tmp/boot.img-ramdisk.gz
+rm -r /tmp/ramdisk
+
+echo "console=ttyHSL0,115200,n8 androidboot.hardware=hammerhead user_debug=31 maxcpus=2 msm_watchdog_v2.enable=1" > /tmp/cmdline.cfg
+
+echo \#!/sbin/sh > /tmp/createnewboot.sh
+echo /tmp/mkbootimg --kernel /tmp/kernel --ramdisk /tmp/boot.img-ramdisk.gz --cmdline \"$(cat /tmp/cmdline.cfg)\" --base 0x$(cat /tmp/boot.img-base) --pagesize 2048 --ramdisk_offset 0x02900000 --tags_offset 0x02700000 --output /tmp/newboot.img >> /tmp/createnewboot.sh
+chmod 777 /tmp/createnewboot.sh
+/tmp/createnewboot.sh
