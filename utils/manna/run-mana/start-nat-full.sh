@@ -1,6 +1,6 @@
 upstream=wlan0
 phy=wlan1
-conf=/sdcard/htdocs/files/hostapd-karma.conf
+conf=/sdcard/files/hostapd-karma.conf
 hostapd=../hostapd-manna/hostapd/hostapd
 
 hostname WRT54G
@@ -20,7 +20,7 @@ sleep 5
 ifconfig $phy 10.0.0.1 netmask 255.255.255.0
 route add -net 10.0.0.0 netmask 255.255.255.0 gw 10.0.0.1
 
-dhcpd -cf /sdcard/htdocs/files/dhcpd.conf $phy
+dhcpd -cf /sdcard/files/dhcpd.conf $phy
 
 echo '1' > /proc/sys/net/ipv4/ip_forward
 iptables --policy INPUT ACCEPT

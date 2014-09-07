@@ -1,5 +1,5 @@
 phy=wlan0
-conf=/sdcard/htdocs/files/hostapd-karma.conf
+conf=/sdcard/files/hostapd-karma.conf
 hostapd=../hostapd-manna/hostapd/hostapd
 
 hostname WRT54G
@@ -20,8 +20,8 @@ sleep 5
 ifconfig $phy 10.0.0.1 netmask 255.255.255.0
 route add -net 10.0.0.0 netmask 255.255.255.0 gw 10.0.0.1
 
-dhcpd -cf /sdcard/htdocs/files/dhcpd.conf $phy
-dnsspoof -i $phy -f /sdcard/htdocs/files/dnsspoof.conf&
+dhcpd -cf /sdcard/files/dhcpd.conf $phy
+dnsspoof -i $phy -f /sdcard/files/dnsspoof.conf&
 service apache2 start
 service stunnel4 start
 tinyproxy -c conf/tinyproxy.conf&

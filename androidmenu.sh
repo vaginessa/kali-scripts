@@ -533,6 +533,7 @@ mkdir -p ${basedir}/flash/system/lib/modules
 # Add Webinterface
 
 cp -rf ${basepwd}/utils/config/htdocs.tar.gz ${basedir}/flash/data/tmp_kali
+cp -rf ${basepwd}/utils/config/files.tar.gz ${basedir}/flash/data/tmp_kali
 
 # Add Android applications that are useful to our chroot enviornment
 # Required: Terminal application is required
