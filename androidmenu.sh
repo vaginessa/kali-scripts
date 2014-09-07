@@ -393,7 +393,6 @@ else
 fi
 
 # Copy over our kali specific mana config files
-cp -rf ${basepwd}/utils/manna/mana ${basedir}/kali-$architecture/usr/bin/
 cp -rf ${basepwd}/utils/manna/start-mana ${basedir}/kali-$architecture/usr/bin/
 cp -rf ${basepwd}/utils/manna/stop-mana ${basedir}/kali-$architecture/usr/bin/
 cp -rf ${basepwd}/utils/manna/run-mana/*  ${basedir}/kali-$architecture/root/mana/run-mana/
