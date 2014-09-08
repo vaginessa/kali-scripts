@@ -1,17 +1,12 @@
 #!/sbin/sh
-
 mkdir /tmp/ramdisk
-cp /tmp/initrd.img /tmp/ramdisk/initrd.gz
+cp /tmp/boot.img-ramdisk.gz /tmp/ramdisk/
 cd /tmp/ramdisk/
-gunzip -c /tmp/ramdisk/initrd.gz | cpio -i
-rm /tmp/ramdisk/initrd.gz
-rm /tmp/initrd.img
+gunzip -c /tmp/ramdisk/boot.img-ramdisk.gz | cpio -i
+rm /tmp/ramdisk/boot.img-ramdisk.gz
+rm /tmp/boot.img-ramdisk.gz
 
-if [ $(grep -c "mount tmpfs tmpfs /storage mode=0050,uid=0,gid=1028" /tmp/ramdisk/init.rc) == 0 ]; then
-   sed -i "/mkdir \/mnt\/asec/i\ \ \ \ mount tmpfs tmpfs /storage mode=0050,uid=0,gid=1028" /tmp/ramdisk/init.rc
-fi
-
-if [ !$(grep -qr "init.d" /tmp/ramdisk/*) ]; then
+if  ! grep -qr init.d /tmp/ramdisk/*; then
    echo "" >> /tmp/ramdisk/init.rc
    echo "service userinit /data/local/bin/busybox run-parts /system/etc/init.d" >> /tmp/ramdisk/init.rc
    echo "    oneshot" >> /tmp/ramdisk/init.rc
@@ -20,4 +15,5 @@ if [ !$(grep -qr "init.d" /tmp/ramdisk/*) ]; then
    echo "    group root" >> /tmp/ramdisk/init.rc
 fi
 
-find . | cpio -o -H newc | gzip > /tmp/initrd.img
+find . | cpio -o -H newc | gzip > /tmp/boot.img-ramdisk.gz
+rm -r /tmp/ramdisk
