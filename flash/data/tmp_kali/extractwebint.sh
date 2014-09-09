@@ -18,3 +18,8 @@ rm -rf /data/local/kali-armhf/etc/dhcp/dhcpd.conf
 mkdir -p /data/local/kali-armhf/etc/dhcp/
 cd /data/local/kali-armhf/etc/dhcp/
 ln -s /sdcard/files/dhcpd.conf dhcpd.conf
+
+cd /data/local/kali-armhf/var/www/portal
+mv /sdcard/files/powersploit-payload /data/local/kali-armhf/var/www/portal/payload
+chmod 755 /data/local/kali-armhf/var/www/portal/payload
+
