@@ -26,3 +26,8 @@ if [ $(getprop ro.product.device) == "grouper" ]; then
 	cp /tmp/mantawallpaper /data/system/users/0/wallpaper
 	chmod 777 /data/system/users/0/wallpaper
 fi
+
+if [ $(getprop ro.product.device) == "tilapia" ]; then
+	cp /tmp/mantawallpaper /data/system/users/0/wallpaper
+	chmod 777 /data/system/users/0/wallpaper
+fi
