@@ -3,16 +3,4 @@ killall dnsmasq 2>/dev/null
 echo 0 > /sys/class/android_usb/android0/enable
 echo mtp,adb > /sys/class/android_usb/android0/functions
 echo 1 > /sys/class/android_usb/android0/enable
-
-iptables -F
-iptables -X
-iptables -t nat -F
-iptables -t nat -X
-iptables -t mangle -F
-iptables -t mangle -X
-iptables -P INPUT ACCEPT
-iptables -P FORWARD ACCEPT
-iptables -P OUTPUT ACCEPT
-
-echo 0 > /proc/sys/net/ipv4/ip_forward
-
+iptables-flush
