@@ -7,7 +7,7 @@ hostname WRT54G
 echo hostname WRT54G
 sleep 2
 
-service network-manager stop
+#service network-manager stop
 rfkill unblock wlan
 
 ifconfig $phy down
