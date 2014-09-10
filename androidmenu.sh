@@ -226,13 +226,13 @@ f_check_crosscompile
 # Package installations for various sections.
 
 arm="abootimg cgpt fake-hwclock ntpdate vboot-utils vboot-kernel-utils uboot-mkimage"
-base="kali-menu kali-defaults initramfs-tools usbutils openjdk-7-jre"
+base="kali-menu kali-defaults initramfs-tools usbutils openjdk-7-jre mlocate"
 desktop="kali-defaults kali-root-login desktop-base xfce4 xfce4-places-plugin xfce4-goodies"
 # Build slimmer images for testing
 tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-ng wipe socat ettercap-text-only beef-xss set"
 wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet dnsmasq wvdial dsniff sslstrip"
 services="autossh openssh-server tightvncserver lighttpd apache2 postgresql openvpn php5-fpm php5"
-extras="wpasupplicant zip macchanger dbd florence libffi-dev python-setuptools python-pip"
+extras="wpasupplicant zip macchanger dbd florence libffi-dev python-setuptools python-pip hostapd"
 mana="python-twisted python-dnspython libnl1 libnl-dev libssl-dev sslsplit python-pcapy tinyproxy isc-dhcp-server rfkill"
 spiderfoot="python-lxml python-m2crypto python-netaddr python-mako"
 sdr="sox librtlsdr"

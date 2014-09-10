@@ -23,3 +23,5 @@ cd /data/local/kali-armhf/var/www/portal
 cp /sdcard/files/powersploit-payload /data/local/kali-armhf/var/www/portal/payload
 chmod 755 /data/local/kali-armhf/var/www/portal/payload
 
+cd /data/local/kali-armhf/etc/hostapd
+ln -s /sdcard/files/hostapd.conf hostapd.conf
