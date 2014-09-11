@@ -293,7 +293,7 @@ fi
 
 # Install Local files
 cp -rf ${basepwd}/utils/s kali-$architecture/usr/bin/
-cp -rf ${basepwd}/utils/hid/{k-*,rev-*} kali-$architecture/usr/bin/
+cp -rf ${basepwd}/utils/hid/* kali-$architecture/usr/bin/
 
 cat << EOF > kali-$architecture/etc/network/interfaces
 auto lo
