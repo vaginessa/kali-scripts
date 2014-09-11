@@ -8,9 +8,9 @@ clear
 echo "			KALI ANDROID QUICK MENU"
 echo ""
 echo ""
-echo "[1]	Wireless Attacks	[6]	Vulnerability Analysis"
+echo "[1]	Wireless Attacks	[6]	Vulnerability Scan"
 echo "[2]	Sniffing/Spoofing	[7]	Exploitation Tools"
-echo "[3]	SDR			[8]	Reverse Engineering"
+echo "[3]	SDR					[8]	Reverse Engineering"
 echo "[4]	Reverse Shells		[9]	USB Attacks"
 echo "[5]	Info Gathering		"
 echo ""
@@ -673,9 +673,6 @@ esac
 }
 
 f_server_key(){
-echo "Checking Dependencies"
-sleep 3
-apt-get update
 cd /etc/openvpn
 echo "Removing previous server..."
 rm -rf easy-rsa
@@ -798,23 +795,21 @@ f_settings(){
 clear
 echo "				SETTINGS"
 echo ""
-echo "[1] Change Start Up Settings"
-echo "[2] Configure Timezone"
-echo "[3] Change VNC Password"
-echo "[4] Create Metasploit User and Database"
-echo "[5] Macchanger"
-echo "[6] Install NodeJS"
+echo "[1] Configure Timezone"
+echo "[2] Change VNC Password"
+echo "[3] Create Metasploit User and Database"
+echo "[4] Macchanger"
+echo "[5] Install NodeJS"
 echo "[0] Exit to main menu"
 echo ""
 read -p "Choice:" settingschoice
 
 case $settingschoice in
-1) clear; f_startup ;;
-2) clear; dpkg-reconfigure tzdata ;;
-3) clear; echo "Change your VNC password:"; vncpasswd ;;
-4) clear; f_msuser ;;
-5) clear; f_macchanger ;;
-6) clear; f_nodejs ;;
+1) clear; dpkg-reconfigure tzdata ;;
+2) clear; echo "Change your VNC password:"; vncpasswd ;;
+3) clear; f_msuser ;;
+4) clear; f_macchanger ;;
+5) clear; f_nodejs ;;
 0) f_interface ;;
 *) echo "Incorrect choice..." ;
 esac
@@ -830,58 +825,6 @@ sleep 5
 nvm install 0.11.11
 rm -rf ~/.nvm
 rm -rf /tmp/install.sh
-f_settings
-}
-
-f_startup(){
-configfile=/root/.firstrun.option
-if [ -e "$configfile" ]; then
-	source $configfile
-else
-	echo "Start up settings not found, exiting to settings menu"
-	sleep 5
-	f_settings
-fi
-clear
-if [ "$sshonboot" == "1" ]; then
-	echo "[X] SSH Set to start up boot"
-	read -p "Turn SSH OFF on boot? (y/n): " sshoffboot
-	if [ "$sshoffboot" == "y" ]; then 
-		sed -i '/sshonboot=1/d' $configfile
-		echo "sshonboot=0" >> $configfile
-	fi
-	echo "SSH will not load on boot"
-	sleep 3
-else
-	echo "[ ] SSH Not set to start on boot"
-	read -p "START SSH on boot? (y/n): " sshonboot
-	if [ "$sshonboot" == "y" ]; then
-		sed -i '/sshonboot=0/d' $configfile 
-		echo "sshonboot=1" >> $configfile
-	fi
-	echo "SSH will load on boot"
-	sleep 3
-fi
-
-if [ "$vnconboot" == "1" ]; then
-	echo "[X] VNC Set to start up on boot"
-	read -p "Turn VNC OFF on boot? (y/n): " vncoffboot
-	if [ "$vncoffboot" == "y" ]; then 
-		sed -i '/vnconboot=1/d' $configfile 
-		echo "vnconboot=0" >> $configfile
-	fi
-	echo "VNC will not load on boot"
-	sleep 3
-else
-	echo "[ ] VNC Not set to start on boot"
-	read -p "START VNC on boot? (y/n): " vnconboot
-	if [ "$vnconboot" == "y" ]; then 
-		sed -i '/vnconboot=0/d' $configfile 
-		echo "vnconboot=1" >> $configfile
-	fi
-	echo "VNC will load on boot"
-	sleep 3
-fi
 f_settings
 }
 
