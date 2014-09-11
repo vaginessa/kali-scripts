@@ -365,6 +365,7 @@ sed -i 's/gpshost=localhost:2947/gpshost=127.0.0.1:2947/g' kali-$architecture/et
 # Copy over our kali specific mana config files
 cp -rf ${basepwd}/utils/manna/start-mana ${basedir}/kali-$architecture/usr/bin/
 cp -rf ${basepwd}/utils/manna/stop-mana ${basedir}/kali-$architecture/usr/bin/
+cp -rf ${basepwd}/utils/manna/start-nat-full-mod.sh ${basedir}/kali-$architecture/usr/share/mana-toolkit/run-mana/
 
 # Install HoneyProxy (MITM SSL Proxy Analyzer)
 LANG=C chroot kali-$architecture pip install Autobahn==0.6.5
