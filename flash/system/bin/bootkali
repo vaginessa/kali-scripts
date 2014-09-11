@@ -19,7 +19,8 @@ export LOGNAME=root
 #########  MOUNT ######### 
 if [ "$($busybox mountpoint $mnt/dev)" == "$mnt/dev is a mountpoint" ]; then
 	# Files exist in /dev so we can assume its mounted and we have root
-	echo "Detected mounted folders"
+	clear
+	echo "Loaded Kali shell"
 	$busybox chroot $mnt /bin/bash -l
 else
 	f_checkforroot

@@ -381,6 +381,10 @@ fastcgi.server += (
         ))
 )
 EOF
+
+# Apache2 Fix defaults to localhost
+#echo 'ServerName localhost' >> kali-$architecture/etc/apache2/apache2.conf
+
 LANG=C chroot kali-$architecture lighty-enable-mod fastcgi-php
 LANG=C chroot kali-$architecture chown -R www-data:www-data /var/www
 
@@ -425,6 +429,11 @@ cat << EOF > ${basedir}/kali-$architecture/opt/honeyproxy/default.conf
 -T
 #-p port
 EOF
+
+# Install Dictionary for wifite
+
+mkdir -p ${basedir}/kali-$architecture/opt/dic
+tar xvf ${basepwd}/utils/dic/89.tar.gz -C ${basedir}/kali-$architecture/opt/dic
 
 # Install Spiderfoot
 # Cherrypy is newer in pip then in repo so we need to use that instead.  All other depend are fine.
