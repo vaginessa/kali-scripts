@@ -1,6 +1,11 @@
 #!/bin/bash
-killall sslsplit; killall python; killall hostapd
-/sbin/iptables --policy INPUT ACCEPT
-/sbin/iptables --policy FORWARD ACCEPT
-/sbin/iptables --policy OUTPUT ACCEPT
-/sbin/iptables -t nat -F
+killall sslsplit; killall python; killall hostapd; killall dhcpd
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -P OUTPUT ACCEPT

@@ -19,9 +19,8 @@ mkdir -p /data/local/kali-armhf/etc/dhcp/
 cd /data/local/kali-armhf/etc/dhcp/
 ln -s /sdcard/files/dhcpd.conf dhcpd.conf
 
-cd /data/local/kali-armhf/var/www/portal
-cp /sdcard/files/powersploit-payload /data/local/kali-armhf/var/www/portal/payload
-chmod 755 /data/local/kali-armhf/var/www/portal/payload
+cp /sdcard/files/powersploit-payload /data/local/kali-armhf/var/www/payload
+chmod 755 /data/local/kali-armhf/var/www/payload
 
 cd /data/local/kali-armhf/etc/hostapd
 ln -s /sdcard/files/hostapd.conf hostapd.conf

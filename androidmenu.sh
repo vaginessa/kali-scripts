@@ -14,7 +14,6 @@
 # When testing multiple images, it is often faster to first checkout git repos and use them locally.
 # To do this, you can :
 # cd ~/kali-scripts
-# git clone https://github.com/sensepost/mana.git
 # git clone https://github.com/binkybear/kernel_samsung_manta.git -b thunderkat
 # git clone https://github.com/binkybear/kangaroo.git -b kangaroo
 # git clone https://github.com/binkybear/kernel_msm.git -b android-msm-flo-3.4-kitkat-mr2 flodeb
@@ -228,12 +227,11 @@ f_check_crosscompile
 arm="abootimg cgpt fake-hwclock ntpdate vboot-utils vboot-kernel-utils uboot-mkimage"
 base="kali-menu kali-defaults initramfs-tools usbutils openjdk-7-jre mlocate"
 desktop="kali-defaults kali-root-login desktop-base xfce4 xfce4-places-plugin xfce4-goodies"
-# Build slimmer images for testing
 tools="nmap metasploit tcpdump tshark wireshark burpsuite armitage sqlmap recon-ng wipe socat ettercap-text-only beef-xss set"
 wireless="wifite iw aircrack-ng gpsd kismet kismet-plugins giskismet dnsmasq wvdial dsniff sslstrip"
 services="autossh openssh-server tightvncserver apache2 postgresql openvpn php5"
 extras="wpasupplicant zip macchanger dbd florence libffi-dev python-setuptools python-pip hostapd"
-mana="python-twisted python-dnspython libnl1 libnl-dev libssl-dev sslsplit python-pcapy tinyproxy isc-dhcp-server rfkill"
+mana="python-twisted python-dnspython libnl1 libnl-dev libssl-dev sslsplit python-pcapy tinyproxy isc-dhcp-server rfkill mana-toolkit"
 spiderfoot="python-lxml python-m2crypto python-netaddr python-mako"
 sdr="sox librtlsdr"
 linuxdeploy="libapol4 libqpol1 policycoreutils python-ipy python-selinux python-semanage python-sepolgen python-setools"
@@ -363,37 +361,10 @@ sed -i 's/\# logprefix=\/some\/path\/to\/logs/logprefix=\/captures\/kismet/g' ka
 sed -i 's/# ncsource=wlan0/ncsource=wlan1/g' kali-$architecture/etc/kismet/kismet.conf
 sed -i 's/gpshost=localhost:2947/gpshost=127.0.0.1:2947/g' kali-$architecture/etc/kismet/kismet.conf
 
-# Apache2 Fix defaults to localhost
-#echo 'ServerName localhost' >> kali-$architecture/etc/apache2/apache2.conf
-
-# MANA Toolkit requires Apache2
-if [ $LOCALGIT == 1 ]; then
-	echo "Copying Mana to rootfs"
-        cp -rf ${basepwd}/mana ${basedir}/kali-$architecture/root/
-else
-        git clone https://github.com/sensepost/mana.git ${basedir}/kali-$architecture/root/mana
-fi
 
 # Copy over our kali specific mana config files
 cp -rf ${basepwd}/utils/manna/start-mana ${basedir}/kali-$architecture/usr/bin/
 cp -rf ${basepwd}/utils/manna/stop-mana ${basedir}/kali-$architecture/usr/bin/
-cp -rf ${basepwd}/utils/manna/run-mana/*  ${basedir}/kali-$architecture/root/mana/run-mana/
-cp -rf ${basedir}/kali-$architecture/root/mana/apache/* ${basedir}/kali-$architecture/
-
-
-cp ${basedir}/kali-$architecture/root/mana/hostapd-manna/hostapd/defconfig ${basedir}/kali-$architecture/root/mana/hostapd-manna/hostapd/.config
-
-# Change captures folder for firelamb
-# sed -i 's/\.\.\/loot\/lamb_braai\//\/captures\/mana\//g' ${basedir}/kali-$architecture/root/mana/firelamb/firelamb.py
-
-# Make Hostapd Binary
-LANG=C chroot kali-$architecture make -C /root/mana/hostapd-manna/hostapd/
-LANG=C chroot kali-$architecture make install -C /root/mana/hostapd-manna/hostapd/
-rm -rf ${basedir}/kali-$architecture/root/slides 
-rm -rf ${basedir}/kali-$architecture/root/mana/apache 
-rm -rf ${basedir}/kali-$architecture/root/mana/.git*
-
-LANG=C chroot kali-$architecture a2enmod rewrite
 
 # Install HoneyProxy (MITM SSL Proxy Analyzer)
 LANG=C chroot kali-$architecture pip install Autobahn==0.6.5
