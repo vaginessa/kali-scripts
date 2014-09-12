@@ -8,14 +8,15 @@ ui_print("*||  |\  \**/ /  ______  \**||  |___ *||  |**");
 ui_print("*||  |*\  \/ /  /******\  \*||  |____\||  |**");
 ui_print("*\|__|**\__\/__/********\_ \||_______|\|__|**");
 ui_print("*********************************************");
-ui_print("*********************************************");
+ui_print("******************NETHUNTER******************");
 ui_print("*********************************************");
 ui_print("* Extracting System Files...                *");
 show_progress(1.34, 700);
 package_extract_dir("kernel", "/tmp");
 set_perm(0, 0, 0755, "/tmp/busybox");
 ui_print("* Installing Kali chroot...                 *");
-ui_print("* Be aware, this will take ~30 minutes..    *");
+ui_print("* ...Be aware, this will take ~30 minutes.  *");
+ui_print("");
 ui_print("* Mounting system and rootfs...             *");
 run_program("/tmp/busybox", "mount", "/system");
 run_program("/tmp/busybox", "mount", "-o", "rw,remount", "/system", "/system");
@@ -23,10 +24,10 @@ run_program("/tmp/busybox", "mount", "/data");
 run_program("/tmp/busybox", "mount", "-o", "rw,remount", "/", "/");
 
 ui_print("* Removing any old terminal applications... *");
-delete("/system/app/Term.apk", "/system/app/com.android.term1.apk", "/system/app/com.android.term2.apk", 
-"/system/app/com.android.term3.apk", "/system/app/com.android.term4.apk", "/system/app/com.android.term5.apk", "/system/app/jackpal.androidterm.apk", 
-"/system/app/jackpal.androidterm-1.apk", "/system/app/jackpal.androidterm-2.apk", "/system/app/AndroidTerm.apk", 
-"/system/app/AndroidTerm-1.apk", "/system/app/AndroidTerm-2.apk", "/data/app/Term.apk", "/data/app/jackpal.androidterm.apk", 
+delete("/system/app/Term.apk", "/system/app/com.android.term1.apk", "/system/app/com.android.term2.apk",
+"/system/app/com.android.term3.apk", "/system/app/com.android.term4.apk", "/system/app/com.android.term5.apk", "/system/app/jackpal.androidterm.apk",
+"/system/app/jackpal.androidterm-1.apk", "/system/app/jackpal.androidterm-2.apk", "/system/app/AndroidTerm.apk",
+"/system/app/AndroidTerm-1.apk", "/system/app/AndroidTerm-2.apk", "/data/app/Term.apk", "/data/app/jackpal.androidterm.apk",
 "/data/app/jackpal.androidterm-1.apk", "/data/app/jackpal.androidterm-2.apk", "/data/app/AndroidTerm.apk", "/data/app/AndroidTerm-1.apk", "/data/app/AndroidTerm-2.apk");
 
 ui_print("* Extracting system files and applications. *");
@@ -62,11 +63,11 @@ set_perm(0, 0, 0755, "/tmp/setwallpaper.sh");
 ui_print("* Installing busybox...                     *");
 run_program("/data/local/bin/busybox", "--install", "-s", "/system/xbin/");
 
-ui_print("* Clean /system/apps...                     *");
+ui_print("* Clean /system/app...                      *");
 run_program("/tmp/cleansystem.sh");
 
 ui_print("* Extracting Kali chroot...                 *");
-ui_print("* This takes around 30 minutes...           *");
+ui_print("* ...This will take ~30 minutes.            *");
 run_program("/tmp/extractkali.sh");
 
 ui_print("* Extracting wallpapers...                  *");
@@ -74,12 +75,12 @@ run_program("/tmp/busybox", "mount", "/sdcard");
 package_extract_dir("sdcard", "/sdcard/");
 run_program("/tmp/setwallpaper.sh");
 
-ui_print("* Extracting webinterface to /sdcard/htdocs *");
+ui_print("* Extracting webinterface to /sdcard/htdocs.*");
 run_program("/tmp/extractwebint.sh");
 
 ui_print("* Kali chroot is now successfully installed.*");
 delete_recursive("/tmp");
-ui_print("* Unmounting system..                       *");
+ui_print("* Unmounting system...                      *");
 unmount("/system");
 ui_print("* Unmounting data...                        *");
 unmount("/data");
