@@ -11,7 +11,7 @@ echo ""
 echo "[1]	Wireless Attacks	[6]	Vulnerability Scan"
 echo "[2]	Sniffing/Spoofing	[7]	Exploitation Tools"
 echo "[3]	SDR					[8]	Reverse Engineering"
-echo "[4]	Reverse Shells		[9]	USB Attacks"
+echo "[4]	Reverse Shells		[9]	OpenVPN Setup"
 echo "[5]	Info Gathering		"
 echo ""
 echo "[10]	Settings"
@@ -34,7 +34,7 @@ case $menuchoice in
 6) clear; f_vulnerability ;;
 7) clear; f_exploitation ;;
 8) clear; f_reverse_engineering ;;
-9) clear; f_hid ;;
+9) clear; f_vpnmenu ;;
 10) clear; f_settings ;;
 11) clear; f_services ;;
 q) clear; exit 1 ;;
@@ -551,25 +551,6 @@ f_ptunnel(){
 f_reverse
 }
 
-########################## USB HID MENU ###############################
-f_hid(){
-clear
-echo "				USB HID MENU"
-echo ""
-echo ""
-echo "[1] Start BadAndroid"
-echo "[2] Stop BadAndroid"
-echo "[0] Exit to main menu"
-echo ""
-read -p "Choice: " serviceschoice
-
-case $serviceschoice in
-1) clear; badusb ;;
-2) clear; badusb-clear ;;
-0) f_interface ;;
-*) echo "Incorrect choice..." ;
-esac
-}
 ########################## SERVICES MENU ###############################
 f_services(){
 clear
@@ -577,10 +558,12 @@ echo "				SERVICES"
 echo ""
 echo ""
 echo "[1] Start SSH Server"
-echo "[2] Start VNC Server"
-echo "[3] Kill all VNC instances (remove pid/logs)"
-echo "[4] Start XServer on localhost (Android Applicaiton XServer XSDL)"
-echo "[5] Create/Start VPN Server"
+echo "[2] Stop SSH Server"
+echo "[3] Start VNC Server"
+echo "[4] Kill all VNC instances (remove pid/logs)"
+echo "[5] Start XServer on localhost (Android Applicaiton XServer XSDL)"
+echo "[6] Start OpenVPN Server"
+echo "[7] Stop OpenVPN Server"
 echo ""
 echo "[0] Exit to main menu"
 echo ""
@@ -588,10 +571,12 @@ read -p "Choice: " serviceschoice
 
 case $serviceschoice in
 1) clear; f_ssh ;;
-2) clear; f_vncstart ;;
-3) clear; f_vnckill ;;
-4) clear; DISPLAY=127.0.0.1:0.0 startxfce4; echo "Server started on localhost to be used with Xserver XSDL application" ;;
-5) clear; f_vpnmenu ;;
+2) clear; service ssh stop ;;
+3) clear; f_vncstart ;;
+4) clear; f_vnckill ;;
+5) clear; DISPLAY=127.0.0.1:0.0 startxfce4; echo "Server started on localhost to be used with Xserver XSDL application" ;;
+6) clear; f_startvpn ;;
+7) clear; service openvpn stop ; iptables -F ; iptables -X ; echo "Stopping Openvpn" ;;
 0) f_interface ;;
 *) echo "Incorrect choice..." ;
 esac
@@ -651,11 +636,12 @@ f_vnckill(){
 
 f_vpnmenu(){
 clear
-echo "[1] Build VPN Server Keys (will remove previous old keys)"
-echo "[2] Use custom domain or dynamic DNS"
+echo "				OPENVPN MAIN MENU"
+echo ""
+echo ""
+echo "[1] Generate VPN Server Keys *will remove previous old keys"
+echo "[2] Generate Client Keys"
 echo "[3] Export Client Keys to sdcard"
-echo "[4] Start VPN Server"
-echo "[5] Stop VPN Server"
 echo ""
 echo "[0] Exit to Settings Menu"
 echo -n "Enter your menu choice [1-6]: "
@@ -665,8 +651,6 @@ case $vpnkeychoice in
 1) f_server_key ;;
 2) f_domain_clientkey ;;
 3) f_exportkeys ;;
-4) f_startvpn ;;
-5) service openvpn stop ; iptables -F ; iptables -X ; echo "Stopping Openvpn" ;;
 0) f_settings ;;
 *) echo "Incorrect choice..." ;
 esac
