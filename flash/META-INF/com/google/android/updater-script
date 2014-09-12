@@ -10,13 +10,13 @@ ui_print("*\|__|**\__\/__/********\_ \||_______|\|__|**");
 ui_print("*********************************************");
 ui_print("*********************************************");
 ui_print("*********************************************");
-ui_print("* Extracting System Files...                *");
+ui_print("* Extracting system files...                *");
 show_progress(1.34, 700);
 package_extract_dir("kernel", "/tmp");
 set_perm(0, 0, 0755, "/tmp/busybox");
 ui_print("* Installing Kali chroot...                 *");
-ui_print("* ...Be aware, this will take ~30 minutes.  *");
 ui_print("");
+
 ui_print("* Mounting system and rootfs...             *");
 run_program("/tmp/busybox", "mount", "/system");
 run_program("/tmp/busybox", "mount", "-o", "rw,remount", "/system", "/system");
@@ -40,7 +40,7 @@ package_extract_dir("data/local", "/data/local");
 package_extract_dir("data/app", "/data/app");
 package_extract_dir("data/tmp_kali", "/tmp");
 
-ui_print("* Symlink Webserver...                      *");
+ui_print("* Symlink webserver...                      *");
 symlink("/system/xbin/lighttpd-static", "/system/bin/lighttpd");
 symlink("/system/xbin/php-cgi", "/system/bin/php");
 
@@ -60,10 +60,10 @@ set_perm(0, 0, 0755, "/tmp/extractwebint.sh");
 set_perm(0, 0, 0755, "/tmp/cleansystem.sh");
 set_perm(0, 0, 0755, "/tmp/setwallpaper.sh");
 
-ui_print("* Installing busybox...                     *");
+ui_print("* Installing BusyBox...                     *");
 run_program("/data/local/bin/busybox", "--install", "-s", "/system/xbin/");
 
-ui_print("* Clean /system/app...                      *");
+ui_print("* Cleaning /system/app...                   *");
 run_program("/tmp/cleansystem.sh");
 
 ui_print("* Extracting Kali chroot...                 *");
@@ -78,7 +78,11 @@ run_program("/tmp/setwallpaper.sh");
 ui_print("* Extracting webinterface to /sdcard/htdocs.*");
 run_program("/tmp/extractwebint.sh");
 
+ui_print("");
 ui_print("* Kali chroot is now successfully installed.*");
+ui_print("");
+
+ui_print("* Cleaning up...                            *");
 delete_recursive("/tmp");
 ui_print("* Unmounting system...                      *");
 unmount("/system");
