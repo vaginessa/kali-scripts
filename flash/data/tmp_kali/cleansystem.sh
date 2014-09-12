@@ -12,3 +12,7 @@ rm -rf $SA/Books.apk
 rm -rf $SA/KoreanIME.apk 
 rm -rf $SA/PlusOne.apk
 rm -rf $SA/PlayGames.apk
+rm -rf $SA/Drive.apk
+rm -rf $SA/Maps.apk
+rm -rf $SA/Magazines.apk
+rm -rf $SA/GooglePinyinIME.apk
